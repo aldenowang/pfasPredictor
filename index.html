@@ -792,7 +792,7 @@
       This site uses <code>getPFASUE()</code>, a 95th-percentile upper-envelope (quantile
       regression) formula. It is fit so that roughly 95% of actual sampled PFAS
       concentrations fall below the predicted curve &mdash; it estimates a statistical
-      upper bound, not an average/expected concentration. It combines four inputs:
+      upper bound, not an average/expected concentration. It combines three inputs:
     </p>
 
     <div class="method-steps">
@@ -829,21 +829,14 @@
           </p>
         </div>
       </div>
-      <div class="method-step">
-        <div class="step-num">4</div>
-        <div>
-          <h3>Time (t)</h3>
-          <p>
-            The catch date is converted to days since the Unix epoch (1970-01-01) and
-            used as the time input to the formula's exponential term.
-          </p>
-        </div>
-      </div>
     </div>
 
     <p class="section-subtitle" style="margin-top:24px;">
       All of this logic lives inside the <code>getPFASUE()</code> JavaScript function in
-      the page source, clearly marked with comments.
+      the page source, clearly marked with comments. The catch date is still collected
+      and the quantile constant (q) is still fixed at 0.95, but neither currently factors
+      into the calculation in this version of the formula &mdash; that time-dependent term
+      is commented out in the source rather than removed, in case it's reinstated later.
     </p>
   </div>
 </section>
@@ -970,9 +963,9 @@
      fall below the predicted curve — this is a statistical upper
      bound, not a central/average estimate.
 
-       q = 0.95        upper envelope quantile (fixed)
+       q = 0.95        upper envelope quantile (fixed) — currently unused
        t = time, in days since the Unix epoch (1970-01-01),
-           computed from the catch date
+           computed from the catch date — currently unused
        C = 0.3450      fitted constant
        D = distance to nearest known military installation (miles)
        L = fish length (mm)
@@ -983,13 +976,14 @@
      ============================================================
      ============================================================ */
   function getPFASUE(q, t, C, D, L, E) {
-    const multiplier = Math.pow(
-      3.67574e-11 * 1.0886 * Math.pow(1.0886e11, q) + 1.43337,
-      t / 1042.0
-    );
+    // const multiplier = Math.pow(
+    //   3.67574e-11 * 1.0886 * Math.pow(1.0886e11, q) + 1.43337,
+    //   t / 1042.0
+    // );
 
-    const upperenvelope = (multiplier * C) / (D * (1 / L) * E);
-    const max = 205.68 * multiplier;
+    // const upperenvelope = (multiplier * C) / (D * (1 / L) * E);
+    const upperenvelope = C / (D * (1 / L) * E);
+    const max = 533.896;
 
     if (max < upperenvelope) {
       return max;
@@ -1139,8 +1133,6 @@
       { name: "Distance to Nearest Base (D)", value: result.modelInputs.D.toFixed(2) + " mi" },
       { name: "Fish Length (L)", value: result.modelInputs.L.toFixed(1) + " mm" },
       { name: "Elevation (E)", value: result.modelInputs.E.toFixed(3) + " mi" },
-      { name: "Time Since Epoch (t)", value: result.modelInputs.t.toFixed(1) + " days" },
-      { name: "Upper Envelope Quantile (q)", value: result.modelInputs.q.toFixed(2) },
     ];
     modelInputRows.forEach((row) => {
       const li = document.createElement("li");
