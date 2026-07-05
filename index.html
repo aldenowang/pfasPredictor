@@ -292,6 +292,23 @@
     font-size: 0.9rem;
   }
 
+  .sources-list {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 16px 18px;
+    display: grid;
+    gap: 8px;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .sources-list a {
+    color: var(--color-primary-dark);
+    font-weight: 600;
+  }
+
   /* ==========================================================
      FORM / PREDICTION SECTION
      ========================================================== */
@@ -670,6 +687,23 @@
         </figcaption>
       </figure>
     </div>
+
+    <ul class="sources-list">
+      <li>
+        Left graph data: EPA,
+        <a href="https://www.epa.gov/national-aquatic-resource-surveys/reports-and-data-national-rivers-and-streams-assessment-2018-19" target="_blank" rel="noopener noreferrer">National Rivers and Streams Assessment 2018&ndash;19</a>
+      </li>
+      <li>
+        Right graph data: EPA,
+        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/2022-national-lakes-assessment-fish-tissue-study#results" target="_blank" rel="noopener noreferrer">2022 National Lakes Assessment Fish Tissue Study</a>
+      </li>
+      <li>
+        Military installation coordinates:
+        <a href="https://www.kaggle.com/datasets/mexwell/us-military-bases" target="_blank" rel="noopener noreferrer">US Military Bases (Kaggle, sourced from government data)</a>
+        and
+        <a href="https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FLL" target="_blank" rel="noopener noreferrer">U.S. Bureau of Transportation Statistics</a>
+      </li>
+    </ul>
   </div>
 </section>
 
