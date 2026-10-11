@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PFAS Fish Contamination Risk Predictor</title>
-<meta name="description" content="A research tool that estimates potential PFAS contamination risk in freshwater fish based on location, elevation, and fish size.">
+<meta name="description" content="A research tool that estimates potential PFAS contamination risk in freshwater fish based on distance to military installations and urban areas, elevation, and relative fish length.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -736,8 +736,9 @@
     <h1>Estimating PFAS Contamination Risk in Freshwater Fish</h1>
     <p class="lead">
       This tool uses a predictive research model to estimate the possible risk of PFAS
-      ("forever chemical") contamination in freshwater fish, based on location, elevation,
-      and fish size. It is intended to support research and education around
+      ("forever chemical") contamination in freshwater fish, based on the catch site's distance to the
+      nearest military installation and urban area, its elevation, and the fish's length
+      relative to the average for its species. It is intended to support research and education around
       per- and polyfluoroalkyl substances (PFAS) in aquatic ecosystems.
     </p>
 
@@ -774,11 +775,12 @@
     </p>
     <div class="about-graphs">
       <figure class="graph-card">
-        <img src="images/Screenshot%202026-10-11%20134553.png" alt="Scatter plot of total PFAS (ppb) in USA freshwater fish against the combined elevation, polluter distance, and relative fish length score">
+        <img src="images/Screenshot%202026-10-11%20134553.png" alt="Scatter plot of total PFAS (ppb) in USA freshwater fish against a combined score of elevation, distance to the nearest military base and urban area, and relative fish length">
         <figcaption>
-          Total PFAS (ppb) in USA freshwater fish plotted against the combined elevation,
-          polluter distance, and relative fish length score, showing the rapid C/x-style
-          decay that the upper-envelope model is fit to.
+          Total PFAS (ppb) in USA freshwater fish plotted against a combined score of
+          elevation, polluter distance (nearest military base and nearest urban area), and
+          relative fish length (length &divide; species average), showing the rapid
+          C/x-style decay that the upper-envelope model is fit to.
         </figcaption>
       </figure>
     </div>
@@ -907,7 +909,7 @@
       This site uses <code>getPFASUE()</code>, a 95th-percentile upper-envelope (quantile
       regression) formula. It is fit so that roughly 95% of actual sampled PFAS
       concentrations fall below the predicted curve &mdash; it estimates a statistical
-      upper bound, not an average/expected concentration. It combines three inputs:
+      upper bound, not an average/expected concentration. It combines four inputs:
     </p>
 
     <div class="method-steps">
@@ -927,6 +929,18 @@
       <div class="method-step">
         <div class="step-num">2</div>
         <div>
+          <h3>Proximity to the Nearest Urban Area</h3>
+          <p>
+            Urban areas concentrate many other PFAS sources &mdash; industrial discharge,
+            wastewater treatment plants, landfills, and stormwater runoff. The distance in
+            miles from the site to the nearest urban area is calculated the same way and
+            used as a second polluter-distance input alongside the military-base distance.
+          </p>
+        </div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">3</div>
+        <div>
           <h3>Elevation (E)</h3>
           <p>
             Site elevation above sea level is looked up automatically from the
@@ -938,12 +952,15 @@
         </div>
       </div>
       <div class="method-step">
-        <div class="step-num">3</div>
+        <div class="step-num">4</div>
         <div>
-          <h3>Fish Length (L)</h3>
+          <h3>Relative Fish Length (L)</h3>
           <p>
-            PFAS is known to bioaccumulate over an organism's lifetime. Fish length is
-            used here as a proxy for age/size and is passed directly into the formula.
+            PFAS is known to bioaccumulate over an organism's lifetime, so fish size is used
+            as a proxy for age. Because typical size varies widely between species, the
+            model uses <em>relative</em> length: the fish's length divided by the average
+            length of that same species in the study dataset. A value above 1 means the
+            fish is larger than average for its species.
           </p>
         </div>
       </div>
@@ -971,7 +988,7 @@
     <ul class="limitations-list">
       <li><strong>Upper-bound estimate, not an average:</strong> This model predicts a 95th-percentile (upper envelope) value, meaning most actual measurements are expected to fall below the estimate, not near it. It should not be read as a typical/expected concentration.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
-      <li><strong>Reference data limitations:</strong> The list of military installation coordinates is a static reference set and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site.</li>
+      <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
       <li><strong>Not a substitute for testing:</strong> Only laboratory analysis of actual fish tissue samples can determine real PFAS concentrations.</li>
       <li><strong>Not a health authority:</strong> This tool does not replace guidance from your state Department of Fish and Wildlife, Department of Health, or the EPA.</li>
