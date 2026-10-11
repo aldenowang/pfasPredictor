@@ -703,8 +703,8 @@
   <div class="container">
     <h2 class="section-title">Run a Prediction</h2>
     <p class="section-subtitle">
-      Enter the catch location, elevation, date, and fish length below. These values are
-      passed into the <code>getPFASUE()</code> model described in the Methodology section.
+      Enter the catch location, date, and fish length below. The site's elevation is
+      looked up automatically from its coordinates, and all values are passed into the <code>getPFASUE()</code> model described in the Methodology section.
     </p>
 
     <div class="predict-panel">
@@ -725,20 +725,13 @@
         </div>
 
         <div class="field">
-          <label for="input-elevation">Elevation (miles)</label>
-          <input type="text" id="input-elevation" placeholder="e.g. 0.25" inputmode="decimal" required>
-          <span class="hint">Elevation of the catch site, in miles above sea level</span>
-          <span class="error-text" id="error-elevation"></span>
-        </div>
-
-        <div class="field">
           <label for="input-date">Date Caught</label>
           <input type="text" id="input-date" placeholder="mm/dd/yy" required>
           <span class="hint">Format: mm/dd/yy (e.g. 07/04/26)</span>
           <span class="error-text" id="error-date"></span>
         </div>
 
-        <div class="field full-width">
+        <div class="field">
           <label for="input-length">Fish Length (mm)</label>
           <input type="text" id="input-length" placeholder="e.g. 350" inputmode="decimal" required>
           <span class="hint">Total length of the fish, in millimeters</span>
@@ -748,7 +741,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Estimate Risk</button>
           <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
-          <span class="form-note">No data leaves your browser — everything runs locally in JavaScript.</span>
+          <span class="form-note">Only the latitude/longitude are sent to the Open-Meteo elevation service; the model itself runs locally in JavaScript.</span>
         </div>
 
       </form>
@@ -837,8 +830,11 @@
         <div>
           <h3>Elevation (E)</h3>
           <p>
-            Site elevation above sea level, in miles, is used directly as an input to
-            the formula.
+            Site elevation above sea level is looked up automatically from the
+            latitude/longitude using the
+            <a href="https://open-meteo.com/en/docs/elevation-api" target="_blank" rel="noopener noreferrer">Open-Meteo Elevation API</a>
+            (90&nbsp;m Copernicus DEM), converted from meters to miles, and used directly as
+            an input to the formula. Sites at or below sea level are treated as 0&nbsp;mi.
           </p>
         </div>
       </div>
@@ -1015,6 +1011,24 @@
     }
   }
 
+  const METERS_PER_MILE = 1609.344;
+
+  // Looks up ground elevation for a coordinate via the Open-Meteo Elevation API
+  // (returns meters) and converts it to miles. Below-sea-level results are
+  // clamped to 0 so the formula's E term stays non-negative.
+  async function fetchElevationMiles(lat, lon) {
+    const url = "https://api.open-meteo.com/v1/elevation?latitude=" +
+      encodeURIComponent(lat) + "&longitude=" + encodeURIComponent(lon);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Elevation lookup failed (HTTP " + res.status + ")");
+    const data = await res.json();
+    const meters = data && Array.isArray(data.elevation) ? data.elevation[0] : NaN;
+    if (typeof meters !== "number" || isNaN(meters)) {
+      throw new Error("Elevation lookup returned no data for this location");
+    }
+    return Math.max(0, meters) / METERS_PER_MILE;
+  }
+
   // Builds the getPFASUE() inputs from the form values and runs the model.
   // Input: an object { latitude, longitude, elevationMiles, date, fishLengthMM }
   function computePFASEstimate(inputs) {
@@ -1055,7 +1069,6 @@
   const fields = {
     lat: document.getElementById("input-lat"),
     lon: document.getElementById("input-lon"),
-    elevation: document.getElementById("input-elevation"),
     date: document.getElementById("input-date"),
     length: document.getElementById("input-length"),
   };
@@ -1063,7 +1076,6 @@
   const errors = {
     lat: document.getElementById("error-lat"),
     lon: document.getElementById("error-lon"),
-    elevation: document.getElementById("error-elevation"),
     date: document.getElementById("error-date"),
     length: document.getElementById("error-length"),
   };
@@ -1099,14 +1111,6 @@
       valid = false;
     } else {
       values.longitude = lon;
-    }
-
-    const elevation = parseFloat(fields.elevation.value);
-    if (isNaN(elevation) || elevation < 0) {
-      setError("elevation", "Enter a non-negative elevation in miles.");
-      valid = false;
-    } else {
-      values.elevationMiles = elevation;
     }
 
     const parsedDate = parseMMDDYY(fields.date.value);
@@ -1155,7 +1159,7 @@
     const modelInputRows = [
       { name: "Distance to Nearest Base (D)", value: result.modelInputs.D.toFixed(2) + " mi" },
       { name: "Fish Length (L)", value: result.modelInputs.L.toFixed(1) + " mm" },
-      { name: "Elevation (E)", value: result.modelInputs.E.toFixed(3) + " mi" },
+      { name: "Elevation (E, looked up)", value: result.modelInputs.E.toFixed(4) + " mi" },
     ];
     modelInputRows.forEach((row) => {
       const li = document.createElement("li");
@@ -1170,13 +1174,31 @@
     resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  form.addEventListener("submit", function (e) {
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
     const { valid, values } = validateForm();
     if (!valid) {
       resultsSection.classList.remove("visible");
       return;
     }
+
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Looking up elevation…";
+    try {
+      values.elevationMiles = await fetchElevationMiles(values.latitude, values.longitude);
+    } catch (err) {
+      resultsSection.classList.remove("visible");
+      setError("lat", "Couldn't look up elevation for this location. Check your connection and try again.");
+      fields.lon.classList.add("invalid");
+      return;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+
     const result = computePFASEstimate(values);
     renderResults(result, values);
   });
