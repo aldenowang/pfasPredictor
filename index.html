@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PFAS Fish Contamination Risk Predictor</title>
-<meta name="description" content="A research tool that estimates potential PFAS contamination risk in freshwater fish based on location, elevation, date, and fish size.">
+<meta name="description" content="A research tool that estimates potential PFAS contamination risk in freshwater fish based on location, elevation, and fish size.">
 
 <style>
   /* ==========================================================
@@ -631,7 +631,7 @@
     <p class="lead">
       This tool uses a predictive research model to estimate the possible risk of PFAS
       ("forever chemical") contamination in freshwater fish, based on location, elevation,
-      date, and fish size. It is intended to support research and education around
+      and fish size. It is intended to support research and education around
       per- and polyfluoroalkyl substances (PFAS) in aquatic ecosystems.
     </p>
 
@@ -703,7 +703,7 @@
   <div class="container">
     <h2 class="section-title">Run a Prediction</h2>
     <p class="section-subtitle">
-      Enter the catch location, date, and fish length below. The site's elevation is
+      Enter the catch location and fish length below. The site's elevation is
       looked up automatically from its coordinates, and all values are passed into the <code>getPFASUE()</code> model described in the Methodology section.
     </p>
 
@@ -724,14 +724,7 @@
           <span class="error-text" id="error-lon"></span>
         </div>
 
-        <div class="field">
-          <label for="input-date">Date Caught</label>
-          <input type="text" id="input-date" placeholder="mm/dd/yy" required>
-          <span class="hint">Format: mm/dd/yy (e.g. 07/04/26)</span>
-          <span class="error-text" id="error-date"></span>
-        </div>
-
-        <div class="field">
+        <div class="field full-width">
           <label for="input-length">Fish Length (mm)</label>
           <input type="text" id="input-length" placeholder="e.g. 350" inputmode="decimal" required>
           <span class="hint">Total length of the fish, in millimeters</span>
@@ -852,10 +845,10 @@
 
     <p class="section-subtitle" style="margin-top:24px;">
       All of this logic lives inside the <code>getPFASUE()</code> JavaScript function in
-      the page source, clearly marked with comments. The catch date is still collected
-      and the quantile constant (q) is still fixed at 0.95, but neither currently factors
-      into the calculation in this version of the formula &mdash; that time-dependent term
-      is commented out in the source rather than removed, in case it's reinstated later.
+      the page source, clearly marked with comments. The quantile constant (q) is still
+      fixed at 0.95 but doesn't currently factor into the calculation &mdash; the
+      time-dependent term that used it (along with the catch date) is commented out in the
+      source rather than removed, in case it's reinstated later.
     </p>
   </div>
 </section>
@@ -953,26 +946,6 @@
   }
 
   /* ============================================================
-     INPUT PARSING / VALIDATION HELPERS
-     ============================================================ */
-
-  // Parses "mm/dd/yy" into a JS Date. Returns null if invalid.
-  function parseMMDDYY(str) {
-    const match = /^(\d{1,2})\/(\d{1,2})\/(\d{2})$/.exec(str.trim());
-    if (!match) return null;
-    const month = parseInt(match[1], 10);
-    const day = parseInt(match[2], 10);
-    let year = parseInt(match[3], 10);
-    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-    // 2-digit year: assume 2000s (adjust here if you need a different pivot).
-    year += 2000;
-    const date = new Date(year, month - 1, day);
-    // Reject dates that "roll over" (e.g. 02/31/26 becoming March 3rd).
-    if (date.getMonth() !== month - 1 || date.getDate() !== day) return null;
-    return date;
-  }
-
-  /* ============================================================
      ============================================================
      PFAS-UE PREDICTION MODEL — getPFASUE()
      ------------------------------------------------------------
@@ -983,18 +956,22 @@
      bound, not a central/average estimate.
 
        q = 0.95        upper envelope quantile (fixed) — currently unused
-       t = time, in days since the Unix epoch (1970-01-01),
-           computed from the catch date — currently unused
        C = 0.3450      fitted constant
        D = distance to nearest known military installation (miles)
        L = fish length (mm)
        E = elevation of the catch site above sea level (miles)
 
+     The commented-out time multiplier below also needs
+       t = time, in days since the Unix epoch (1970-01-01),
+           computed from the catch date
+     — re-add a catch date input and a t parameter if it's
+     reinstated.
+
      Returns the estimated PFAS concentration in ppb (parts per
      billion).
      ============================================================
      ============================================================ */
-  function getPFASUE(q, t, C, D, L, E) {
+  function getPFASUE(q, C, D, L, E) {
     // const multiplier = Math.pow(
     //   3.67574e-11 * 1.0886 * Math.pow(1.0886e11, q) + 1.43337,
     //   t / 1042.0
@@ -1030,23 +1007,21 @@
   }
 
   // Builds the getPFASUE() inputs from the form values and runs the model.
-  // Input: an object { latitude, longitude, elevationMiles, date, fishLengthMM }
+  // Input: an object { latitude, longitude, elevationMiles, fishLengthMM }
   function computePFASEstimate(inputs) {
-    const { latitude, longitude, elevationMiles, date, fishLengthMM } = inputs;
+    const { latitude, longitude, elevationMiles, fishLengthMM } = inputs;
     const { distanceMiles: nearestBaseDistanceMiles } = findNearestBase(latitude, longitude);
 
     const Q = 0.95;
     const C = 0.3450;
-    const t = date.getTime() / 86400000; // days since Unix epoch
 
-    const estimatedPPB = getPFASUE(Q, t, C, nearestBaseDistanceMiles, fishLengthMM, elevationMiles);
+    const estimatedPPB = getPFASUE(Q, C, nearestBaseDistanceMiles, fishLengthMM, elevationMiles);
 
     return {
       estimatedPPB: estimatedPPB,
       nearestBaseDistanceMiles: nearestBaseDistanceMiles,
       modelInputs: {
         q: Q,
-        t: t,
         C: C,
         D: nearestBaseDistanceMiles,
         L: fishLengthMM,
@@ -1069,14 +1044,12 @@
   const fields = {
     lat: document.getElementById("input-lat"),
     lon: document.getElementById("input-lon"),
-    date: document.getElementById("input-date"),
     length: document.getElementById("input-length"),
   };
 
   const errors = {
     lat: document.getElementById("error-lat"),
     lon: document.getElementById("error-lon"),
-    date: document.getElementById("error-date"),
     length: document.getElementById("error-length"),
   };
 
@@ -1111,14 +1084,6 @@
       valid = false;
     } else {
       values.longitude = lon;
-    }
-
-    const parsedDate = parseMMDDYY(fields.date.value);
-    if (!parsedDate) {
-      setError("date", "Enter a valid date as mm/dd/yy.");
-      valid = false;
-    } else {
-      values.date = parsedDate;
     }
 
     const length = parseFloat(fields.length.value);
