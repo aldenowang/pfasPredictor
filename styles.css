@@ -1379,3 +1379,35 @@ footer .footer-bottom {
   height: 18px;
   margin-top: 1px;
 }
+
+/* ==========================================================
+   SAFECATCH BRANDING
+   ========================================================== */
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-tag {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.hero h1 {
+  margin-bottom: 6px;
+}
+
+.hero-sub {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  color: #d5e1ef;
+  margin: 0 0 20px;
+}
+
+@media (max-width: 640px) {
+  .brand-tag { display: none; }
+}
