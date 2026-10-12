@@ -243,9 +243,8 @@
           <label for="input-water">Type of Water</label>
           <select id="input-water" required>
             <option value="" disabled selected>Select where it was caught…</option>
-            <option value="R">River or stream</option>
             <option value="L">Lake</option>
-            <option value="P">Pond</option>
+            <option value="R">River / stream</option>
             <option value="GL">Great Lake</option>
           </select>
           <span class="hint">The kind of water body the fish came from</span>
@@ -1253,7 +1252,7 @@
       fields.lon.value = saved.lon || "";
       if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) fields.species.value = saved.species;
       fields.length.value = saved.length || "";
-      if (["R", "L", "P", "GL"].includes(saved.water)) fields.water.value = saved.water;
+      if (["L", "R", "GL"].includes(saved.water)) fields.water.value = saved.water;
       if (fields.lat.value) setLocStatus("Your last catch was filled in. Change anything you need and press Estimate PFAS.");
     } catch (e) { /* storage unavailable — ignore */ }
   }
