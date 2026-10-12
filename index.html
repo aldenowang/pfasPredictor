@@ -554,6 +554,15 @@
     margin: 0;
   }
 
+  .estimate-tile .estimate-warning {
+    margin: 10px 0 0;
+    font-size: 0.8rem;
+    color: var(--color-warning-text);
+    background: var(--color-warning-bg);
+    border-left: 3px solid var(--color-warning-border);
+    padding: 6px 10px;
+  }
+
   .estimate-tile .estimate-cap {
     display: inline-block;
     margin-top: 8px;
@@ -1036,9 +1045,10 @@
 
       <div class="estimate-row">
         <div class="estimate-tile q50">
-          <div class="estimate-label">50% confidence</div>
-          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q50">--</span></div>
-          <p class="estimate-desc">50% sure the PFAS in this fish is below this value (median estimate).</p>
+          <div class="estimate-label">Exact prediction</div>
+          <div class="estimate-value"><span id="est-q50">--</span></div>
+          <p class="estimate-desc">The model's best single estimate of the PFAS in this fish.</p>
+          <p class="estimate-warning"><strong>Warning:</strong> this value can be highly variable &mdash; actual PFAS levels may be much higher or lower.</p>
           <span class="estimate-cap" id="cap-q50" hidden>Capped at maximum</span>
         </div>
         <div class="estimate-tile q95">
@@ -1157,17 +1167,18 @@
     <div class="formula-box">
       <div class="formula-line"><em>x</em> = <em>D</em> &times; (1 / <em>R</em>) &times; <em>E</em></div>
       <table class="formula-table">
-        <thead><tr><th>Confidence level</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
+        <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
         <tbody>
-          <tr><td>50%</td><td>0.50</td><td><em>y</em> = 25.6965 / <em>x</em></td></tr>
-          <tr><td>95%</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
-          <tr><td>99%</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
+          <tr><td>Exact prediction</td><td>0.50</td><td><em>y</em> = 25.6965 / <em>x</em></td></tr>
+          <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
+          <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
         </tbody>
       </table>
       <p>
         A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
         curve &mdash; so the 95% value is the level you can be about 95% sure this fish is
-        below. All outputs are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        below. The exact prediction is the q&nbsp;=&nbsp;0.50 (median) curve: half of fish fell
+        above it and half below, so it can be far off for any individual fish. All outputs are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
         value recorded in the dataset; this also covers sites at sea level, where
         <em>x</em>&nbsp;=&nbsp;0. The logic lives in the <code>getPFASUE()</code> function in the
         page source.
@@ -1186,7 +1197,7 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>Confidence bounds, not exact values:</strong> The 50%, 95% and 99% outputs are quantile estimates &mdash; levels the fish's PFAS is likely to fall below &mdash; not a measured or expected concentration. The 95% and 99% values are deliberately conservative upper bounds.</li>
+      <li><strong>The exact prediction is highly variable:</strong> It is the median (q&nbsp;=&nbsp;0.50) estimate, so an individual fish's actual PFAS can be much higher or lower. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
@@ -1587,8 +1598,8 @@
     document.getElementById("echo-relative-length").textContent = mi.R.toFixed(2) + "×";
 
     document.getElementById("results-summary-text").textContent =
-      "Estimated PFAS concentration for this catch, at three confidence levels. Each value is " +
-      "the level we are that confident the fish's PFAS falls below.";
+      "Estimated PFAS concentration for this catch: an exact prediction, plus the levels we are " +
+      "95% and 99% confident the fish's PFAS falls below.";
 
     const list = document.getElementById("breakdown-list");
     list.innerHTML = "";
