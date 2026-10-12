@@ -1046,10 +1046,9 @@
       <div class="estimate-row">
         <div class="estimate-tile q50">
           <div class="estimate-label">Exact prediction</div>
-          <div class="estimate-value"><span id="est-q50">--</span></div>
-          <p class="estimate-desc">The model's best single estimate of the PFAS in this fish.</p>
+          <div class="estimate-value"><span id="est-exact">--</span></div>
+          <p class="estimate-desc">Average of the model's median (q&nbsp;=&nbsp;0.50) estimate and the average PFAS measured in this species.</p>
           <p class="estimate-warning"><strong>Warning:</strong> this value can be highly variable &mdash; actual PFAS levels may be much higher or lower.</p>
-          <span class="estimate-cap" id="cap-q50" hidden>Capped at maximum</span>
         </div>
         <div class="estimate-tile q95">
           <div class="estimate-label">95% confidence</div>
@@ -1077,10 +1076,6 @@
         <div class="score-tile">
           <div class="score-label">Elevation</div>
           <div class="score-value" id="echo-elevation">--</div>
-        </div>
-        <div class="score-tile">
-          <div class="score-label">Relative Length</div>
-          <div class="score-value" id="echo-relative-length">--</div>
         </div>
       </div>
 
@@ -1169,7 +1164,7 @@
       <table class="formula-table">
         <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
         <tbody>
-          <tr><td>Exact prediction</td><td>0.50</td><td><em>y</em> = 25.6965 / <em>x</em></td></tr>
+          <tr><td>Exact prediction</td><td>0.50</td><td>(25.6965 / <em>x</em> + species average PFAS) / 2</td></tr>
           <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
           <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
         </tbody>
@@ -1177,8 +1172,9 @@
       <p>
         A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
         curve &mdash; so the 95% value is the level you can be about 95% sure this fish is
-        below. The exact prediction is the q&nbsp;=&nbsp;0.50 (median) curve: half of fish fell
-        above it and half below, so it can be far off for any individual fish. All outputs are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        below. The exact prediction averages the q&nbsp;=&nbsp;0.50 (median) curve with the
+        average PFAS measured in that species across the dataset; it can be far off for any
+        individual fish. The q-curve values are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
         value recorded in the dataset; this also covers sites at sea level, where
         <em>x</em>&nbsp;=&nbsp;0. The logic lives in the <code>getPFASUE()</code> function in the
         page source.
@@ -1197,7 +1193,7 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>The exact prediction is highly variable:</strong> It is the median (q&nbsp;=&nbsp;0.50) estimate, so an individual fish's actual PFAS can be much higher or lower. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
+      <li><strong>The exact prediction is highly variable:</strong> It averages the median (q&nbsp;=&nbsp;0.50) estimate with the species' average PFAS in the dataset, so an individual fish's actual PFAS can be much higher or lower. Species with only a few samples in the dataset have especially uncertain averages. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
@@ -1332,6 +1328,59 @@
     "yellow perch":        234.6473939,
   };
 
+  // Average measured PFAS (ppb) per species in the study dataset
+  // (from speciesInfo/avgSpecPFAS). Used for the exact prediction.
+  const SPECIES_AVG_PFAS_PPB = {
+    "black crappie":       8.8407,
+    "blue catfish":        3.5368,
+    "bluegill":            12.1334,
+    "brook trout":         0.9416,
+    "brown bullhead":      1.3305,
+    "brown trout":         9.0312,
+    "burbot":              14.5212,
+    "chain pickerel":      6.4328,
+    "channel catfish":     5.7154,
+    "chinook salmon":      11.8403,
+    "cisco":               8.838,
+    "coho salmon":         4.6177,
+    "common carp":         4.108,
+    "cutthroat trout":     0.9098,
+    "flathead catfish":    19.393,
+    "freshwater drum":     30.5959,
+    "green sunfish":       0.598,
+    "lake trout":          12.0683,
+    "lake whitefish":      6.4694,
+    "largemouth bass":     21.8394,
+    "longear sunfish":     29.482,
+    "longnose sucker":     24.0613,
+    "mountain whitefish":  0.7553,
+    "northern pike":       3.8689,
+    "northern pikeminnow": 0.0885,
+    "pumpkinseed":         0.776,
+    "rainbow trout":       0.9936,
+    "redbreast sunfish":   8.066,
+    "redear sunfish":      37.1017,
+    "rock bass":           8.2041,
+    "round whitefish":     13.9397,
+    "sauger":              2.49,
+    "shoal bass":          19.71,
+    "shortnose gar":       2.298,
+    "silver carp":         0.8915,
+    "silver redhorse":     6.542,
+    "smallmouth bass":     15.1077,
+    "spotted bass":        11.3279,
+    "striped bass":        13.756,
+    "tiger trout":         0.267,
+    "tyee sucker":         0.177,
+    "walleye":             8.9187,
+    "warmouth":            18.901,
+    "white bass":          30.1076,
+    "white crappie":       8.3736,
+    "white perch":         28.1232,
+    "white sucker":        18.9663,
+    "yellow perch":        12.4789,
+  };
+
   /* ============================================================
      ============================================================
      PFAS-UE PREDICTION MODEL — getPFASUE()
@@ -1455,7 +1504,8 @@
     return (baseMiles + urban) / 2;
   }
 
-  // Builds the model inputs from the form values and runs all three quantiles.
+  // Builds the model inputs from the form values, runs all three quantiles,
+  // and computes the exact prediction.
   // Input: an object { latitude, longitude, elevationMiles, urbanDistanceMiles,
   //                    species, fishLengthMM }
   function computePFASEstimate(inputs) {
@@ -1474,8 +1524,13 @@
       estimates[q] = { ppb: ppb, capped: ppb === PFAS_MAX_PPB };
     }
 
+    // Exact prediction: average of the q = 0.50 value and the species' average PFAS.
+    const speciesAvgPFAS = SPECIES_AVG_PFAS_PPB[species];
+    const exactPPB = (estimates[0.5].ppb + speciesAvgPFAS) / 2;
+
     return {
       estimates: estimates,
+      exactPPB: exactPPB,
       nearestBaseDistanceMiles: nearestBaseDistanceMiles,
       urbanDistanceMiles: urbanDistanceMiles,
       modelInputs: {
@@ -1484,6 +1539,7 @@
         E: E,
         x: x,
         speciesAvgLengthMM: speciesAvgLengthMM,
+        speciesAvgPFAS: speciesAvgPFAS,
         fishLengthMM: fishLengthMM,
       },
     };
@@ -1552,8 +1608,8 @@
       valid = false;
     } else {
       values.species = fields.species.value;
-      if (!(SPECIES_AVG_LENGTH_MM[values.species] > 0)) {
-        setError("species", "No average length on file for this species.");
+      if (!(SPECIES_AVG_LENGTH_MM[values.species] > 0) || !(values.species in SPECIES_AVG_PFAS_PPB)) {
+        setError("species", "No average length / PFAS data on file for this species.");
         valid = false;
       }
     }
@@ -1580,8 +1636,10 @@
   }
 
   function renderResults(result, inputValues) {
-    const qKeys = { 0.5: "q50", 0.95: "q95", 0.99: "q99" };
-    for (const q of [0.5, 0.95, 0.99]) {
+    document.getElementById("est-exact").textContent = formatPPB(result.exactPPB) + " ppb";
+
+    const qKeys = { 0.95: "q95", 0.99: "q99" };
+    for (const q of [0.95, 0.99]) {
       const est = result.estimates[q];
       document.getElementById("est-" + qKeys[q]).textContent = formatPPB(est.ppb) + " ppb";
       const cap = document.getElementById("cap-" + qKeys[q]);
@@ -1595,7 +1653,6 @@
     document.getElementById("nearest-urban-distance").textContent =
       formatUrbanDistance(result.urbanDistanceMiles, 1);
     document.getElementById("echo-elevation").textContent = mi.E.toFixed(3) + " mi";
-    document.getElementById("echo-relative-length").textContent = mi.R.toFixed(2) + "×";
 
     document.getElementById("results-summary-text").textContent =
       "Estimated PFAS concentration for this catch: an exact prediction, plus the levels we are " +
@@ -1617,6 +1674,12 @@
       { name: "R = relative length", value: mi.R.toFixed(3) },
       { name: "E = elevation", value: mi.E.toFixed(4) + " mi" },
       { name: "x = D × (1/R) × E", value: mi.x.toFixed(4) },
+      {
+        name: "q = 0.50 value (25.6965 / x)",
+        value: formatPPB(result.estimates[0.5].ppb) + " ppb" + (result.estimates[0.5].capped ? " (capped)" : ""),
+      },
+      { name: "Species Average PFAS", value: formatPPB(mi.speciesAvgPFAS) + " ppb" },
+      { name: "Exact prediction = (q 0.50 value + species avg) / 2", value: formatPPB(result.exactPPB) + " ppb" },
     ];
     modelInputRows.forEach((row) => {
       const li = document.createElement("li");
