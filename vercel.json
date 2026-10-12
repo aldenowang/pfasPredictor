@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/predict.js": {
+      "includeFiles": "api/_lib/pfas_trees.json"
+    }
+  }
+}
