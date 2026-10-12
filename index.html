@@ -329,6 +329,8 @@
 
   .disclaimer strong { display: block; margin-bottom: 2px; font-size: 1rem; }
 
+  .disclaimer[hidden] { display: none; }
+
   /* ==========================================================
      ABOUT SECTION
      ========================================================== */
@@ -709,6 +711,57 @@
     font-weight: 700;
   }
 
+  .compounds {
+    margin-top: 28px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 4px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+  }
+
+  .compounds h3 {
+    font-family: var(--font-serif);
+    color: var(--color-primary-dark);
+    font-size: 1.15rem;
+    margin: 0 0 8px;
+  }
+
+  .compounds > p {
+    margin: 0 0 16px;
+    color: var(--color-text-muted);
+    font-size: 0.94rem;
+    max-width: 760px;
+  }
+
+  .compound-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 6px 20px;
+  }
+
+  .compound-list li {
+    display: grid;
+    grid-template-columns: 8.5em 1fr;
+    gap: 10px;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.86rem;
+  }
+
+  .compound-list abbr {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compound-list span { color: var(--color-text-muted); overflow-wrap: anywhere; }
+
   .limitations-list {
     display: grid;
     gap: 12px;
@@ -1030,6 +1083,17 @@
 
   .nav-links a.nav-cta:hover { background: var(--color-primary-dark); color: #ffffff; }
 
+  .us-only-note {
+    margin: -12px 0 24px;
+    padding: 10px 14px;
+    max-width: 700px;
+    background: var(--color-primary-light);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
   .results-context {
     margin: 0 0 20px;
     padding: 12px 16px;
@@ -1176,7 +1240,7 @@
       Caught a fish and wondering about PFAS ("forever chemicals")? Pick where it was caught,
       choose the species and enter its length &mdash; in seconds, our research model estimates
       how much PFAS it may contain, based on nearby military bases and urban areas, elevation,
-      and the fish's size for its species.
+      and the fish's size for its species. <strong>Works for U.S. waters only.</strong>
     </p>
 
     <!-- Disclaimer #1: near the top, directly under the hero -->
@@ -1215,6 +1279,12 @@
       nearest urban area are all looked up automatically from the location.
     </p>
 
+    <div class="us-only-note" role="note">
+      <strong>U.S. locations only.</strong> The model was built from U.S. EPA fish data and uses
+      U.S. military base and U.S. Census urban-area data, so it can't give meaningful estimates
+      for fish caught outside the United States.
+    </div>
+
     <ol class="steps">
       <li>Pick where it was caught</li>
       <li>Choose the species</li>
@@ -1228,7 +1298,7 @@
           <div class="loc-head">
             <div class="loc-title">
               Catch location
-              <span>Click the map where the fish was caught, or type coordinates below.</span>
+              <span>Click the map where the fish was caught (U.S. only), or type coordinates below.</span>
             </div>
             <div class="loc-toolbar">
               <button type="button" class="btn btn-secondary btn-small" id="btn-geolocate">Use my location</button>
@@ -1367,6 +1437,15 @@
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q99">--</span></div>
           <p class="estimate-desc">99% sure the PFAS in this fish is below this value.</p>
           <span class="estimate-cap" id="cap-q99" hidden>Capped at maximum</span>
+        </div>
+      </div>
+
+      <div class="disclaimer" id="outside-us-warning" role="alert" hidden>
+        <span class="disclaimer-icon" aria-hidden="true">!</span>
+        <div>
+          <strong>This location may be outside the United States</strong>
+          No U.S. urban area was found within 300 miles. This tool only works for U.S. locations,
+          so these estimates are probably not meaningful.
         </div>
       </div>
 
@@ -1537,6 +1616,51 @@
         page source.
       </p>
     </div>
+
+    <div class="compounds" id="compounds">
+      <h3>PFAS compounds covered</h3>
+      <p>
+        &ldquo;PFAS&rdquo; is a family of thousands of chemicals. The estimates on this site account
+        for the combined total of these <strong>33 PFAS compounds</strong>, including the
+        two most studied, PFOS and PFOA, and newer replacement chemicals such as GenX (HFPO-DA)
+        and ADONA:
+      </p>
+      <ul class="compound-list">
+        <li><abbr>PFBA</abbr><span>Perfluorobutyric acid</span></li>
+        <li><abbr>PFPeA</abbr><span>Perfluoropentanoic acid</span></li>
+        <li><abbr>PFHxA</abbr><span>Perfluorohexanoic acid</span></li>
+        <li><abbr>PFHpA</abbr><span>Perfluoroheptanoic acid</span></li>
+        <li><abbr>PFOA</abbr><span>Perfluorooctanoic acid</span></li>
+        <li><abbr>PFNA</abbr><span>Perfluorononanoic acid</span></li>
+        <li><abbr>PFDA</abbr><span>Perfluorodecanoic acid</span></li>
+        <li><abbr>PFUnA</abbr><span>Perfluoroundecanoic acid</span></li>
+        <li><abbr>PFDoA</abbr><span>Perfluorododecanoic acid</span></li>
+        <li><abbr>PFTrDA</abbr><span>Perfluorotridecanoic acid</span></li>
+        <li><abbr>PFTeDA</abbr><span>Perfluorotetradecanoic acid</span></li>
+        <li><abbr>PFBS</abbr><span>Perfluorobutanesulfonic acid</span></li>
+        <li><abbr>PFPeS</abbr><span>Perfluoropentanesulfonic acid</span></li>
+        <li><abbr>PFHxS</abbr><span>Perfluorohexanesulfonic acid</span></li>
+        <li><abbr>PFHpS</abbr><span>Perfluoroheptanesulfonic acid</span></li>
+        <li><abbr>PFOS</abbr><span>Perfluorooctanesulfonic acid</span></li>
+        <li><abbr>PFNS</abbr><span>Perfluorononanesulfonic acid</span></li>
+        <li><abbr>PFDS</abbr><span>Perfluorodecanesulfonic acid</span></li>
+        <li><abbr>PFDoS</abbr><span>Perfluorododecanesulfonic acid</span></li>
+        <li><abbr>4:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorohexane sulfonic acid</span></li>
+        <li><abbr>6:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorooctane sulfonic acid</span></li>
+        <li><abbr>8:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorodecane sulfonic acid</span></li>
+        <li><abbr>PFOSA</abbr><span>Perfluorooctanesulfonamide</span></li>
+        <li><abbr>N-MeFOSA</abbr><span>N-Methylperfluorooctanesulfonamide</span></li>
+        <li><abbr>N-EtFOSA</abbr><span>N-Ethylperfluorooctanesulfonamide</span></li>
+        <li><abbr>N-MeFOSAA</abbr><span>N-Methylperfluoro-1-octanesulfonamidoacetic acid</span></li>
+        <li><abbr>N-EtFOSAA</abbr><span>N-Ethylperfluorooctanesulfonamidoacetic acid</span></li>
+        <li><abbr>N-MeFOSE</abbr><span>N-Methylperfluoro-1-octanesulfonamidoethanol</span></li>
+        <li><abbr>N-EtFOSE</abbr><span>N-Ethylperfluoro-1-octanesulfonamidoethanol</span></li>
+        <li><abbr>HFPO-DA</abbr><span>Hexafluoropropylene oxide dimer acid</span></li>
+        <li><abbr>ADONA</abbr><span>4,8-Dioxa-3H-perfluorononanoic acid</span></li>
+        <li><abbr>9Cl-PF3ONS</abbr><span>9-Chlorohexadecafluoro-3-oxanonane-1-sulfonic acid</span></li>
+        <li><abbr>11Cl-PF3OUdS</abbr><span>11-Chloroeicosafluoro-3-oxaundecane-1-sulfonic acid</span></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -1552,6 +1676,7 @@
     <ul class="limitations-list">
       <li><strong>The exact prediction is highly variable:</strong> It averages the median (q&nbsp;=&nbsp;0.50) estimate with the species' average PFAS in the dataset, so an individual fish's actual PFAS can be much higher or lower. Species with only a few samples in the dataset have especially uncertain averages. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
+      <li><strong>United States only:</strong> The model was fit to U.S. fish samples and relies on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
       <li><strong>Not a substitute for testing:</strong> Only laboratory analysis of actual fish tissue samples can determine real PFAS concentrations.</li>
@@ -2018,6 +2143,8 @@
       "For comparison: the median fish in our 868-sample study dataset measured " +
       formatPPB(DATASET_MEDIAN_PPB) + " ppb, and " + speciesLabel.toLowerCase() +
       " averaged " + formatPPB(result.modelInputs.speciesAvgPFAS) + " ppb.";
+
+    document.getElementById("outside-us-warning").hidden = result.urbanDistanceMiles !== null;
 
     document.getElementById("results-summary-text").textContent =
       "Estimated PFAS concentration for this catch: an exact prediction, plus the levels we are " +
