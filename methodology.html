@@ -140,7 +140,44 @@
       <p>
         We trained several machine-learning models on the 1,110 composite samples and compared how
         well each predicted PFAS. An Extra Trees model performed best, with a median error of
-        3.04&nbsp;ppb, so it is the one used for the exact prediction. It runs on our server.
+        3.04&nbsp;ppb, so it is the one used for the exact prediction. Half of its predictions were
+        within about 3&nbsp;ppb of the measured value.
+      </p>
+
+      <h4>How it works</h4>
+      <p>
+        Extra Trees ("extremely randomized trees") builds a large number of decision trees. Each tree
+        asks a series of yes/no questions about the inputs, such as "is the site within 5 miles of an
+        urban area?", and ends at a predicted PFAS level. The trees are grown with extra randomness in
+        which questions they ask and where they split, so each one makes slightly different mistakes.
+        Averaging all of them cancels out much of that noise. Our model uses 500 trees, each with
+        about 200 end points and a typical depth of around 19 questions.
+      </p>
+
+      <h4>What it looks at</h4>
+      <ul>
+        <li><strong>The fish:</strong> its species and its length compared with the average for that species.
+          The 27 most common species each get their own category; 21 rarer species with only a few
+          samples are grouped together.</li>
+        <li><strong>The site:</strong> elevation, latitude and longitude, and the type of water (lake,
+          river or stream, or Great Lake).</li>
+        <li><strong>Nearby pollution sources:</strong> distance to the nearest military base and to the
+          nearest urban area. Both are put on a log scale, so the difference between 1 and 5 miles
+          counts for more than the difference between 100 and 105 miles.</li>
+        <li><strong>Nearby measurements:</strong> the PFAS measured at the 5 closest of the 868 sampled
+          sites, weighted so closer sites count more, plus how far away those sites are.</li>
+        <li><strong>Survey:</strong> the samples come from three EPA surveys (rivers and streams 2018&ndash;19,
+          Great Lakes 2020 and lakes 2022). The model knows which survey each sample came from, and
+          predictions on this site are made as if from the 2022 lakes survey.</li>
+      </ul>
+
+      <h4>Details</h4>
+      <p>
+        The model was trained to predict the logarithm of PFAS, which keeps a few very high samples
+        from dominating, and its output is converted back to ppb. It runs on our server, so the
+        trained trees are never downloaded to your browser. Like any model, it can only learn
+        patterns that appear in the training data, so it is less reliable for unusual sites or
+        species with few samples.
       </p>
     </div>
 

@@ -1342,3 +1342,40 @@ footer .footer-bottom {
   color: var(--color-text-muted);
   max-width: 720px;
 }
+
+.ml-box h4 {
+  font-size: 0.98rem;
+  color: var(--color-primary-dark);
+  margin: 18px 0 6px;
+}
+
+.ml-box ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  max-width: 780px;
+}
+
+.ml-box li + li { margin-top: 6px; }
+.ml-box li strong { color: var(--color-text); }
+
+.exact-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 7px 10px;
+  background: var(--color-warning-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--color-warning-text);
+}
+
+.exact-warning svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
