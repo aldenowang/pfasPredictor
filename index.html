@@ -505,27 +505,67 @@
     font-size: 1.05rem;
   }
 
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .estimate-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin-bottom: 20px;
+    margin: 8px 0 28px;
   }
 
-  .risk-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 0.82rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: white;
+  .estimate-tile {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 5px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
   }
+
+  .estimate-tile.q50 { border-top-color: #5b7fb0; }
+  .estimate-tile.q95 { border-top-color: var(--color-primary); }
+  .estimate-tile.q99 { border-top-color: var(--color-primary-darker); }
+
+  .estimate-tile .estimate-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .estimate-tile .estimate-value {
+    font-family: var(--font-serif);
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin: 6px 0 6px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+
+  .estimate-tile .estimate-value .lt {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-right: 4px;
+  }
+
+  .estimate-tile .estimate-desc {
+    font-size: 0.86rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .estimate-tile .estimate-cap {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-warning-text);
+    background: var(--color-warning-bg);
+    border-left: 3px solid var(--color-warning-border);
+    padding: 2px 8px;
+  }
+
+  .estimate-tile .estimate-cap[hidden] { display: none; }
 
   .risk-score-row {
     display: grid;
@@ -583,7 +623,7 @@
 
   .breakdown-list li {
     display: grid;
-    grid-template-columns: 220px 1fr auto;
+    grid-template-columns: minmax(0, 300px) 1fr auto;
     align-items: center;
     gap: 12px;
     font-size: 0.92rem;
@@ -649,6 +689,48 @@
     font-size: 0.94rem;
   }
 
+  .formula-box {
+    margin-top: 24px;
+    background: var(--color-surface-alt);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    padding: 20px 22px;
+  }
+
+  .formula-box .formula-line {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    color: var(--color-primary-dark);
+    margin-bottom: 14px;
+  }
+
+  .formula-box p {
+    margin: 14px 0 0;
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+  }
+
+  .formula-table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 560px;
+    font-size: 0.92rem;
+    background: var(--color-surface);
+  }
+
+  .formula-table th,
+  .formula-table td {
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+  }
+
+  .formula-table th {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: 700;
+  }
+
   .limitations-list {
     display: grid;
     gap: 12px;
@@ -701,6 +783,10 @@
      RESPONSIVE
      ========================================================== */
 
+  @media (max-width: 860px) {
+    .estimate-row { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 640px) {
     section { padding: 48px 0; }
     .hero { padding: 56px 0 44px; }
@@ -712,7 +798,7 @@
     }
     .breakdown-list .factor-value { text-align: left; }
     .nav-links { gap: 14px; }
-    .results-header { flex-direction: column; }
+    .estimate-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -795,7 +881,7 @@
           Total PFAS (ppb) in USA freshwater fish plotted against a combined score of
           elevation, polluter distance (nearest military base and nearest urban area), and
           relative fish length (length &divide; species average), showing the rapid
-          C/x-style decay that the upper-envelope model is fit to.
+          C/x-style decay that the quantile-regression curves are fit to.
         </figcaption>
       </figure>
     </div>
@@ -877,7 +963,7 @@
             <option value="lake whitefish">Lake whitefish</option>
             <option value="largemouth bass">Largemouth bass</option>
             <option value="longear sunfish">Longear sunfish</option>
-            <option value="longnose sunfish">Longnose sunfish</option>
+            <option value="longnose sucker">Longnose sucker</option>
             <option value="mountain whitefish">Mountain whitefish</option>
             <option value="northern pike">Northern pike</option>
             <option value="northern pikeminnow">Northern pikeminnow</option>
@@ -946,20 +1032,32 @@
     </div>
 
     <div class="results-panel">
-      <div class="results-header">
-        <div>
-          <p id="results-summary-text">Estimated PFAS Uptake Estimate (PFAS-UE) for this catch:</p>
-          <div id="risk-badge" class="risk-badge">-- Risk</div>
+      <p id="results-summary-text">Estimated PFAS concentration for this catch:</p>
+
+      <div class="estimate-row">
+        <div class="estimate-tile q50">
+          <div class="estimate-label">50% confidence</div>
+          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q50">--</span></div>
+          <p class="estimate-desc">50% sure the PFAS in this fish is below this value (median estimate).</p>
+          <span class="estimate-cap" id="cap-q50" hidden>Capped at maximum</span>
+        </div>
+        <div class="estimate-tile q95">
+          <div class="estimate-label">95% confidence</div>
+          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q95">--</span></div>
+          <p class="estimate-desc">95% sure the PFAS in this fish is below this value.</p>
+          <span class="estimate-cap" id="cap-q95" hidden>Capped at maximum</span>
+        </div>
+        <div class="estimate-tile q99">
+          <div class="estimate-label">99% confidence</div>
+          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q99">--</span></div>
+          <p class="estimate-desc">99% sure the PFAS in this fish is below this value.</p>
+          <span class="estimate-cap" id="cap-q99" hidden>Capped at maximum</span>
         </div>
       </div>
 
       <div class="risk-score-row">
         <div class="score-tile">
-          <div class="score-label">Estimated PFAS (ppb, 95% Upper Envelope)</div>
-          <div class="score-value" id="score-value">--</div>
-        </div>
-        <div class="score-tile">
-          <div class="score-label">Nearest Known Base</div>
+          <div class="score-label">Nearest Military Base</div>
           <div class="score-value" id="nearest-base-distance">--</div>
         </div>
         <div class="score-tile">
@@ -967,8 +1065,12 @@
           <div class="score-value" id="nearest-urban-distance">--</div>
         </div>
         <div class="score-tile">
-          <div class="score-label">Fish Length Input</div>
-          <div class="score-value" id="echo-length">--</div>
+          <div class="score-label">Elevation</div>
+          <div class="score-value" id="echo-elevation">--</div>
+        </div>
+        <div class="score-tile">
+          <div class="score-label">Relative Length</div>
+          <div class="score-value" id="echo-relative-length">--</div>
         </div>
       </div>
 
@@ -987,30 +1089,29 @@
   <div class="container">
     <h2 class="section-title">Methodology</h2>
     <p class="section-subtitle">
-      This site uses <code>getPFASUE()</code>, a 95th-percentile upper-envelope (quantile
-      regression) formula. It is fit so that roughly 95% of actual sampled PFAS
-      concentrations fall below the predicted curve &mdash; it estimates a statistical
-      upper bound, not an average/expected concentration. It combines four inputs:
+      The model is a set of quantile-regression curves fit to EPA fish-tissue data. Four
+      site and fish measurements are combined into a single score, <em>x</em>, and PFAS
+      (in ppb) is estimated as <em>y</em>&nbsp;=&nbsp;<em>C</em>&nbsp;/&nbsp;<em>x</em>, with a
+      different constant <em>C</em> for each confidence level. The inputs are:
     </p>
 
     <div class="method-steps">
       <div class="method-step">
         <div class="step-num">1</div>
         <div>
-          <h3>Proximity to Known Military Installations (D)</h3>
+          <h3>Proximity to Known Military Installations (averaged into D)</h3>
           <p>
             The site's latitude/longitude is compared against a reference list of ~750
             U.S. military installation coordinates (military bases historically associated
             with PFAS-containing firefighting foam, AFFF). The distance in miles to the
-            nearest installation is calculated using the haversine formula and used
-            directly as an input to the formula.
+            nearest installation is calculated using the haversine formula.
           </p>
         </div>
       </div>
       <div class="method-step">
         <div class="step-num">2</div>
         <div>
-          <h3>Proximity to the Nearest Urban Area</h3>
+          <h3>Proximity to the Nearest Urban Area (averaged into D)</h3>
           <p>
             Urban areas concentrate many other PFAS sources &mdash; industrial discharge,
             wastewater treatment plants, landfills, and stormwater runoff. The distance in
@@ -1018,8 +1119,9 @@
             <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Area</a>
             is looked up from the
             <a href="https://tigerweb.geo.census.gov/" target="_blank" rel="noopener noreferrer">U.S. Census TIGERweb</a>
-            service (0&nbsp;mi if the site is inside one, to within ~50&nbsp;m) and used as a
-            second polluter-distance input alongside the military-base distance.
+            service (0&nbsp;mi if the site is inside one, to within ~50&nbsp;m). The two
+            polluter distances are averaged into a single value:
+            <em>D</em>&nbsp;=&nbsp;(military-base distance + urban-area distance)&nbsp;/&nbsp;2.
           </p>
         </div>
       </div>
@@ -1039,25 +1141,38 @@
       <div class="method-step">
         <div class="step-num">4</div>
         <div>
-          <h3>Relative Fish Length (L)</h3>
+          <h3>Relative Fish Length (R)</h3>
           <p>
             PFAS is known to bioaccumulate over an organism's lifetime, so fish size is used
             as a proxy for age. Because typical size varies widely between species, the
             model uses <em>relative</em> length: the fish's length divided by the average
             length of that same species in the study dataset. A value above 1 means the
-            fish is larger than average for its species.
+            fish is larger than average for its species. Larger relative length lowers
+            <em>x</em>, which raises the estimate.
           </p>
         </div>
       </div>
     </div>
 
-    <p class="section-subtitle" style="margin-top:24px;">
-      All of this logic lives inside the <code>getPFASUE()</code> JavaScript function in
-      the page source, clearly marked with comments. The quantile constant (q) is still
-      fixed at 0.95 but doesn't currently factor into the calculation &mdash; the
-      time-dependent term that used it (along with the catch date) is commented out in the
-      source rather than removed, in case it's reinstated later.
-    </p>
+    <div class="formula-box">
+      <div class="formula-line"><em>x</em> = <em>D</em> &times; (1 / <em>R</em>) &times; <em>E</em></div>
+      <table class="formula-table">
+        <thead><tr><th>Confidence level</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
+        <tbody>
+          <tr><td>50%</td><td>0.50</td><td><em>y</em> = 25.6965 / <em>x</em></td></tr>
+          <tr><td>95%</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
+          <tr><td>99%</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
+        </tbody>
+      </table>
+      <p>
+        A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
+        curve &mdash; so the 95% value is the level you can be about 95% sure this fish is
+        below. All outputs are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        value recorded in the dataset; this also covers sites at sea level, where
+        <em>x</em>&nbsp;=&nbsp;0. The logic lives in the <code>getPFASUE()</code> function in the
+        page source.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -1071,7 +1186,7 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>Upper-bound estimate, not an average:</strong> This model predicts a 95th-percentile (upper envelope) value, meaning most actual measurements are expected to fall below the estimate, not near it. It should not be read as a typical/expected concentration.</li>
+      <li><strong>Confidence bounds, not exact values:</strong> The 50%, 95% and 99% outputs are quantile estimates &mdash; levels the fish's PFAS is likely to fall below &mdash; not a measured or expected concentration. The 95% and 99% values are deliberately conservative upper bounds.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
@@ -1153,47 +1268,95 @@
     return { distanceMiles: bestDistance, index: bestIndex };
   }
 
+  // Average fish length (mm) per species in the study dataset
+  // (from speciesInfo/avgSpecLength). Used for relative length R.
+  const SPECIES_AVG_LENGTH_MM = {
+    "black crappie":       248.340625,
+    "blue catfish":        483.364625,
+    "bluegill":            202.8274706,
+    "brook trout":         306.4153846,
+    "brown bullhead":      255,
+    "brown trout":         456.4566667,
+    "burbot":              525.9,
+    "chain pickerel":      425.5,
+    "channel catfish":     441.7145781,
+    "chinook salmon":      626.5,
+    "cisco":               345,
+    "coho salmon":         492.2446667,
+    "common carp":         517.975,
+    "cutthroat trout":     346.9545455,
+    "flathead catfish":    377.9076923,
+    "freshwater drum":     409.9284839,
+    "green sunfish":       221,
+    "lake trout":          606.8025385,
+    "lake whitefish":      464.8134,
+    "largemouth bass":     336.9748698,
+    "longear sunfish":     223.4,
+    "longnose sucker":     438.8090909,
+    "mountain whitefish":  325.4,
+    "northern pike":       505.0055333,
+    "northern pikeminnow": 381.5,
+    "pumpkinseed":         210,
+    "rainbow trout":       337.8260625,
+    "redbreast sunfish":   206.2,
+    "redear sunfish":      223.9523333,
+    "rock bass":           209.5963333,
+    "round whitefish":     405.2351,
+    "sauger":              400,
+    "shoal bass":          308.75,
+    "shortnose gar":       627.4,
+    "silver carp":         326.667,
+    "silver redhorse":     494.8,
+    "smallmouth bass":     350.8934494,
+    "spotted bass":        291.6444167,
+    "striped bass":        374,
+    "tiger trout":         286,
+    "tyee sucker":         340,
+    "walleye":             500.8328571,
+    "warmouth":            203,
+    "white bass":          309.466625,
+    "white crappie":       257.15,
+    "white perch":         237.93225,
+    "white sucker":        427.4466667,
+    "yellow perch":        234.6473939,
+  };
+
   /* ============================================================
      ============================================================
      PFAS-UE PREDICTION MODEL — getPFASUE()
      ------------------------------------------------------------
-     Direct port of the validated upper-envelope (95th-percentile
-     quantile regression) formula. q is fixed at 0.95, meaning the
-     model is fit so that ~95% of actual sampled PFAS concentrations
-     fall below the predicted curve — this is a statistical upper
-     bound, not a central/average estimate.
+     Quantile-regression curves of the form  y = C_q / x,  where
 
-       q = 0.95        upper envelope quantile (fixed) — currently unused
-       C = 0.3450      fitted constant
-       D = distance to nearest known military installation (miles)
-       L = fish length (mm)
+       x = D * (1 / R) * E
+       D = average polluter distance (miles):
+           (nearest military base + nearest urban area) / 2
+       R = relative fish length:
+           fish length / average length of that species (mm / mm)
        E = elevation of the catch site above sea level (miles)
 
-     The commented-out time multiplier below also needs
-       t = time, in days since the Unix epoch (1970-01-01),
-           computed from the catch date
-     — re-add a catch date input and a t parameter if it's
-     reinstated.
+     and C_q is the fitted constant for quantile q:
+       q = 0.50  ->  y = 25.6965  / x
+       q = 0.95  ->  y = 199.183  / x
+       q = 0.99  ->  y = 711.2349 / x
 
-     Returns the estimated PFAS concentration in ppb (parts per
-     billion).
+     A q-level value means a fraction q of sampled fish fell below
+     the curve. Output is PFAS in ppb, capped at PFAS_MAX_PPB (the
+     second-highest value recorded), which also covers x = 0.
      ============================================================
      ============================================================ */
-  function getPFASUE(q, C, D, L, E) {
-    // const multiplier = Math.pow(
-    //   3.67574e-11 * 1.0886 * Math.pow(1.0886e11, q) + 1.43337,
-    //   t / 1042.0
-    // );
+  const PFAS_QUANTILE_CONSTANTS = { 0.5: 25.6965, 0.95: 199.183, 0.99: 711.2349 };
+  const PFAS_MAX_PPB = 533.896;
 
-    // const upperenvelope = (multiplier * C) / (D * (1 / L) * E);
-    const upperenvelope = C / (D * (1 / L) * E);
-    const max = 533.896;
+  // Combined score x = D * (1 / R) * E.
+  function getModelX(D, R, E) {
+    return D * (1 / R) * E;
+  }
 
-    if (max < upperenvelope) {
-      return max;
-    } else {
-      return upperenvelope;
-    }
+  // Estimated PFAS (ppb) at quantile q for combined score x, capped at PFAS_MAX_PPB.
+  function getPFASUE(q, x) {
+    const C = PFAS_QUANTILE_CONSTANTS[q];
+    const y = C / x;
+    return y < PFAS_MAX_PPB ? y : PFAS_MAX_PPB;
   }
 
   const METERS_PER_MILE = 1609.344;
@@ -1281,31 +1444,36 @@
     return (baseMiles + urban) / 2;
   }
 
-  // Builds the getPFASUE() inputs from the form values and runs the model.
-  // Input: an object { latitude, longitude, elevationMiles, urbanDistanceMiles, fishLengthMM }
-  // urbanDistanceMiles and the averaged polluter distance are computed and
-  // reported, but not yet used by getPFASUE().
+  // Builds the model inputs from the form values and runs all three quantiles.
+  // Input: an object { latitude, longitude, elevationMiles, urbanDistanceMiles,
+  //                    species, fishLengthMM }
   function computePFASEstimate(inputs) {
-    const { latitude, longitude, elevationMiles, urbanDistanceMiles, fishLengthMM } = inputs;
+    const { latitude, longitude, elevationMiles, urbanDistanceMiles, species, fishLengthMM } = inputs;
     const { distanceMiles: nearestBaseDistanceMiles } = findNearestBase(latitude, longitude);
-    const avgPolluterDistanceMiles = averagePolluterDistance(nearestBaseDistanceMiles, urbanDistanceMiles);
 
-    const Q = 0.95;
-    const C = 0.3450;
+    const D = averagePolluterDistance(nearestBaseDistanceMiles, urbanDistanceMiles);
+    const speciesAvgLengthMM = SPECIES_AVG_LENGTH_MM[species];
+    const R = fishLengthMM / speciesAvgLengthMM;
+    const E = elevationMiles;
+    const x = getModelX(D, R, E);
 
-    const estimatedPPB = getPFASUE(Q, C, nearestBaseDistanceMiles, fishLengthMM, elevationMiles);
+    const estimates = {};
+    for (const q of [0.5, 0.95, 0.99]) {
+      const ppb = getPFASUE(q, x);
+      estimates[q] = { ppb: ppb, capped: ppb === PFAS_MAX_PPB };
+    }
 
     return {
-      estimatedPPB: estimatedPPB,
+      estimates: estimates,
       nearestBaseDistanceMiles: nearestBaseDistanceMiles,
       urbanDistanceMiles: urbanDistanceMiles,
-      avgPolluterDistanceMiles: avgPolluterDistanceMiles,
       modelInputs: {
-        q: Q,
-        C: C,
-        D: nearestBaseDistanceMiles,
-        L: fishLengthMM,
-        E: elevationMiles,
+        D: D,
+        R: R,
+        E: E,
+        x: x,
+        speciesAvgLengthMM: speciesAvgLengthMM,
+        fishLengthMM: fishLengthMM,
       },
     };
   }
@@ -1373,6 +1541,10 @@
       valid = false;
     } else {
       values.species = fields.species.value;
+      if (!(SPECIES_AVG_LENGTH_MM[values.species] > 0)) {
+        setError("species", "No average length on file for this species.");
+        valid = false;
+      }
     }
 
     const length = parseFloat(fields.length.value);
@@ -1397,38 +1569,43 @@
   }
 
   function renderResults(result, inputValues) {
-    const badge = document.getElementById("risk-badge");
-    badge.textContent = "95% Upper Envelope Estimate";
-    badge.style.background = "var(--color-primary)";
+    const qKeys = { 0.5: "q50", 0.95: "q95", 0.99: "q99" };
+    for (const q of [0.5, 0.95, 0.99]) {
+      const est = result.estimates[q];
+      document.getElementById("est-" + qKeys[q]).textContent = formatPPB(est.ppb) + " ppb";
+      const cap = document.getElementById("cap-" + qKeys[q]);
+      cap.hidden = !est.capped;
+      cap.textContent = "Capped at " + formatPPB(PFAS_MAX_PPB) + " ppb maximum";
+    }
 
-    document.getElementById("score-value").textContent = formatPPB(result.estimatedPPB) + " ppb";
-
+    const mi = result.modelInputs;
     document.getElementById("nearest-base-distance").textContent =
       result.nearestBaseDistanceMiles.toFixed(1) + " mi";
-
     document.getElementById("nearest-urban-distance").textContent =
       formatUrbanDistance(result.urbanDistanceMiles, 1);
-
-    document.getElementById("echo-length").textContent =
-      inputValues.fishLengthMM + " mm";
+    document.getElementById("echo-elevation").textContent = mi.E.toFixed(3) + " mi";
+    document.getElementById("echo-relative-length").textContent = mi.R.toFixed(2) + "×";
 
     document.getElementById("results-summary-text").textContent =
-      "Estimated PFAS concentration for this catch: " + formatPPB(result.estimatedPPB) + " ppb. " +
-      "This is a 95% upper-envelope estimate — modeled so that about 95% of actual measurements " +
-      "would fall below this value, not an average/expected concentration.";
+      "Estimated PFAS concentration for this catch, at three confidence levels. Each value is " +
+      "the level we are that confident the fish's PFAS falls below.";
 
     const list = document.getElementById("breakdown-list");
     list.innerHTML = "";
+    const speciesName = fields.species.options[fields.species.selectedIndex].text;
     const modelInputRows = [
-      { name: "Distance to Nearest Base (D)", value: result.modelInputs.D.toFixed(2) + " mi" },
-      { name: "Distance to Nearest Urban Area (looked up)", value: formatUrbanDistance(result.urbanDistanceMiles, 2) },
+      { name: "Distance to Nearest Military Base", value: result.nearestBaseDistanceMiles.toFixed(2) + " mi" },
+      { name: "Distance to Nearest Urban Area", value: formatUrbanDistance(result.urbanDistanceMiles, 2) },
       {
-        name: "Average Polluter Distance (base + urban) / 2",
-        value: (result.urbanDistanceMiles === null ? "≥ " : "") + result.avgPolluterDistanceMiles.toFixed(2) + " mi",
+        name: "D = average polluter distance",
+        value: (result.urbanDistanceMiles === null ? "≥ " : "") + mi.D.toFixed(2) + " mi",
       },
-      { name: "Species", value: fields.species.options[fields.species.selectedIndex].text },
-      { name: "Fish Length (L)", value: result.modelInputs.L.toFixed(1) + " mm" },
-      { name: "Elevation (E, looked up)", value: result.modelInputs.E.toFixed(4) + " mi" },
+      { name: "Species", value: speciesName },
+      { name: "Fish Length", value: mi.fishLengthMM.toFixed(1) + " mm" },
+      { name: "Species Average Length", value: mi.speciesAvgLengthMM.toFixed(1) + " mm" },
+      { name: "R = relative length", value: mi.R.toFixed(3) },
+      { name: "E = elevation", value: mi.E.toFixed(4) + " mi" },
+      { name: "x = D × (1/R) × E", value: mi.x.toFixed(4) },
     ];
     modelInputRows.forEach((row) => {
       const li = document.createElement("li");
