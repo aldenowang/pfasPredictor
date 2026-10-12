@@ -762,6 +762,44 @@
 
   .compound-list span { color: var(--color-text-muted); overflow-wrap: anywhere; }
 
+  #author {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .author {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 32px;
+    align-items: center;
+  }
+
+  .author-text {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--color-text);
+  }
+
+  .author-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .author-photos img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (max-width: 760px) {
+    .author { grid-template-columns: 1fr; gap: 20px; }
+  }
+
   .limitations-list {
     display: grid;
     gap: 12px;
@@ -1600,6 +1638,27 @@
       <li><strong>Not a substitute for testing:</strong> Only laboratory analysis of actual fish tissue samples can determine real PFAS concentrations.</li>
       <li><strong>Not a health authority:</strong> This tool does not replace guidance from your state Department of Fish and Wildlife, Department of Health, or the EPA.</li>
     </ul>
+  </div>
+</section>
+
+<!-- ==========================================================
+     ABOUT THE AUTHOR
+     ========================================================== -->
+<section id="author">
+  <div class="container">
+    <h2 class="section-title">About the Author</h2>
+    <div class="author">
+      <p class="author-text">
+        I'm Alden Wang, a high school senior who has been fishing for as long as I can remember.
+        Spending so much time on the water made me curious about what's actually in the fish
+        people catch and eat, and that question turned into this project. I built this tool so
+        other anglers can get a rough idea of PFAS levels in their own catch.
+      </p>
+      <div class="author-photos">
+        <img src="images/author-halibut.jpg" alt="Alden holding a halibut by the water" width="1000" height="753" loading="lazy">
+        <img src="images/author-muskie.jpg" alt="Alden holding a large muskie below a dam" width="1000" height="753" loading="lazy">
+      </div>
+    </div>
   </div>
 </section>
 
