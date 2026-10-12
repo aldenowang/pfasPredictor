@@ -417,7 +417,8 @@
     color: var(--color-text-muted);
   }
 
-  .field input {
+  .field input,
+  .field select {
     padding: 11px 13px;
     border: 1px solid #8d98a6;
     border-radius: var(--radius-sm);
@@ -428,13 +429,27 @@
     transition: border-color 0.12s ease;
   }
 
-  .field input:focus {
+  .field select {
+    appearance: none;
+    padding-right: 40px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231c2733' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .field select:invalid { color: var(--color-text-muted); }
+  .field select option { color: var(--color-text); }
+
+  .field input:focus,
+  .field select:focus {
     outline: 3px solid #2491ff;
     outline-offset: 0;
     border-color: var(--color-primary);
   }
 
-  .field input.invalid {
+  .field input.invalid,
+  .field select.invalid {
     border-color: var(--color-risk-veryhigh);
     box-shadow: inset 0 0 0 1px var(--color-risk-veryhigh);
   }
@@ -800,6 +815,11 @@
         and
         <a href="https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FLL" target="_blank" rel="noopener noreferrer">U.S. Bureau of Transportation Statistics</a>
       </li>
+      <li>
+        Urban area boundaries: U.S. Census Bureau,
+        <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Areas</a>
+        (via TIGERweb)
+      </li>
     </ul>
   </div>
 </section>
@@ -811,7 +831,7 @@
   <div class="container">
     <h2 class="section-title">Run a Prediction</h2>
     <p class="section-subtitle">
-      Enter the catch location and fish length below. The site's elevation is
+      Enter the catch location, fish species, and fish length below. The site's elevation is
       looked up automatically from its coordinates, and all values are passed into the <code>getPFASUE()</code> model described in the Methodology section.
     </p>
 
@@ -832,7 +852,64 @@
           <span class="error-text" id="error-lon"></span>
         </div>
 
-        <div class="field full-width">
+        <div class="field">
+          <label for="input-species">Fish Species</label>
+          <select id="input-species" required>
+            <option value="" disabled selected>Select a species…</option>
+            <option value="black crappie">Black crappie</option>
+            <option value="blue catfish">Blue catfish</option>
+            <option value="bluegill">Bluegill</option>
+            <option value="brook trout">Brook trout</option>
+            <option value="brown bullhead">Brown bullhead</option>
+            <option value="brown trout">Brown trout</option>
+            <option value="burbot">Burbot</option>
+            <option value="chain pickerel">Chain pickerel</option>
+            <option value="channel catfish">Channel catfish</option>
+            <option value="chinook salmon">Chinook salmon</option>
+            <option value="cisco">Cisco</option>
+            <option value="coho salmon">Coho salmon</option>
+            <option value="common carp">Common carp</option>
+            <option value="cutthroat trout">Cutthroat trout</option>
+            <option value="flathead catfish">Flathead catfish</option>
+            <option value="freshwater drum">Freshwater drum</option>
+            <option value="green sunfish">Green sunfish</option>
+            <option value="lake trout">Lake trout</option>
+            <option value="lake whitefish">Lake whitefish</option>
+            <option value="largemouth bass">Largemouth bass</option>
+            <option value="longear sunfish">Longear sunfish</option>
+            <option value="longnose sunfish">Longnose sunfish</option>
+            <option value="mountain whitefish">Mountain whitefish</option>
+            <option value="northern pike">Northern pike</option>
+            <option value="northern pikeminnow">Northern pikeminnow</option>
+            <option value="pumpkinseed">Pumpkinseed</option>
+            <option value="rainbow trout">Rainbow trout</option>
+            <option value="redbreast sunfish">Redbreast sunfish</option>
+            <option value="redear sunfish">Redear sunfish</option>
+            <option value="rock bass">Rock bass</option>
+            <option value="round whitefish">Round whitefish</option>
+            <option value="sauger">Sauger</option>
+            <option value="shoal bass">Shoal bass</option>
+            <option value="shortnose gar">Shortnose gar</option>
+            <option value="silver carp">Silver carp</option>
+            <option value="silver redhorse">Silver redhorse</option>
+            <option value="smallmouth bass">Smallmouth bass</option>
+            <option value="spotted bass">Spotted bass</option>
+            <option value="striped bass">Striped bass</option>
+            <option value="tiger trout">Tiger trout</option>
+            <option value="tyee sucker">Tyee sucker</option>
+            <option value="walleye">Walleye</option>
+            <option value="warmouth">Warmouth</option>
+            <option value="white bass">White bass</option>
+            <option value="white crappie">White crappie</option>
+            <option value="white perch">White perch</option>
+            <option value="white sucker">White sucker</option>
+            <option value="yellow perch">Yellow perch</option>
+          </select>
+          <span class="hint">Species of the fish that was caught</span>
+          <span class="error-text" id="error-species"></span>
+        </div>
+
+        <div class="field">
           <label for="input-length">Fish Length (mm)</label>
           <input type="text" id="input-length" placeholder="e.g. 350" inputmode="decimal" required>
           <span class="hint">Total length of the fish, in millimeters</span>
@@ -842,7 +919,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Estimate Risk</button>
           <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
-          <span class="form-note">Only the latitude/longitude are sent to the Open-Meteo elevation service; the model itself runs locally in JavaScript.</span>
+          <span class="form-note">Only the latitude/longitude are sent to the Open-Meteo elevation and U.S. Census TIGERweb services; the model itself runs locally in JavaScript.</span>
         </div>
 
       </form>
@@ -884,6 +961,10 @@
         <div class="score-tile">
           <div class="score-label">Nearest Known Base</div>
           <div class="score-value" id="nearest-base-distance">--</div>
+        </div>
+        <div class="score-tile">
+          <div class="score-label">Nearest Urban Area</div>
+          <div class="score-value" id="nearest-urban-distance">--</div>
         </div>
         <div class="score-tile">
           <div class="score-label">Fish Length Input</div>
@@ -933,8 +1014,12 @@
           <p>
             Urban areas concentrate many other PFAS sources &mdash; industrial discharge,
             wastewater treatment plants, landfills, and stormwater runoff. The distance in
-            miles from the site to the nearest urban area is calculated the same way and
-            used as a second polluter-distance input alongside the military-base distance.
+            miles from the site to the nearest
+            <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Area</a>
+            is looked up from the
+            <a href="https://tigerweb.geo.census.gov/" target="_blank" rel="noopener noreferrer">U.S. Census TIGERweb</a>
+            service (0&nbsp;mi if the site is inside one, to within ~50&nbsp;m) and used as a
+            second polluter-distance input alongside the military-base distance.
           </p>
         </div>
       </div>
@@ -1129,11 +1214,81 @@
     return Math.max(0, meters) / METERS_PER_MILE;
   }
 
+  const URBAN_QUERY_URL =
+    "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Urban/MapServer/0/query";
+  const URBAN_MAX_MILES = 300;
+  const URBAN_PRECISION_METERS = 50;
+
+  // True if any 2020 Census Urban Area is within `meters` of the point
+  // (0 = the point itself must be inside one). Uses the Census TIGERweb service.
+  async function hasUrbanWithin(lat, lon, meters) {
+    let url = URBAN_QUERY_URL +
+      "?geometry=" + encodeURIComponent(lon + "," + lat) + // longitude first
+      "&geometryType=esriGeometryPoint&inSR=4326" +
+      "&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json";
+    if (meters > 0) {
+      url += "&distance=" + meters + "&units=esriSRUnit_Meter";
+    }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Urban area lookup failed (HTTP " + res.status + ")");
+    const data = await res.json();
+    if (typeof data.count !== "number") throw new Error("Bad urban area response");
+    return data.count > 0;
+  }
+
+  // Miles from the point to the nearest 2020 Census Urban Area.
+  // Returns 0 if the point is inside one, or null if none is within URBAN_MAX_MILES.
+  // Port of milesToUrban() (urbanDist/urbanDistCode). Instead of one request at a
+  // time, each round checks several radii in parallel, which narrows the answer to
+  // ~50 m in about 5 rounds instead of ~20 sequential requests.
+  async function fetchUrbanDistanceMiles(lat, lon) {
+    // Round 1: inside an urban area? Plus doubling radii 1, 2, 4 ... 256 mi and the 300 mi cap.
+    const radii = [0];
+    for (let mi = 1; mi < URBAN_MAX_MILES; mi *= 2) radii.push(mi * METERS_PER_MILE);
+    radii.push(URBAN_MAX_MILES * METERS_PER_MILE);
+    const hits = await Promise.all(radii.map((r) => hasUrbanWithin(lat, lon, r)));
+
+    const firstHit = hits.indexOf(true);
+    if (firstHit === -1) return null; // nothing within URBAN_MAX_MILES
+    if (firstHit === 0) return 0;     // already inside one
+
+    let lo = radii[firstHit - 1];
+    let hi = radii[firstHit];
+
+    // Narrow [lo, hi] by checking 8 evenly spaced radii per round.
+    const PROBES = 8;
+    while (hi - lo > URBAN_PRECISION_METERS) {
+      const step = (hi - lo) / (PROBES + 1);
+      const probes = [];
+      for (let k = 1; k <= PROBES; k++) probes.push(lo + step * k);
+      const probeHits = await Promise.all(probes.map((r) => hasUrbanWithin(lat, lon, r)));
+      const k = probeHits.indexOf(true);
+      if (k === -1) {
+        lo = probes[PROBES - 1];
+      } else {
+        hi = probes[k];
+        if (k > 0) lo = probes[k - 1];
+      }
+    }
+    return hi / METERS_PER_MILE;
+  }
+
+  // Average of the two polluter distances (miles): nearest military base and
+  // nearest urban area. If no urban area was found within URBAN_MAX_MILES
+  // (urbanMiles === null), the search cap is used as the urban distance.
+  function averagePolluterDistance(baseMiles, urbanMiles) {
+    const urban = urbanMiles === null ? URBAN_MAX_MILES : urbanMiles;
+    return (baseMiles + urban) / 2;
+  }
+
   // Builds the getPFASUE() inputs from the form values and runs the model.
-  // Input: an object { latitude, longitude, elevationMiles, fishLengthMM }
+  // Input: an object { latitude, longitude, elevationMiles, urbanDistanceMiles, fishLengthMM }
+  // urbanDistanceMiles and the averaged polluter distance are computed and
+  // reported, but not yet used by getPFASUE().
   function computePFASEstimate(inputs) {
-    const { latitude, longitude, elevationMiles, fishLengthMM } = inputs;
+    const { latitude, longitude, elevationMiles, urbanDistanceMiles, fishLengthMM } = inputs;
     const { distanceMiles: nearestBaseDistanceMiles } = findNearestBase(latitude, longitude);
+    const avgPolluterDistanceMiles = averagePolluterDistance(nearestBaseDistanceMiles, urbanDistanceMiles);
 
     const Q = 0.95;
     const C = 0.3450;
@@ -1143,6 +1298,8 @@
     return {
       estimatedPPB: estimatedPPB,
       nearestBaseDistanceMiles: nearestBaseDistanceMiles,
+      urbanDistanceMiles: urbanDistanceMiles,
+      avgPolluterDistanceMiles: avgPolluterDistanceMiles,
       modelInputs: {
         q: Q,
         C: C,
@@ -1167,12 +1324,14 @@
   const fields = {
     lat: document.getElementById("input-lat"),
     lon: document.getElementById("input-lon"),
+    species: document.getElementById("input-species"),
     length: document.getElementById("input-length"),
   };
 
   const errors = {
     lat: document.getElementById("error-lat"),
     lon: document.getElementById("error-lon"),
+    species: document.getElementById("error-species"),
     length: document.getElementById("error-length"),
   };
 
@@ -1209,6 +1368,13 @@
       values.longitude = lon;
     }
 
+    if (!fields.species.value) {
+      setError("species", "Select the fish species.");
+      valid = false;
+    } else {
+      values.species = fields.species.value;
+    }
+
     const length = parseFloat(fields.length.value);
     if (isNaN(length) || length <= 0) {
       setError("length", "Enter a fish length in mm greater than 0.");
@@ -1224,6 +1390,12 @@
     return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
   }
 
+  // null means no urban area within URBAN_MAX_MILES.
+  function formatUrbanDistance(miles, digits) {
+    if (miles === null) return "> " + URBAN_MAX_MILES + " mi";
+    return miles.toFixed(digits) + " mi";
+  }
+
   function renderResults(result, inputValues) {
     const badge = document.getElementById("risk-badge");
     badge.textContent = "95% Upper Envelope Estimate";
@@ -1233,6 +1405,9 @@
 
     document.getElementById("nearest-base-distance").textContent =
       result.nearestBaseDistanceMiles.toFixed(1) + " mi";
+
+    document.getElementById("nearest-urban-distance").textContent =
+      formatUrbanDistance(result.urbanDistanceMiles, 1);
 
     document.getElementById("echo-length").textContent =
       inputValues.fishLengthMM + " mm";
@@ -1246,6 +1421,12 @@
     list.innerHTML = "";
     const modelInputRows = [
       { name: "Distance to Nearest Base (D)", value: result.modelInputs.D.toFixed(2) + " mi" },
+      { name: "Distance to Nearest Urban Area (looked up)", value: formatUrbanDistance(result.urbanDistanceMiles, 2) },
+      {
+        name: "Average Polluter Distance (base + urban) / 2",
+        value: (result.urbanDistanceMiles === null ? "≥ " : "") + result.avgPolluterDistanceMiles.toFixed(2) + " mi",
+      },
+      { name: "Species", value: fields.species.options[fields.species.selectedIndex].text },
       { name: "Fish Length (L)", value: result.modelInputs.L.toFixed(1) + " mm" },
       { name: "Elevation (E, looked up)", value: result.modelInputs.E.toFixed(4) + " mi" },
     ];
@@ -1274,12 +1455,15 @@
 
     const originalLabel = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = "Looking up elevation…";
+    submitBtn.textContent = "Looking up location data…";
     try {
-      values.elevationMiles = await fetchElevationMiles(values.latitude, values.longitude);
+      [values.elevationMiles, values.urbanDistanceMiles] = await Promise.all([
+        fetchElevationMiles(values.latitude, values.longitude),
+        fetchUrbanDistanceMiles(values.latitude, values.longitude),
+      ]);
     } catch (err) {
       resultsSection.classList.remove("visible");
-      setError("lat", "Couldn't look up elevation for this location. Check your connection and try again.");
+      setError("lat", "Couldn't look up elevation / urban-area data for this location. Check your connection and try again.");
       fields.lon.classList.add("invalid");
       return;
     } finally {
