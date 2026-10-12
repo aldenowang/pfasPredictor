@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methodology | PFAS Fish Risk Predictor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%231a4480'/%3E%3Cg fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z'/%3E%3Cpath d='M4 12l-1.3-2.6M4 12l-1.3 2.6'/%3E%3C/g%3E%3Ccircle cx='15.6' cy='10.8' r='0.9' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="Technical details of the PFAS fish models: inputs, formulas, the Extra Trees model and the PFAS compounds covered.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+
+<!-- Visitor counter: Vercel Web Analytics (enable it in the Vercel dashboard → Analytics) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<div class="site-banner">
+  <div class="container">Independent student research project. Not an official government website or health advisory.</div>
+</div>
+
+<header class="site-header">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c2.5-4 6-6 10-6 3.5 0 6 2.5 8 6-2 3.5-4.5 6-8 6-4 0-7.5-2-10-6z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16.5" cy="10.5" r="0.9" fill="currentColor"/></svg>
+      </span>
+      PFAS Fish Risk Predictor
+    </a>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="index.html#limitations">Limitations</a>
+      <a href="index.html#predict" class="nav-cta">Check a Fish</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="methodology" class="method-page">
+  <div class="container">
+    <h2 class="section-title">Methodology</h2>
+    <p class="section-subtitle">
+      The site uses two models built from EPA fish-tissue data. The 95% and 99% bounds come
+      from quantile-regression curves: four site and fish measurements are combined into a
+      single score, <em>x</em>, and PFAS (in ppb) is estimated as
+      <em>y</em>&nbsp;=&nbsp;<em>C</em>&nbsp;/&nbsp;<em>x</em>, with a different constant
+      <em>C</em> for each confidence level. The exact prediction comes from a separate
+      machine-learning model, described below. The four inputs are:
+    </p>
+
+    <div class="method-steps">
+      <div class="method-step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Proximity to Known Military Installations (averaged into D)</h3>
+          <p>
+            The site's latitude/longitude is compared against a reference list of ~750
+            U.S. military installation coordinates (military bases historically associated
+            with PFAS-containing firefighting foam, AFFF). The distance in miles to the
+            nearest installation is calculated using the haversine formula.
+          </p>
+        </div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Proximity to the Nearest Urban Area (averaged into D)</h3>
+          <p>
+            Urban areas concentrate many other PFAS sources, such as industrial discharge,
+            wastewater treatment plants, landfills and stormwater runoff. The distance in
+            miles from the site to the nearest
+            <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Area</a>
+            is looked up from the
+            <a href="https://tigerweb.geo.census.gov/" target="_blank" rel="noopener noreferrer">U.S. Census TIGERweb</a>
+            service (0&nbsp;mi if the site is inside one, to within ~50&nbsp;m). The two
+            polluter distances are averaged into a single value:
+            <em>D</em>&nbsp;=&nbsp;(military-base distance + urban-area distance)&nbsp;/&nbsp;2.
+          </p>
+        </div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Elevation (E)</h3>
+          <p>
+            Site elevation above sea level is looked up automatically from the
+            latitude/longitude using the
+            <a href="https://open-meteo.com/en/docs/elevation-api" target="_blank" rel="noopener noreferrer">Open-Meteo Elevation API</a>
+            (90&nbsp;m Copernicus DEM), converted from meters to miles, and used directly as
+            an input to the formula. Sites at or below sea level are treated as 0&nbsp;mi.
+          </p>
+        </div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Relative Fish Length (R)</h3>
+          <p>
+            PFAS is known to bioaccumulate over an organism's lifetime, so fish size is used
+            as a proxy for age. Because typical size varies widely between species, the
+            model uses <em>relative</em> length: the fish's length divided by the average
+            length of that same species in the study dataset. A value above 1 means the
+            fish is larger than average for its species. Larger relative length lowers
+            <em>x</em>, which raises the estimate.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="method-subhead">95% and 99% confidence bounds</h3>
+    <div class="formula-box">
+      <div class="formula-line"><em>x</em> = <em>D</em> &times; (1 / <em>R</em>) &times; <em>E</em></div>
+      <table class="formula-table">
+        <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
+        <tbody>
+          <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
+          <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
+        </tbody>
+      </table>
+      <p>
+        A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
+        curve. So the 95% value is the level you can be about 95% sure this fish is
+        below. These values are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        value recorded in the dataset; this also covers sites at sea level, where
+        <em>x</em>&nbsp;=&nbsp;0. The logic lives in the <code>getPFASUE()</code> function in the
+        main page's source code.
+      </p>
+    </div>
+
+    <div class="ml-box">
+      <h3>Exact prediction: Extra Trees model</h3>
+      <p>
+        We trained several machine-learning models on the 1,110 composite samples and compared how
+        well each predicted PFAS. An Extra Trees model performed best, with a median error of
+        3.04&nbsp;ppb, so it is the one used for the exact prediction. It runs on our server.
+      </p>
+    </div>
+
+    <div class="compounds" id="compounds">
+      <h3>PFAS compounds covered</h3>
+      <p>
+        PFAS is a family of thousands of chemicals. The estimates on this site account
+        for the combined total of these <strong>33 PFAS compounds</strong>, including the
+        two most studied, PFOS and PFOA, and newer replacement chemicals such as GenX (HFPO-DA)
+        and ADONA:
+      </p>
+      <ul class="compound-list">
+        <li><abbr>PFBA</abbr><span>Perfluorobutyric acid</span></li>
+        <li><abbr>PFPeA</abbr><span>Perfluoropentanoic acid</span></li>
+        <li><abbr>PFHxA</abbr><span>Perfluorohexanoic acid</span></li>
+        <li><abbr>PFHpA</abbr><span>Perfluoroheptanoic acid</span></li>
+        <li><abbr>PFOA</abbr><span>Perfluorooctanoic acid</span></li>
+        <li><abbr>PFNA</abbr><span>Perfluorononanoic acid</span></li>
+        <li><abbr>PFDA</abbr><span>Perfluorodecanoic acid</span></li>
+        <li><abbr>PFUnA</abbr><span>Perfluoroundecanoic acid</span></li>
+        <li><abbr>PFDoA</abbr><span>Perfluorododecanoic acid</span></li>
+        <li><abbr>PFTrDA</abbr><span>Perfluorotridecanoic acid</span></li>
+        <li><abbr>PFTeDA</abbr><span>Perfluorotetradecanoic acid</span></li>
+        <li><abbr>PFBS</abbr><span>Perfluorobutanesulfonic acid</span></li>
+        <li><abbr>PFPeS</abbr><span>Perfluoropentanesulfonic acid</span></li>
+        <li><abbr>PFHxS</abbr><span>Perfluorohexanesulfonic acid</span></li>
+        <li><abbr>PFHpS</abbr><span>Perfluoroheptanesulfonic acid</span></li>
+        <li><abbr>PFOS</abbr><span>Perfluorooctanesulfonic acid</span></li>
+        <li><abbr>PFNS</abbr><span>Perfluorononanesulfonic acid</span></li>
+        <li><abbr>PFDS</abbr><span>Perfluorodecanesulfonic acid</span></li>
+        <li><abbr>PFDoS</abbr><span>Perfluorododecanesulfonic acid</span></li>
+        <li><abbr>4:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorohexane sulfonic acid</span></li>
+        <li><abbr>6:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorooctane sulfonic acid</span></li>
+        <li><abbr>8:2 FTS</abbr><span>1H,1H,2H,2H-Perfluorodecane sulfonic acid</span></li>
+        <li><abbr>PFOSA</abbr><span>Perfluorooctanesulfonamide</span></li>
+        <li><abbr>N-MeFOSA</abbr><span>N-Methylperfluorooctanesulfonamide</span></li>
+        <li><abbr>N-EtFOSA</abbr><span>N-Ethylperfluorooctanesulfonamide</span></li>
+        <li><abbr>N-MeFOSAA</abbr><span>N-Methylperfluoro-1-octanesulfonamidoacetic acid</span></li>
+        <li><abbr>N-EtFOSAA</abbr><span>N-Ethylperfluorooctanesulfonamidoacetic acid</span></li>
+        <li><abbr>N-MeFOSE</abbr><span>N-Methylperfluoro-1-octanesulfonamidoethanol</span></li>
+        <li><abbr>N-EtFOSE</abbr><span>N-Ethylperfluoro-1-octanesulfonamidoethanol</span></li>
+        <li><abbr>HFPO-DA</abbr><span>Hexafluoropropylene oxide dimer acid</span></li>
+        <li><abbr>ADONA</abbr><span>4,8-Dioxa-3H-perfluorononanoic acid</span></li>
+        <li><abbr>9Cl-PF3ONS</abbr><span>9-Chlorohexadecafluoro-3-oxanonane-1-sulfonic acid</span></li>
+        <li><abbr>11Cl-PF3OUdS</abbr><span>11-Chloroeicosafluoro-3-oxaundecane-1-sulfonic acid</span></li>
+      </ul>
+    </div>
+    <div class="story-actions">
+      <a href="index.html#predict" class="btn btn-primary">Check a Fish</a>
+      <a href="index.html" class="btn btn-secondary">Back to the main page</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="disclaimer" role="note">
+      <span class="disclaimer-icon" aria-hidden="true">!</span>
+      <div>
+        <strong>Disclaimer</strong>
+        This tool is for research purposes only. It uses a predictive model that may have
+        significant margins of error. It is not an official health advisory. Always refer
+        to your local Department of Fish and Wildlife for official consumption guidelines.
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>PFAS Fish Contamination Risk Predictor. A student research project.</span>
+      <span>Built with plain HTML, CSS &amp; JavaScript. Typefaces: Public Sans &amp; Merriweather.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
