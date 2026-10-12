@@ -59,7 +59,7 @@
         <h2>Why PFAS in freshwater fish matters</h2>
         <p>
           PFAS, often called "forever chemicals," break down very slowly and build up in fish
-          and in the people who eat them. A 2023 analysis of more than 500 EPA fish samples
+          and in the people who eat them. A 2023 analysis of more than 500 EPA composite fish samples
           found that freshwater fish across the U.S. carry far more PFAS than fish sold in stores.
         </p>
         <p>
@@ -88,7 +88,6 @@
      ========================================================== -->
 <section class="hero" id="top">
   <div class="hero-inner">
-    <span class="eyebrow">Student / Research Project</span>
     <h1>Estimating PFAS Contamination Risk in Freshwater Fish</h1>
     <p class="lead">
       Pick where a fish was caught, choose the species and enter its length. The model estimates
@@ -113,12 +112,10 @@
       <a href="#methodology" class="btn btn-secondary">See How It Works</a>
     </div>
 
-    <div class="hero-stats">
-      <div class="hero-stat"><span class="num">868</span><span class="lbl">fish samples behind the model</span></div>
-      <div class="hero-stat"><span class="num">48</span><span class="lbl">freshwater species supported</span></div>
-      <div class="hero-stat"><span class="num">750+</span><span class="lbl">military sites mapped</span></div>
-      <div class="hero-stat"><span class="num">3</span><span class="lbl">estimates per fish, incl. 95% &amp; 99% bounds</span></div>
-    </div>
+    <p class="hero-facts">
+      Built on 1,110 EPA composite samples (each made from 3 to 5 fish) covering 48 species.
+      Exact predictions have a median error of 3.04&nbsp;ppb.
+    </p>
   </div>
 </section>
 
@@ -287,19 +284,15 @@
         <div class="estimate-tile q50">
           <div class="estimate-label">Exact prediction</div>
           <div class="estimate-value"><span id="est-exact">--</span></div>
-          <p class="estimate-desc">From our Extra Trees machine-learning model. Its median error in testing was 3.04&nbsp;ppb.</p>
-          <p class="estimate-warning"><strong>Warning:</strong> this value can vary a lot. Actual PFAS levels may be much higher or lower.</p>
         </div>
         <div class="estimate-tile q95">
-          <div class="estimate-label">95% confidence</div>
+          <div class="estimate-label">95% upper bound</div>
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q95">--</span></div>
-          <p class="estimate-desc">95% sure the PFAS in this fish is below this value.</p>
           <span class="estimate-cap" id="cap-q95" hidden>Capped at maximum</span>
         </div>
         <div class="estimate-tile q99">
-          <div class="estimate-label">99% confidence</div>
+          <div class="estimate-label">99% upper bound</div>
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q99">--</span></div>
-          <p class="estimate-desc">99% sure the PFAS in this fish is below this value.</p>
           <span class="estimate-cap" id="cap-q99" hidden>Capped at maximum</span>
         </div>
       </div>
@@ -313,7 +306,17 @@
         </div>
       </div>
 
-      <p class="results-context" id="results-context"></p>
+      <div class="read-key">
+        <h3>How to read these numbers</h3>
+        <ul>
+          <li><strong>Exact prediction</strong> is our single best estimate, from an Extra Trees
+            machine-learning model with a median error of 3.04&nbsp;ppb. Individual fish can still be
+            much higher or lower.</li>
+          <li><strong>Upper bounds</strong> are the levels we are 95% and 99% confident the PFAS in
+            this fish falls below.</li>
+        </ul>
+        <p class="results-context" id="results-context"></p>
+      </div>
 
       <div class="risk-score-row">
         <div class="score-tile">
@@ -484,17 +487,9 @@
     <div class="ml-box">
       <h3>Exact prediction: Extra Trees model</h3>
       <p>
-        The exact prediction comes from an Extra Trees model, a machine-learning method that
-        averages the answers of 500 randomized decision trees. It was trained on the same 868
-        EPA fish samples and looks at the species, the fish's length relative to its species
-        average, elevation, distance to the nearest urban area and military base, latitude and
-        longitude, the type of water, and the PFAS measured at the five nearest sampled sites.
-      </p>
-      <p>
-        In testing, its exact predictions had a <strong>median error of 3.04&nbsp;ppb</strong>.
-        Half of the predictions were within about 3&nbsp;ppb of the measured value, and the other
-        half were further off, so a single fish can still differ a lot from its estimate. The
-        model runs on our server, so the trained trees are never downloaded to your browser.
+        We trained several machine-learning models on the 1,110 composite samples and compared how
+        well each predicted PFAS. An Extra Trees model performed best, with a median error of
+        3.04&nbsp;ppb, so it is the one used for the exact prediction. It runs on our server.
       </p>
     </div>
 
@@ -555,9 +550,9 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>The exact prediction is highly variable:</strong> It comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. Species with only a few samples in the dataset have especially uncertain averages. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
+      <li><strong>The exact prediction is highly variable:</strong> It comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
-      <li><strong>United States only:</strong> The model was fit to U.S. fish samples and relies on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
+      <li><strong>United States only:</strong> The models were built from U.S. samples and rely on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
       <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
       <li><strong>Not a substitute for testing:</strong> Only laboratory analysis of actual fish tissue samples can determine real PFAS concentrations.</li>
@@ -710,36 +705,36 @@
     "yellow perch":        234.6473939,
   };
 
-  // Average measured PFAS (ppb) per species in the study dataset
-  // (from speciesInfo/avgSpecPFAS). Used for the exact prediction.
+  // Average measured PFAS (ppb) per species across the 1,110 composite samples
+  // (from speciesInfo/avgSpecPFAS). Shown as context next to the results.
   const SPECIES_AVG_PFAS_PPB = {
-    "black crappie":       8.8407,
+    "black crappie":       16.2153,
     "blue catfish":        3.5368,
-    "bluegill":            12.1334,
+    "bluegill":            17.278,
     "brook trout":         0.9416,
-    "brown bullhead":      1.3305,
+    "brown bullhead":      2.2909,
     "brown trout":         9.0312,
     "burbot":              14.5212,
-    "chain pickerel":      6.4328,
+    "chain pickerel":      8.6898,
     "channel catfish":     5.7154,
     "chinook salmon":      11.8403,
     "cisco":               8.838,
     "coho salmon":         4.6177,
-    "common carp":         4.108,
+    "common carp":         3.6435,
     "cutthroat trout":     0.9098,
     "flathead catfish":    19.393,
     "freshwater drum":     30.5959,
     "green sunfish":       0.598,
     "lake trout":          12.0683,
     "lake whitefish":      6.4694,
-    "largemouth bass":     21.8394,
+    "largemouth bass":     24.282,
     "longear sunfish":     29.482,
     "longnose sucker":     24.0613,
     "mountain whitefish":  0.7553,
     "northern pike":       3.8689,
     "northern pikeminnow": 0.0885,
-    "pumpkinseed":         0.776,
-    "rainbow trout":       0.9936,
+    "pumpkinseed":         11.4103,
+    "rainbow trout":       1.5448,
     "redbreast sunfish":   8.066,
     "redear sunfish":      37.1017,
     "rock bass":           8.2041,
@@ -749,7 +744,7 @@
     "shortnose gar":       2.298,
     "silver carp":         0.8915,
     "silver redhorse":     6.542,
-    "smallmouth bass":     15.1077,
+    "smallmouth bass":     14.8372,
     "spotted bass":        11.3279,
     "striped bass":        13.756,
     "tiger trout":         0.267,
@@ -758,9 +753,9 @@
     "warmouth":            18.901,
     "white bass":          30.1076,
     "white crappie":       8.3736,
-    "white perch":         28.1232,
-    "white sucker":        18.9663,
-    "yellow perch":        12.4789,
+    "white perch":         57.3352,
+    "white sucker":        17.7213,
+    "yellow perch":        20.0235,
   };
 
   /* ============================================================
@@ -788,7 +783,7 @@
      ============================================================ */
   const PFAS_QUANTILE_CONSTANTS = { 0.5: 25.6965, 0.95: 199.183, 0.99: 711.2349 };
   const PFAS_MAX_PPB = 533.896;
-  const DATASET_MEDIAN_PPB = 6.4405; // median measured PFAS across the 868-sample study dataset
+  const DATASET_MEDIAN_PPB = 6.8275; // median measured PFAS across the 1,110 composite samples
 
   // Combined score x = D * (1 / R) * E.
   function getModelX(D, R, E) {
@@ -1071,15 +1066,13 @@
 
     const speciesLabel = fields.species.options[fields.species.selectedIndex].text;
     document.getElementById("results-context").textContent =
-      "For comparison: the median fish in our 868-sample study dataset measured " +
-      formatPPB(DATASET_MEDIAN_PPB) + " ppb, and " + speciesLabel.toLowerCase() +
-      " averaged " + formatPPB(result.modelInputs.speciesAvgPFAS) + " ppb.";
+      "For comparison, the median of our 1,110 samples is " + formatPPB(DATASET_MEDIAN_PPB) +
+      " ppb, and " + speciesLabel.toLowerCase() + " samples averaged " +
+      formatPPB(result.modelInputs.speciesAvgPFAS) + " ppb.";
 
     document.getElementById("outside-us-warning").hidden = result.urbanDistanceMiles !== null;
 
-    document.getElementById("results-summary-text").textContent =
-      "Estimated PFAS concentration for this catch: an exact prediction, plus the levels we are " +
-      "95% and 99% confident the fish's PFAS falls below.";
+    document.getElementById("results-summary-text").textContent = "Estimated PFAS for this catch, in parts per billion.";
 
     resultsSection.classList.add("visible");
     resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
