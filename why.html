@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why I Built This | PFAS Fish Risk Predictor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%231a4480'/%3E%3Cg fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z'/%3E%3Cpath d='M4 12l-1.3-2.6M4 12l-1.3 2.6'/%3E%3C/g%3E%3Ccircle cx='15.6' cy='10.8' r='0.9' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="Why a high school angler built a tool to estimate PFAS in freshwater fish.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+
+<!-- Visitor counter: Vercel Web Analytics (enable it in the Vercel dashboard → Analytics) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<div class="site-banner">
+  <div class="container">Independent student research project. Not an official government website or health advisory.</div>
+</div>
+
+<header class="site-header">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c2.5-4 6-6 10-6 3.5 0 6 2.5 8 6-2 3.5-4.5 6-8 6-4 0-7.5-2-10-6z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16.5" cy="10.5" r="0.9" fill="currentColor"/></svg>
+      </span>
+      PFAS Fish Risk Predictor
+    </a>
+    <nav class="nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#methodology">Methodology</a>
+      <a href="index.html#limitations">Limitations</a>
+      <a href="index.html#predict" class="nav-cta">Check a Fish</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="why">
+  <div class="container">
+    <h2 class="section-title">Why I Built This</h2>
+    <div class="story">
+      <p class="story-lead">
+        In my freshman year of high school, my family stopped eating the fish I caught.
+      </p>
+      <p>
+        They were worried about the "forever chemicals" (PFAS) that were being measured in
+        freshwater fish across the United States.
+      </p>
+      <p>
+        Getting a fish tested at a lab takes
+        weeks and costs hundreds of dollars, and by the time the results come back, the fish has
+        already gone bad. Testing for PFAS yourself is almost impossible, because it's measured in
+        parts per billion.
+      </p>
+      <figure class="story-photo">
+        <img src="images/author-muskie.jpg" alt="Alden holding a large muskie below a dam" width="1000" height="753">
+      </figure>
+      <p>
+        So, to get a better understanding for myself, I built this tool. I hope it helps other
+        people make safer decisions about the fish they eat.
+      </p>
+      <div class="story-actions">
+        <a href="index.html#predict" class="btn btn-primary">Check a Fish</a>
+        <a href="index.html" class="btn btn-secondary">Back to the main page</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="disclaimer" role="note">
+      <span class="disclaimer-icon" aria-hidden="true">!</span>
+      <div>
+        <strong>Disclaimer</strong>
+        This tool is for research purposes only. It uses a predictive model that may have
+        significant margins of error. It is not an official health advisory. Always refer
+        to your local Department of Fish and Wildlife for official consumption guidelines.
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>PFAS Fish Contamination Risk Predictor. A student research project.</span>
+      <span>Built with plain HTML, CSS &amp; JavaScript. Typefaces: Public Sans &amp; Merriweather.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
