@@ -968,9 +968,9 @@
         </div>
 
         <div class="field">
-          <label for="input-length">Fish Length (mm)</label>
-          <input type="text" id="input-length" placeholder="e.g. 350" inputmode="decimal" required>
-          <span class="hint">Total length of the fish, in millimeters</span>
+          <label for="input-length">Fish Length (inches)</label>
+          <input type="text" id="input-length" placeholder="e.g. 14" inputmode="decimal" required>
+          <span class="hint">Total length of the fish, in inches</span>
           <span class="error-text" id="error-length"></span>
         </div>
 
@@ -1378,6 +1378,7 @@
   }
 
   const METERS_PER_MILE = 1609.344;
+  const MM_PER_INCH = 25.4;
 
   // Looks up ground elevation for a coordinate via the Open-Meteo Elevation API
   // (returns meters) and converts it to miles. Below-sea-level results are
@@ -1574,10 +1575,10 @@
 
     const length = parseFloat(fields.length.value);
     if (isNaN(length) || length <= 0) {
-      setError("length", "Enter a fish length in mm greater than 0.");
+      setError("length", "Enter a fish length in inches greater than 0.");
       valid = false;
     } else {
-      values.fishLengthMM = length;
+      values.fishLengthMM = length * MM_PER_INCH; // form is in inches; model uses mm
     }
 
     return { valid, values };
