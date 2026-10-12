@@ -135,7 +135,7 @@
 
     <ol class="steps">
       <li>Pick where it was caught</li>
-      <li>Choose the species</li>
+      <li>Choose the species and water type</li>
       <li>Enter its length</li>
     </ol>
 
@@ -239,10 +239,23 @@
           <span class="error-text" id="error-length"></span>
         </div>
 
+        <div class="field full-width">
+          <label for="input-water">Type of Water</label>
+          <select id="input-water" required>
+            <option value="" disabled selected>Select where it was caught…</option>
+            <option value="R">River or stream</option>
+            <option value="L">Lake</option>
+            <option value="P">Pond</option>
+            <option value="GL">Great Lake</option>
+          </select>
+          <span class="hint">The kind of water body the fish came from</span>
+          <span class="error-text" id="error-water"></span>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Estimate PFAS</button>
           <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
-          <span class="form-note">Only the latitude/longitude are sent to the Open-Meteo elevation and U.S. Census TIGERweb services; the model itself runs locally in JavaScript.</span>
+          <span class="form-note">The location is sent to the Open-Meteo elevation and U.S. Census TIGERweb services, and your inputs go to our prediction server. Nothing is stored.</span>
         </div>
 
       </form>
@@ -275,7 +288,7 @@
         <div class="estimate-tile q50">
           <div class="estimate-label">Exact prediction</div>
           <div class="estimate-value"><span id="est-exact">--</span></div>
-          <p class="estimate-desc">Average of the model's median (q&nbsp;=&nbsp;0.50) estimate and the average PFAS measured in this species.</p>
+          <p class="estimate-desc">From our Extra Trees machine-learning model. Its median error in testing was 3.04&nbsp;ppb.</p>
           <p class="estimate-warning"><strong>Warning:</strong> this value can vary a lot. Actual PFAS levels may be much higher or lower.</p>
         </div>
         <div class="estimate-tile q95">
@@ -382,10 +395,12 @@
   <div class="container">
     <h2 class="section-title">Methodology</h2>
     <p class="section-subtitle">
-      The model is a set of quantile-regression curves fit to EPA fish-tissue data. Four
-      site and fish measurements are combined into a single score, <em>x</em>, and PFAS
-      (in ppb) is estimated as <em>y</em>&nbsp;=&nbsp;<em>C</em>&nbsp;/&nbsp;<em>x</em>, with a
-      different constant <em>C</em> for each confidence level. The inputs are:
+      The site uses two models built from EPA fish-tissue data. The 95% and 99% bounds come
+      from quantile-regression curves: four site and fish measurements are combined into a
+      single score, <em>x</em>, and PFAS (in ppb) is estimated as
+      <em>y</em>&nbsp;=&nbsp;<em>C</em>&nbsp;/&nbsp;<em>x</em>, with a different constant
+      <em>C</em> for each confidence level. The exact prediction comes from a separate
+      machine-learning model, described below. The four inputs are:
     </p>
 
     <div class="method-steps">
@@ -447,12 +462,12 @@
       </div>
     </div>
 
+    <h3 class="method-subhead">95% and 99% confidence bounds</h3>
     <div class="formula-box">
       <div class="formula-line"><em>x</em> = <em>D</em> &times; (1 / <em>R</em>) &times; <em>E</em></div>
       <table class="formula-table">
         <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
         <tbody>
-          <tr><td>Exact prediction</td><td>0.50</td><td>(25.6965 / <em>x</em> + species average PFAS) / 2</td></tr>
           <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
           <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
         </tbody>
@@ -460,12 +475,27 @@
       <p>
         A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
         curve. So the 95% value is the level you can be about 95% sure this fish is
-        below. The exact prediction averages the q&nbsp;=&nbsp;0.50 (median) curve with the
-        average PFAS measured in that species across the dataset; it can be far off for any
-        individual fish. The q-curve values are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        below. These values are capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
         value recorded in the dataset; this also covers sites at sea level, where
         <em>x</em>&nbsp;=&nbsp;0. The logic lives in the <code>getPFASUE()</code> function in the
         page source.
+      </p>
+    </div>
+
+    <div class="ml-box">
+      <h3>Exact prediction: Extra Trees model</h3>
+      <p>
+        The exact prediction comes from an Extra Trees model, a machine-learning method that
+        averages the answers of 500 randomized decision trees. It was trained on the same 868
+        EPA fish samples and looks at the species, the fish's length relative to its species
+        average, elevation, distance to the nearest urban area and military base, latitude and
+        longitude, the type of water, and the PFAS measured at the five nearest sampled sites.
+      </p>
+      <p>
+        In testing, its exact predictions had a <strong>median error of 3.04&nbsp;ppb</strong>.
+        Half of the predictions were within about 3&nbsp;ppb of the measured value, and the other
+        half were further off, so a single fish can still differ a lot from its estimate. The
+        model runs on our server, so the trained trees are never downloaded to your browser.
       </p>
     </div>
 
@@ -526,7 +556,7 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>The exact prediction is highly variable:</strong> It averages the median (q&nbsp;=&nbsp;0.50) estimate with the species' average PFAS in the dataset, so an individual fish's actual PFAS can be much higher or lower. Species with only a few samples in the dataset have especially uncertain averages. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
+      <li><strong>The exact prediction is highly variable:</strong> It comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. Species with only a few samples in the dataset have especially uncertain averages. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
       <li><strong>United States only:</strong> The model was fit to U.S. fish samples and relies on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
@@ -774,6 +804,30 @@
   }
 
   const METERS_PER_MILE = 1609.344;
+
+  // Exact prediction from the Extra Trees model, run server-side at /api/predict.
+  // Species names in the model are title case ("Largemouth Bass").
+  async function fetchExactPrediction(values, militaryMiles) {
+    const species = values.species.split(" ").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+    const res = await fetch("/api/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        species: species,
+        lengthMm: values.fishLengthMM,
+        lat: values.latitude,
+        lon: values.longitude,
+        water: values.water,
+        elevationMi: values.elevationMiles,
+        urbanMi: values.urbanDistanceMiles === null ? URBAN_MAX_MILES : values.urbanDistanceMiles,
+        militaryMi: militaryMiles,
+      }),
+    });
+    if (!res.ok) throw new Error("Prediction server error (HTTP " + res.status + ")");
+    const data = await res.json();
+    if (typeof data.pfasPpb !== "number" || !isFinite(data.pfasPpb)) throw new Error("Bad prediction response");
+    return data.pfasPpb;
+  }
   const MM_PER_INCH = 25.4;
 
   // Looks up ground elevation for a coordinate via the Open-Meteo Elevation API
@@ -859,8 +913,8 @@
     return (baseMiles + urban) / 2;
   }
 
-  // Builds the model inputs from the form values, runs all three quantiles,
-  // and computes the exact prediction.
+  // Builds the model inputs from the form values and runs the 95% / 99% curves.
+  // (The exact prediction comes from the Extra Trees model; see fetchExactPrediction.)
   // Input: an object { latitude, longitude, elevationMiles, urbanDistanceMiles,
   //                    species, fishLengthMM }
   function computePFASEstimate(inputs) {
@@ -879,13 +933,10 @@
       estimates[q] = { ppb: ppb, capped: ppb === PFAS_MAX_PPB };
     }
 
-    // Exact prediction: average of the q = 0.50 value and the species' average PFAS.
     const speciesAvgPFAS = SPECIES_AVG_PFAS_PPB[species];
-    const exactPPB = (estimates[0.5].ppb + speciesAvgPFAS) / 2;
 
     return {
       estimates: estimates,
-      exactPPB: exactPPB,
       nearestBaseDistanceMiles: nearestBaseDistanceMiles,
       urbanDistanceMiles: urbanDistanceMiles,
       modelInputs: {
@@ -916,6 +967,7 @@
     lon: document.getElementById("input-lon"),
     species: document.getElementById("input-species"),
     length: document.getElementById("input-length"),
+    water: document.getElementById("input-water"),
   };
 
   const errors = {
@@ -923,6 +975,7 @@
     lon: document.getElementById("error-lon"),
     species: document.getElementById("error-species"),
     length: document.getElementById("error-length"),
+    water: document.getElementById("error-water"),
   };
 
   function clearErrors() {
@@ -969,6 +1022,13 @@
       }
     }
 
+    if (!fields.water.value) {
+      setError("water", "Select the type of water.");
+      valid = false;
+    } else {
+      values.water = fields.water.value;
+    }
+
     const length = parseFloat(fields.length.value);
     if (isNaN(length) || length <= 0) {
       setError("length", "Enter a fish length in inches greater than 0.");
@@ -991,7 +1051,8 @@
   }
 
   function renderResults(result, inputValues) {
-    document.getElementById("est-exact").textContent = formatPPB(result.exactPPB) + " ppb";
+    document.getElementById("est-exact").textContent =
+      result.exactPPB === null ? "Unavailable" : formatPPB(result.exactPPB) + " ppb";
 
     const qKeys = { 0.95: "q95", 0.99: "q99" };
     for (const q of [0.95, 0.99]) {
@@ -1047,13 +1108,21 @@
       resultsSection.classList.remove("visible");
       setError("lat", "Couldn't look up elevation / urban-area data for this location. Check your connection and try again.");
       fields.lon.classList.add("invalid");
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
       return;
+    }
+
+    const result = computePFASEstimate(values);
+    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Running the model…';
+    try {
+      result.exactPPB = await fetchExactPrediction(values, result.nearestBaseDistanceMiles);
+    } catch (err) {
+      result.exactPPB = null; // the 95% / 99% bounds still show
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
     }
-
-    const result = computePFASEstimate(values);
     renderResults(result, values);
     saveLastInputs();
     window.va("event", { name: "prediction", species: values.species });
@@ -1155,6 +1224,7 @@
     setLocation(39.0968, -120.0324, 9); // Lake Tahoe
     fields.species.value = "rainbow trout";
     fields.length.value = "17.5";
+    fields.water.value = "L";
     clearErrors();
     setLocStatus("Example loaded: a 17.5-inch rainbow trout from Lake Tahoe. Press Estimate PFAS to see the result.");
   });
@@ -1170,6 +1240,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         lat: fields.lat.value, lon: fields.lon.value,
         species: fields.species.value, length: fields.length.value,
+        water: fields.water.value,
       }));
     } catch (e) { /* storage unavailable — ignore */ }
   }
@@ -1182,6 +1253,7 @@
       fields.lon.value = saved.lon || "";
       if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) fields.species.value = saved.species;
       fields.length.value = saved.length || "";
+      if (["R", "L", "P", "GL"].includes(saved.water)) fields.water.value = saved.water;
       if (fields.lat.value) setLocStatus("Your last catch was filled in. Change anything you need and press Estimate PFAS.");
     } catch (e) { /* storage unavailable — ignore */ }
   }
