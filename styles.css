@@ -1279,3 +1279,66 @@ footer .footer-bottom {
 .ml-box {
   border-left-width: 1px;
 }
+
+/* ==========================================================
+   PFOS EATING GUIDELINES (results)
+   ========================================================== */
+.advisory {
+  margin: 0 0 24px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.advisory h3 {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  color: var(--color-primary-dark);
+  margin: 0 0 6px;
+}
+
+.advisory > p {
+  margin: 0 0 12px;
+  font-size: 0.93rem;
+  max-width: 720px;
+}
+
+.advisory-table-wrap { overflow-x: auto; }
+
+.advisory-table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 520px;
+  font-size: 0.93rem;
+}
+
+.advisory-table th,
+.advisory-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.advisory-table th {
+  font-weight: 700;
+  background: var(--color-surface-alt);
+}
+
+.advisory-table td:first-child {
+  border-left: 5px solid transparent;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.advisory-table .lvl-1 td:first-child { border-left-color: #2e8540; }
+.advisory-table .lvl-2 td:first-child { border-left-color: #7fb135; }
+.advisory-table .lvl-3 td:first-child { border-left-color: #e5a000; }
+.advisory-table .lvl-4 td:first-child { border-left-color: #d9701a; }
+.advisory-table .lvl-5 td:first-child { border-left-color: #b50909; }
+.advisory-table .lvl-5 td:last-child { font-weight: 700; color: #b50909; }
+
+.advisory-note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  max-width: 720px;
+}
