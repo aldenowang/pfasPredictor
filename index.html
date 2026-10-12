@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PFAS Fish Contamination Risk Predictor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%231a4480'/%3E%3Cg fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z'/%3E%3Cpath d='M4 12l-1.3-2.6M4 12l-1.3 2.6'/%3E%3C/g%3E%3Ccircle cx='15.6' cy='10.8' r='0.9' fill='white'/%3E%3C/svg%3E">
 <meta name="description" content="A research tool that estimates potential PFAS contamination risk in freshwater fish based on distance to military installations and urban areas, elevation, and relative fish length.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,8 +92,8 @@
   }
 
   /* Alternate white and slate bands between sections */
-  #about, #methodology { background: var(--color-surface); }
-  #predict, #methodology, #limitations { border-top: 1px solid var(--color-border); }
+  #predict, #methodology { background: var(--color-surface); }
+  #about, #methodology, #limitations { border-top: 1px solid var(--color-border); }
 
   h1, h2, h3 { line-height: 1.25; }
 
@@ -757,6 +758,175 @@
   }
 
   /* ==========================================================
+     ENGAGEMENT: hero stats, steps, location picker, results extras
+     ========================================================== */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    max-width: 860px;
+  }
+
+  .hero-stat {
+    background: rgba(15, 31, 56, 0.55);
+    padding: 16px 18px;
+  }
+
+  .hero-stat .num {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  .hero-stat .lbl {
+    font-size: 0.82rem;
+    color: #b9cbe2;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    counter-reset: step;
+  }
+
+  .steps li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-weight: 600;
+    font-size: 0.94rem;
+    counter-increment: step;
+  }
+
+  .steps li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+  }
+
+  .loc-block {
+    grid-column: 1 / -1;
+  }
+
+  .loc-block .loc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .loc-block .loc-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+  }
+
+  .loc-block .loc-title span {
+    display: block;
+    font-weight: 400;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .loc-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-small {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
+  #loc-map {
+    height: 340px;
+    border: 1px solid #8d98a6;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-alt);
+    cursor: crosshair;
+  }
+
+  .loc-status {
+    min-height: 1.2em;
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .loc-status.error { color: var(--color-risk-veryhigh); font-weight: 600; }
+
+  .nav-links a.nav-cta {
+    background: var(--color-primary);
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border-bottom: none;
+  }
+
+  .nav-links a.nav-cta:hover { background: var(--color-primary-dark); color: #ffffff; }
+
+  .results-context {
+    margin: 0 0 20px;
+    padding: 12px 16px;
+    background: var(--color-primary-light);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+  }
+
+  .results-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 760px) {
+    .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps { grid-template-columns: 1fr; }
+    #loc-map { height: 280px; }
+  }
+
+  /* ==========================================================
      RESPONSIVE
      ========================================================== */
 
@@ -770,9 +940,24 @@
     form#pfas-form { grid-template-columns: 1fr; }
     .predict-panel, .results-panel { padding: 22px; }
     .nav-links { gap: 14px; }
+    .nav-inner { flex-wrap: nowrap; padding: 10px 16px; }
+    .brand { font-size: 0.95rem; gap: 8px; }
+    .brand .brand-mark { width: 30px; height: 30px; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .nav-links a.nav-cta { white-space: nowrap; }
     .estimate-row { grid-template-columns: 1fr; }
   }
 </style>
+
+<!-- Map for picking the catch location (Leaflet + OpenStreetMap tiles) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Visitor counter: Vercel Web Analytics (enable it in the Vercel dashboard → Analytics) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -793,9 +978,9 @@
     </a>
     <nav class="nav-links">
       <a href="#about">About</a>
-      <a href="#predict">Predict</a>
       <a href="#methodology">Methodology</a>
       <a href="#limitations">Limitations</a>
+      <a href="#predict" class="nav-cta">Check a Fish</a>
     </nav>
   </div>
 </header>
@@ -808,11 +993,10 @@
     <span class="eyebrow">Student / Research Project</span>
     <h1>Estimating PFAS Contamination Risk in Freshwater Fish</h1>
     <p class="lead">
-      This tool uses a predictive research model to estimate the possible risk of PFAS
-      ("forever chemical") contamination in freshwater fish, based on the catch site's distance to the
-      nearest military installation and urban area, its elevation, and the fish's length
-      relative to the average for its species. It is intended to support research and education around
-      per- and polyfluoroalkyl substances (PFAS) in aquatic ecosystems.
+      Caught a fish and wondering about PFAS ("forever chemicals")? Pick where it was caught,
+      choose the species and enter its length &mdash; in seconds, our research model estimates
+      how much PFAS it may contain, based on nearby military bases and urban areas, elevation,
+      and the fish's size for its species.
     </p>
 
     <!-- Disclaimer #1: near the top, directly under the hero -->
@@ -827,58 +1011,16 @@
     </div>
 
     <div class="hero-actions">
-      <a href="#predict" class="btn btn-primary">Try the Predictor</a>
+      <a href="#predict" class="btn btn-primary">Check a Fish &rarr;</a>
       <a href="#methodology" class="btn btn-secondary">See How It Works</a>
     </div>
-  </div>
-</section>
 
-<!-- ==========================================================
-     ABOUT SECTION
-     ========================================================== -->
-<section id="about">
-  <div class="container">
-    <h2 class="section-title">What This Project Does</h2>
-    <p class="section-subtitle">
-      PFAS are persistent synthetic chemicals that have been linked to industrial sites,
-      airports, and military installations that historically used PFAS-containing
-      firefighting foam (AFFF). These chemicals can enter waterways and bioaccumulate in
-      fish over time. This project explores whether a simple set of location- and
-      biology-based inputs can produce a useful, approximate risk estimate.
-    </p>
-    <div class="about-graphs">
-      <figure class="graph-card">
-        <img src="images/Screenshot%202026-10-11%20134553.png" alt="Scatter plot of total PFAS (ppb) in USA freshwater fish against a combined score of elevation, distance to the nearest military base and urban area, and relative fish length">
-        <figcaption>
-          Total PFAS (ppb) in USA freshwater fish plotted against a combined score of
-          elevation, polluter distance (nearest military base and nearest urban area), and
-          relative fish length (length &divide; species average), showing the rapid
-          C/x-style decay that the quantile-regression curves are fit to.
-        </figcaption>
-      </figure>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">868</span><span class="lbl">fish samples behind the model</span></div>
+      <div class="hero-stat"><span class="num">48</span><span class="lbl">freshwater species supported</span></div>
+      <div class="hero-stat"><span class="num">750+</span><span class="lbl">military sites mapped</span></div>
+      <div class="hero-stat"><span class="num">3</span><span class="lbl">estimates per fish, incl. 95% &amp; 99% bounds</span></div>
     </div>
-
-    <ul class="sources-list">
-      <li>
-        Graph data: EPA,
-        <a href="https://www.epa.gov/national-aquatic-resource-surveys/reports-and-data-national-rivers-and-streams-assessment-2018-19" target="_blank" rel="noopener noreferrer">National Rivers and Streams Assessment 2018&ndash;19</a>
-      </li>
-      <li>
-        Graph data: EPA,
-        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/2022-national-lakes-assessment-fish-tissue-study#results" target="_blank" rel="noopener noreferrer">2022 National Lakes Assessment Fish Tissue Study</a>
-      </li>
-      <li>
-        Military installation coordinates:
-        <a href="https://www.kaggle.com/datasets/mexwell/us-military-bases" target="_blank" rel="noopener noreferrer">US Military Bases (Kaggle, sourced from government data)</a>
-        and
-        <a href="https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FLL" target="_blank" rel="noopener noreferrer">U.S. Bureau of Transportation Statistics</a>
-      </li>
-      <li>
-        Urban area boundaries: U.S. Census Bureau,
-        <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Areas</a>
-        (via TIGERweb)
-      </li>
-    </ul>
   </div>
 </section>
 
@@ -887,14 +1029,35 @@
      ========================================================== -->
 <section id="predict">
   <div class="container">
-    <h2 class="section-title">Run a Prediction</h2>
+    <h2 class="section-title">Check Your Fish</h2>
     <p class="section-subtitle">
-      Enter the catch location, fish species, and fish length below. The site's elevation is
-      looked up automatically from its coordinates, and all values are passed into the <code>getPFASUE()</code> model described in the Methodology section.
+      Three quick steps. Elevation, distance to the nearest military base, and distance to the
+      nearest urban area are all looked up automatically from the location.
     </p>
+
+    <ol class="steps">
+      <li>Pick where it was caught</li>
+      <li>Choose the species</li>
+      <li>Enter its length</li>
+    </ol>
 
     <div class="predict-panel">
       <form id="pfas-form" novalidate>
+
+        <div class="loc-block" id="loc-block">
+          <div class="loc-head">
+            <div class="loc-title">
+              Catch location
+              <span>Click the map where the fish was caught, or type coordinates below.</span>
+            </div>
+            <div class="loc-toolbar">
+              <button type="button" class="btn btn-secondary btn-small" id="btn-geolocate">Use my location</button>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-example">Try an example</button>
+            </div>
+          </div>
+          <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
+          <div class="loc-status" id="loc-status" aria-live="polite"></div>
+        </div>
 
         <div class="field">
           <label for="input-lat">Latitude</label>
@@ -975,7 +1138,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Estimate Risk</button>
+          <button type="submit" class="btn btn-primary">Estimate PFAS</button>
           <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
           <span class="form-note">Only the latitude/longitude are sent to the Open-Meteo elevation and U.S. Census TIGERweb services; the model itself runs locally in JavaScript.</span>
         </div>
@@ -1027,6 +1190,8 @@
         </div>
       </div>
 
+      <p class="results-context" id="results-context"></p>
+
       <div class="risk-score-row">
         <div class="score-tile">
           <div class="score-label">Nearest Military Base</div>
@@ -1041,7 +1206,61 @@
           <div class="score-value" id="echo-elevation">--</div>
         </div>
       </div>
+
+      <div class="results-actions">
+        <a href="#predict" class="btn btn-primary" id="btn-check-another">Check another fish</a>
+        <a href="#methodology" class="btn btn-secondary">How is this calculated?</a>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     ABOUT SECTION
+     ========================================================== -->
+<section id="about">
+  <div class="container">
+    <h2 class="section-title">What This Project Does</h2>
+    <p class="section-subtitle">
+      PFAS are persistent synthetic chemicals that have been linked to industrial sites,
+      airports, and military installations that historically used PFAS-containing
+      firefighting foam (AFFF). These chemicals can enter waterways and bioaccumulate in
+      fish over time. This project explores whether a simple set of location- and
+      biology-based inputs can produce a useful, approximate risk estimate.
+    </p>
+    <div class="about-graphs">
+      <figure class="graph-card">
+        <img src="images/Screenshot%202026-10-11%20134553.png" alt="Scatter plot of total PFAS (ppb) in USA freshwater fish against a combined score of elevation, distance to the nearest military base and urban area, and relative fish length">
+        <figcaption>
+          Total PFAS (ppb) in USA freshwater fish plotted against a combined score of
+          elevation, polluter distance (nearest military base and nearest urban area), and
+          relative fish length (length &divide; species average), showing the rapid
+          C/x-style decay that the quantile-regression curves are fit to.
+        </figcaption>
+      </figure>
+    </div>
+
+    <ul class="sources-list">
+      <li>
+        Graph data: EPA,
+        <a href="https://www.epa.gov/national-aquatic-resource-surveys/reports-and-data-national-rivers-and-streams-assessment-2018-19" target="_blank" rel="noopener noreferrer">National Rivers and Streams Assessment 2018&ndash;19</a>
+      </li>
+      <li>
+        Graph data: EPA,
+        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/2022-national-lakes-assessment-fish-tissue-study#results" target="_blank" rel="noopener noreferrer">2022 National Lakes Assessment Fish Tissue Study</a>
+      </li>
+      <li>
+        Military installation coordinates:
+        <a href="https://www.kaggle.com/datasets/mexwell/us-military-bases" target="_blank" rel="noopener noreferrer">US Military Bases (Kaggle, sourced from government data)</a>
+        and
+        <a href="https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FLL" target="_blank" rel="noopener noreferrer">U.S. Bureau of Transportation Statistics</a>
+      </li>
+      <li>
+        Urban area boundaries: U.S. Census Bureau,
+        <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Areas</a>
+        (via TIGERweb)
+      </li>
+    </ul>
   </div>
 </section>
 
@@ -1364,6 +1583,7 @@
      ============================================================ */
   const PFAS_QUANTILE_CONSTANTS = { 0.5: 25.6965, 0.95: 199.183, 0.99: 711.2349 };
   const PFAS_MAX_PPB = 533.896;
+  const DATASET_MEDIAN_PPB = 6.4405; // median measured PFAS across the 868-sample study dataset
 
   // Combined score x = D * (1 / R) * E.
   function getModelX(D, R, E) {
@@ -1613,6 +1833,12 @@
       formatUrbanDistance(result.urbanDistanceMiles, 1);
     document.getElementById("echo-elevation").textContent = mi.E.toFixed(3) + " mi";
 
+    const speciesLabel = fields.species.options[fields.species.selectedIndex].text;
+    document.getElementById("results-context").textContent =
+      "For comparison: the median fish in our 868-sample study dataset measured " +
+      formatPPB(DATASET_MEDIAN_PPB) + " ppb, and " + speciesLabel.toLowerCase() +
+      " averaged " + formatPPB(result.modelInputs.speciesAvgPFAS) + " ppb.";
+
     document.getElementById("results-summary-text").textContent =
       "Estimated PFAS concentration for this catch: an exact prediction, plus the levels we are " +
       "95% and 99% confident the fish's PFAS falls below.";
@@ -1633,7 +1859,7 @@
 
     const originalLabel = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = "Looking up location data…";
+    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Looking up location data…';
     try {
       [values.elevationMiles, values.urbanDistanceMiles] = await Promise.all([
         fetchElevationMiles(values.latitude, values.longitude),
@@ -1651,13 +1877,140 @@
 
     const result = computePFASEstimate(values);
     renderResults(result, values);
+    saveLastInputs();
+    window.va("event", { name: "prediction", species: values.species });
   });
 
   resetBtn.addEventListener("click", function () {
     form.reset();
     clearErrors();
     resultsSection.classList.remove("visible");
+    clearMarker();
+    setLocStatus("");
   });
+
+  /* ============================================================
+     LOCATION PICKER: map click, "use my location", example, and
+     remembering the last inputs (per browser, never sent anywhere)
+     ============================================================ */
+  const locStatus = document.getElementById("loc-status");
+  let map = null;
+  let marker = null;
+
+  function setLocStatus(text, isError) {
+    locStatus.textContent = text;
+    locStatus.classList.toggle("error", !!isError);
+  }
+
+  function setLocation(lat, lon, zoom) {
+    fields.lat.value = lat.toFixed(5);
+    fields.lon.value = lon.toFixed(5);
+    fields.lat.classList.remove("invalid");
+    fields.lon.classList.remove("invalid");
+    errors.lat.textContent = "";
+    errors.lon.textContent = "";
+    placeMarker(lat, lon, zoom);
+  }
+
+  function placeMarker(lat, lon, zoom) {
+    if (!map) return;
+    if (marker) marker.setLatLng([lat, lon]);
+    else marker = window.L.marker([lat, lon]).addTo(map);
+    if (zoom) map.setView([lat, lon], zoom);
+    else if (!map.getBounds().contains([lat, lon])) map.panTo([lat, lon]);
+  }
+
+  function clearMarker() {
+    if (marker && map) map.removeLayer(marker);
+    marker = null;
+  }
+
+  function initMap() {
+    if (!window.L) {
+      // Map library unavailable (offline / blocked): coordinates can still be typed in.
+      document.getElementById("loc-map").hidden = true;
+      return;
+    }
+    map = window.L.map("loc-map", { scrollWheelZoom: false }).setView([39.5, -98.35], 4);
+    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+    map.on("click", function (e) {
+      setLocation(e.latlng.lat, e.latlng.lng);
+      setLocStatus("Location set — now choose the species and length.");
+    });
+    map.on("focus", function () { map.scrollWheelZoom.enable(); });
+    map.on("blur", function () { map.scrollWheelZoom.disable(); });
+
+    const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
+    if (!isNaN(lat) && !isNaN(lon)) placeMarker(lat, lon, 9);
+  }
+
+  // Typing coordinates moves the marker.
+  [fields.lat, fields.lon].forEach(function (el) {
+    el.addEventListener("change", function () {
+      const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
+      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) placeMarker(lat, lon, 9);
+    });
+  });
+
+  document.getElementById("btn-geolocate").addEventListener("click", function () {
+    if (!navigator.geolocation) {
+      setLocStatus("Your browser doesn't support location — click the map instead.", true);
+      return;
+    }
+    setLocStatus("Finding your location…");
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        setLocation(pos.coords.latitude, pos.coords.longitude, 11);
+        setLocStatus("Using your current location. Adjust by clicking the map if needed.");
+      },
+      function () {
+        setLocStatus("Couldn't get your location — click the map or type coordinates instead.", true);
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
+  });
+
+  document.getElementById("btn-example").addEventListener("click", function () {
+    setLocation(39.0968, -120.0324, 9); // Lake Tahoe
+    fields.species.value = "rainbow trout";
+    fields.length.value = "17.5";
+    clearErrors();
+    setLocStatus("Example loaded: a 17.5-inch rainbow trout from Lake Tahoe. Press “Estimate PFAS”.");
+  });
+
+  document.getElementById("btn-check-another").addEventListener("click", function () {
+    setTimeout(function () { fields.species.focus({ preventScroll: true }); }, 400);
+  });
+
+  const STORAGE_KEY = "pfas-last-inputs";
+
+  function saveLastInputs() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        lat: fields.lat.value, lon: fields.lon.value,
+        species: fields.species.value, length: fields.length.value,
+      }));
+    } catch (e) { /* storage unavailable — ignore */ }
+  }
+
+  function restoreLastInputs() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (!saved) return;
+      fields.lat.value = saved.lat || "";
+      fields.lon.value = saved.lon || "";
+      if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) fields.species.value = saved.species;
+      fields.length.value = saved.length || "";
+      if (fields.lat.value) setLocStatus("Restored your last catch — change anything and press “Estimate PFAS”.");
+    } catch (e) { /* storage unavailable — ignore */ }
+  }
+
+  restoreLastInputs();
+  if (document.readyState === "complete") initMap();
+  else window.addEventListener("load", initMap);
 
 })();
 </script>
