@@ -40,7 +40,7 @@ afterEach(() => {
 const connect = () => { process.env.KV_REST_API_URL = "https://fake.upstash.io"; process.env.KV_REST_API_TOKEN = "test-token"; globalThis.fetch = fakeRedis(); };
 
 function mockRes() {
-  return { statusCode: 200, body: undefined, setHeader() {}, status(c) { this.statusCode = c; return this; }, json(o) { this.body = o; return this; }, end() { return this; } };
+  return { statusCode: 200, body: undefined, headers: {}, setHeader(k, v) { this.headers[k] = v; }, status(c) { this.statusCode = c; return this; }, json(o) { this.body = o; return this; }, send(t) { this.body = t; return this; }, end() { return this; } };
 }
 
 test("visitor IDs are validated", () => {
@@ -101,7 +101,21 @@ test("/api/stats needs the right key", async () => {
   process.env.STATS_KEY = "secret-key";
   res = mockRes(); await statsHandler({ method: "GET", query: { key: "wrong" } }, res);
   assert.equal(res.statusCode, 401);
-  res = mockRes(); await statsHandler({ method: "GET", query: { key: "secret-key" } }, res);
+  res = mockRes(); await statsHandler({ method: "GET", query: { key: "secret-key", format: "json" } }, res);
   assert.equal(res.statusCode, 200);
   assert.ok("totals" in res.body);
+});
+
+test("/api/stats shows a readable page and escapes species names", async () => {
+  connect();
+  process.env.STATS_KEY = "secret-key";
+  await recordVisit("visitor-aaaa-1111");
+  await recordPrediction("visitor-aaaa-1111", "<b>Walleye</b>");
+  const res = mockRes();
+  await statsHandler({ method: "GET", query: { key: "secret-key" } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.match(res.headers["Content-Type"], /text\/html/);
+  assert.match(res.body, /People who visited/);
+  assert.match(res.body, /&lt;b&gt;Walleye&lt;\/b&gt;/);
+  assert.doesNotMatch(res.body, /<b>Walleye<\/b>/);
 });
