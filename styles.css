@@ -1901,3 +1901,80 @@ form#pfas-form {
   .us-only-note { margin-left: 0; }
   .btn-large { width: 100%; }
 }
+
+/* ==========================================================
+   LOCATION MAP: square, beside the search, under the header
+   ========================================================== */
+.loc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.loc-side { min-width: 0; }
+.loc-side .loc-toolbar .us-only-note { margin-left: 0; }
+
+.loc-map-wrap {
+  position: relative;
+  isolation: isolate; /* keeps Leaflet's high z-indexes from covering the sticky header */
+  z-index: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--color-border), 0 8px 24px rgba(15, 31, 56, 0.14);
+}
+
+#loc-map {
+  height: 100%;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #e8eef3;
+}
+
+.map-hint {
+  position: absolute;
+  z-index: 500;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(15, 31, 56, 0.82);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.loc-map-wrap.has-pin .map-hint { opacity: 0; }
+
+.map-pin { background: none; border: 0; }
+.map-pin svg { width: 32px; height: 44px; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.3)); }
+
+.loc-map-wrap .leaflet-control-zoom {
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 31, 56, 0.2);
+}
+
+.loc-map-wrap .leaflet-control-zoom a {
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  color: var(--color-primary-dark);
+  border-bottom-color: var(--color-border);
+}
+
+.loc-map-wrap .leaflet-control-attribution {
+  font-size: 0.66rem;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 760px) {
+  .loc-layout { grid-template-columns: 1fr; gap: 14px; }
+}

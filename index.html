@@ -100,6 +100,8 @@
           </legend>
           <p class="step-help">Search for a lake, river or town, then click the map to fine-tune the exact spot.</p>
 
+          <div class="loc-layout">
+          <div class="loc-side">
           <div class="loc-search">
             <svg class="loc-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             <input type="search" id="loc-search" placeholder="e.g. Lake Mendota or Mississippi River" autocomplete="off"
@@ -118,7 +120,6 @@
             </button>
             <span class="us-only-note" title="The model is built on U.S. EPA fish data and U.S. military base and Census urban-area records, so it only works for fish caught in the U.S.">U.S. waters only</span>
           </div>
-          <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
           <div class="loc-status" id="loc-status" aria-live="polite"></div>
 
           <div class="coords-row">
@@ -133,6 +134,12 @@
               <span class="error-text" id="error-lon"></span>
             </div>
             <p class="coords-hint">Filled in automatically when you pick a spot. You can also type them.</p>
+          </div>
+          </div>
+          <div class="loc-map-wrap" id="loc-map-wrap">
+            <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
+            <div class="map-hint" aria-hidden="true">Click the map to drop a pin</div>
+          </div>
           </div>
         </fieldset>
 
@@ -1102,8 +1109,10 @@
      remembering the last inputs (per browser, never sent anywhere)
      ============================================================ */
   const locStatus = document.getElementById("loc-status");
+  const mapWrap = document.getElementById("loc-map-wrap");
   let map = null;
   let marker = null;
+  let PIN_ICON = null;
 
   function setLocStatus(text, isError) {
     locStatus.textContent = text;
@@ -1123,7 +1132,8 @@
   function placeMarker(lat, lon, zoom) {
     if (!map) return;
     if (marker) marker.setLatLng([lat, lon]);
-    else marker = window.L.marker([lat, lon]).addTo(map);
+    else marker = window.L.marker([lat, lon], { icon: PIN_ICON, keyboard: false }).addTo(map);
+    mapWrap.classList.add("has-pin");
     if (zoom) map.setView([lat, lon], zoom);
     else if (zoom !== false && !map.getBounds().contains([lat, lon])) map.panTo([lat, lon]); // false = leave the view alone
   }
@@ -1131,18 +1141,26 @@
   function clearMarker() {
     if (marker && map) map.removeLayer(marker);
     marker = null;
+    mapWrap.classList.remove("has-pin");
   }
 
   function initMap() {
     if (!window.L) {
       // Map library unavailable (offline / blocked): coordinates can still be typed in.
-      document.getElementById("loc-map").hidden = true;
+      mapWrap.hidden = true;
       return;
     }
-    map = window.L.map("loc-map", { scrollWheelZoom: false }).setView([39.5, -98.35], 4);
-    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    PIN_ICON = window.L.divIcon({
+      className: "map-pin",
+      html: '<svg viewBox="0 0 32 44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 43 16 43s15-16 15-27.2C31 7.6 24.3 1 16 1z" fill="#1a4480" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="15.5" r="5.5" fill="#ffffff"/></svg>',
+      iconSize: [32, 44],
+      iconAnchor: [16, 43],
+    });
+    map = window.L.map("loc-map", { scrollWheelZoom: false, zoomControl: false }).setView([39.5, -98.35], 4);
+    window.L.control.zoom({ position: "topright" }).addTo(map);
+    window.L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 19,
+      attribution: "Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS",
     }).addTo(map);
     map.on("click", function (e) {
       setLocation(e.latlng.lat, e.latlng.lng);
