@@ -1425,3 +1425,14 @@ footer .footer-bottom {
   color: #8a5a3a;
   margin-top: 4px;
 }
+
+.read-tip {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: var(--color-primary-light);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.93rem;
+  color: var(--color-text);
+  max-width: 760px;
+}
