@@ -100,12 +100,19 @@
           <div class="loc-head">
             <div class="loc-title">
               Catch location
-              <span>Click the map where the fish was caught, or type coordinates below.</span>
+              <span>Search for a lake, river or town, then click the map to fine-tune the spot.</span>
             </div>
             <div class="loc-toolbar">
               <button type="button" class="btn btn-secondary btn-small" id="btn-geolocate">Use my location</button>
               <button type="button" class="btn btn-secondary btn-small" id="btn-example">Try an example</button>
             </div>
+          </div>
+          <div class="loc-search">
+            <svg class="loc-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="search" id="loc-search" placeholder="Search for a lake, river or town" autocomplete="off"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="loc-results"
+                   aria-label="Search for a lake, river or town">
+            <ul id="loc-results" class="loc-results" role="listbox" hidden></ul>
           </div>
           <div class="us-only-note" role="note">
             <strong>United States only.</strong> The model is built on U.S. EPA fish data and U.S.
@@ -936,6 +943,8 @@
     resultsSection.classList.remove("visible");
     clearMarker();
     setLocStatus("");
+    searchInput.value = "";
+    closeResults();
   });
 
   /* ============================================================
@@ -995,6 +1004,146 @@
     const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
     if (!isNaN(lat) && !isNaN(lon)) placeMarker(lat, lon, 9);
   }
+
+  /* ------------------------------------------------------------
+     Place search (lakes, rivers, towns) using Photon, a free
+     OpenStreetMap search service. Suggestions appear as you type;
+     only U.S. places are shown, with water bodies listed first.
+     ------------------------------------------------------------ */
+  const searchInput = document.getElementById("loc-search");
+  const resultsList = document.getElementById("loc-results");
+  const WATER_TYPES = { lake: "Lake", reservoir: "Reservoir", pond: "Pond", river: "River", stream: "Stream",
+    canal: "Canal", bay: "Bay", water: "Water", lagoon: "Lagoon", oxbow: "Oxbow lake", basin: "Basin", wetland: "Wetland" };
+  let searchTimer = null;
+  let searchCtrl = null;
+  let searchItems = [];
+  let activeIndex = -1;
+
+  function placeLabel(f) {
+    const p = f.properties;
+    const isWater = p.osm_key === "water" || p.osm_key === "waterway" || (p.osm_key === "natural" && WATER_TYPES[p.osm_value]) || WATER_TYPES[p.osm_value];
+    const kind = WATER_TYPES[p.osm_value] || (p.osm_value || "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+    const where = [p.county, p.state].filter(Boolean).join(", ");
+    return { name: p.name, kind: kind, where: where, isWater: !!isWater,
+      lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], extent: p.extent || null };
+  }
+
+  function closeResults() {
+    resultsList.hidden = true;
+    resultsList.textContent = "";
+    searchInput.setAttribute("aria-expanded", "false");
+    searchInput.removeAttribute("aria-activedescendant");
+    activeIndex = -1;
+  }
+
+  function showMessage(text) {
+    resultsList.textContent = "";
+    const li = document.createElement("li");
+    li.className = "loc-result-msg";
+    li.textContent = text;
+    resultsList.appendChild(li);
+    resultsList.hidden = false;
+    searchInput.setAttribute("aria-expanded", "true");
+  }
+
+  function renderSearchResults() {
+    resultsList.textContent = "";
+    if (!searchItems.length) { showMessage("No U.S. places found. Try another name, or click the map."); return; }
+    searchItems.forEach(function (item, i) {
+      const li = document.createElement("li");
+      li.id = "loc-result-" + i;
+      li.className = "loc-result";
+      li.setAttribute("role", "option");
+      const name = document.createElement("span");
+      name.className = "loc-result-name";
+      name.textContent = item.name;
+      const meta = document.createElement("span");
+      meta.className = "loc-result-meta";
+      meta.textContent = [item.kind, item.where].filter(Boolean).join(" · ");
+      li.appendChild(name);
+      li.appendChild(meta);
+      li.addEventListener("mousedown", function (e) { e.preventDefault(); chooseResult(i); });
+      resultsList.appendChild(li);
+    });
+    const credit = document.createElement("li");
+    credit.className = "loc-result-credit";
+    credit.textContent = "Search by Photon · © OpenStreetMap";
+    resultsList.appendChild(credit);
+    resultsList.hidden = false;
+    searchInput.setAttribute("aria-expanded", "true");
+    setActive(-1);
+  }
+
+  function setActive(i) {
+    activeIndex = i;
+    [...resultsList.querySelectorAll(".loc-result")].forEach(function (li, j) {
+      li.classList.toggle("active", j === i);
+      li.setAttribute("aria-selected", j === i ? "true" : "false");
+    });
+    if (i >= 0) searchInput.setAttribute("aria-activedescendant", "loc-result-" + i);
+    else searchInput.removeAttribute("aria-activedescendant");
+  }
+
+  function chooseResult(i) {
+    const item = searchItems[i];
+    if (!item) return;
+    searchInput.value = item.name + (item.where ? ", " + item.where : "");
+    closeResults();
+    setLocation(item.lat, item.lon, item.isWater ? 11 : 12);
+    if (map && item.extent) {
+      // extent is [west, north, east, south]
+      map.fitBounds([[item.extent[3], item.extent[0]], [item.extent[1], item.extent[2]]], { maxZoom: 13, padding: [20, 20] });
+    }
+    setLocStatus(item.isWater
+      ? "Pinned " + item.name + ". Click the map to move the pin to where you actually fished, then choose the species."
+      : "Pinned " + item.name + ". Click the map to move the pin to the exact water where you fished.");
+  }
+
+  async function runSearch(q) {
+    if (searchCtrl) searchCtrl.abort();
+    searchCtrl = new AbortController();
+    let url = "https://photon.komoot.io/api/?limit=12&lang=en&q=" + encodeURIComponent(q);
+    if (map && map.getZoom() >= 6) {
+      const c = map.getCenter();
+      url += "&lat=" + c.lat.toFixed(3) + "&lon=" + c.lng.toFixed(3);
+    }
+    try {
+      const res = await fetch(url, { signal: searchCtrl.signal });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      const seen = new Set();
+      const items = (data.features || [])
+        .filter((f) => f.properties && f.properties.countrycode === "US" && f.properties.name)
+        .map(placeLabel)
+        .filter((it) => { const k = it.name + "|" + it.where + "|" + it.kind; if (seen.has(k)) return false; seen.add(k); return true; });
+      // water bodies first, keeping the search service's order otherwise
+      searchItems = items.filter((it) => it.isWater).concat(items.filter((it) => !it.isWater)).slice(0, 6);
+      if (searchInput.value.trim() === q) renderSearchResults();
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      showMessage("Search isn't available right now. You can still click the map.");
+    }
+  }
+
+  searchInput.addEventListener("input", function () {
+    const q = searchInput.value.trim();
+    clearTimeout(searchTimer);
+    if (q.length < 3) { if (searchCtrl) searchCtrl.abort(); closeResults(); return; }
+    searchTimer = setTimeout(function () { runSearch(q); }, 300);
+  });
+
+  searchInput.addEventListener("keydown", function (e) {
+    const open = !resultsList.hidden && searchItems.length;
+    if (e.key === "ArrowDown" && open) { e.preventDefault(); setActive((activeIndex + 1) % searchItems.length); }
+    else if (e.key === "ArrowUp" && open) { e.preventDefault(); setActive((activeIndex - 1 + searchItems.length) % searchItems.length); }
+    else if (e.key === "Enter") {
+      e.preventDefault(); // never submit the form from the search box
+      if (open) chooseResult(activeIndex >= 0 ? activeIndex : 0);
+    }
+    else if (e.key === "Escape") closeResults();
+  });
+
+  searchInput.addEventListener("blur", function () { setTimeout(closeResults, 150); });
 
   // Typing coordinates moves the marker.
   [fields.lat, fields.lon].forEach(function (el) {
