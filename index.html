@@ -34,16 +34,17 @@
      ========================================================== -->
 <header class="site-header">
   <div class="nav-inner">
-    <a class="brand" href="#top">
+    <a class="brand" href="index.html">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c2.5-4 6-6 10-6 3.5 0 6 2.5 8 6-2 3.5-4.5 6-8 6-4 0-7.5-2-10-6z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16.5" cy="10.5" r="0.9" fill="currentColor"/></svg>
       </span>
       <span class="brand-text">ForeverCatch<span class="brand-tag">PFAS predictions for freshwater fish</span></span>
     </a>
-    <nav class="nav-links">
-      <a href="#about">About</a>
+    <nav class="nav-links" aria-label="Site sections">
+      <a href="pfas.html">Why PFAS Matters</a>
+      <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
-      <a href="#limitations">Limitations</a>
+      <a href="limitations.html">Limitations</a>
       <a href="#predict" class="nav-cta">Check a Fish</a>
     </nav>
   </div>
@@ -87,49 +88,11 @@
 </section>
 
 <!-- ==========================================================
-     THREAT BANNER: why PFAS in freshwater fish matters
-     ========================================================== -->
-<aside class="threat" aria-label="The chemicals that never leave: why PFAS in freshwater fish matters">
-  <div class="container">
-    <div class="threat-inner">
-      <div>
-        <h2>The Chemicals That Never Leave<span class="threat-sub">Why PFAS in freshwater fish matters</span></h2>
-        <p>
-          PFAS, often called "forever chemicals," break down very slowly and build up in fish
-          and in the people who eat them. A 2023 analysis of more than 500 EPA composite fish samples
-          found that freshwater fish across the U.S. carry far more PFAS than fish sold in stores.
-        </p>
-        <p>
-          The EPA links PFAS exposure to some cancers (kidney, testicular and prostate), lower
-          fertility, developmental effects in children, a weaker immune response and higher
-          cholesterol.
-        </p>
-      </div>
-      <ul class="threat-facts">
-        <li><b>278x</b> higher median PFAS in U.S. freshwater fish than in store-bought fish.</li>
-        <li><b>One serving a year</b> of a typical freshwater fish can noticeably raise PFOS levels in the blood.</li>
-        <li><b>Zero</b> is the EPA's health-based goal for PFOA and PFOS in drinking water.</li>
-      </ul>
-    </div>
-    <div class="threat-sources">
-      Sources:
-      <a href="https://doi.org/10.1016/j.envres.2022.115165" target="_blank" rel="noopener noreferrer">Barbo et al., <em>Environmental Research</em> (2023)</a>;
-      <a href="https://www.epa.gov/pfas/our-current-understanding-human-health-and-environmental-risks-pfas" target="_blank" rel="noopener noreferrer">U.S. EPA, health effects of PFAS</a>;
-      <a href="https://www.epa.gov/sdwa/and-polyfluoroalkyl-substances-pfas" target="_blank" rel="noopener noreferrer">U.S. EPA, PFAS drinking water standard</a>.
-    </div>
-  </div>
-</aside>
-
-<!-- ==========================================================
      PREDICTION INPUT FORM SECTION
      ========================================================== -->
 <section id="predict">
   <div class="container">
     <h2 class="section-title">Check Your Fish</h2>
-    <p class="section-subtitle">
-      Elevation, distance to the nearest military base and distance to the nearest urban area
-      are looked up automatically from the location you pick.
-    </p>
 
     <ol class="steps">
       <li>Pick where it was caught</li>
@@ -319,12 +282,10 @@
             this fish falls below.</li>
         </ul>
         <p class="read-tip">
-          <strong>Deciding whether to eat it?</strong> Go by the <strong>95% upper bound</strong>, not the
-          exact prediction. The exact prediction can be far off for a single fish, while the upper
-          bound is a cautious number the real level is very likely below. Keep in mind that it's
-          deliberately on the high side, especially near sea level, where it can climb to around
-          400&nbsp;ppb. There, read it as a "be careful" signal rather than the fish's actual level. Compare it with
-          the chart below, and check your state's official fish advisories too.
+          <strong>Deciding whether to eat it?</strong> Use the <strong>95% upper bound</strong>, not the
+          exact prediction, which can be far off. The bound is cautious on purpose, especially near
+          sea level, where it can reach about 400&nbsp;ppb. Compare it with the chart below and check
+          your state's fish advisories.
         </p>
         <p class="results-context" id="results-context"></p>
       </div>
@@ -386,80 +347,6 @@
 </section>
 
 <!-- ==========================================================
-     ABOUT SECTION
-     ========================================================== -->
-<section id="about">
-  <div class="container">
-    <h2 class="section-title">What This Project Does</h2>
-    <p class="section-subtitle">
-      PFAS are persistent synthetic chemicals that have been linked to industrial sites,
-      airports, and military installations that historically used PFAS-containing
-      firefighting foam (AFFF). These chemicals can enter waterways and bioaccumulate in
-      fish over time. This project explores whether a simple set of location- and
-      biology-based inputs can produce a useful, approximate risk estimate.
-    </p>
-    <div class="about-graphs">
-      <figure class="graph-card">
-        <img src="images/Screenshot%202026-10-11%20134553.png" alt="Scatter plot of total PFAS (ppb) in USA freshwater fish against a combined score of elevation, distance to the nearest military base and urban area, and relative fish length">
-        <figcaption>
-          Total PFAS (ppb) in USA freshwater fish plotted against a combined score of
-          elevation, polluter distance (nearest military base and nearest urban area), and
-          relative fish length (length &divide; species average), showing the rapid
-          C/x-style decay that the quantile-regression curves are fit to.
-        </figcaption>
-      </figure>
-    </div>
-
-    <ul class="sources-list">
-      <li>
-        Graph data: EPA,
-        <a href="https://www.epa.gov/national-aquatic-resource-surveys/reports-and-data-national-rivers-and-streams-assessment-2018-19" target="_blank" rel="noopener noreferrer">National Rivers and Streams Assessment 2018&ndash;19</a>
-      </li>
-      <li>
-        Graph data: EPA,
-        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/2022-national-lakes-assessment-fish-tissue-study#results" target="_blank" rel="noopener noreferrer">2022 National Lakes Assessment Fish Tissue Study</a>
-      </li>
-      <li>
-        Graph data: EPA,
-        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/2020-great-lakes-human-health-fish-fillet-tissue-study" target="_blank" rel="noopener noreferrer">2020 Great Lakes Human Health Fish Fillet Tissue Study</a>
-      </li>
-      <li>
-        Military installation coordinates:
-        <a href="https://www.kaggle.com/datasets/mexwell/us-military-bases" target="_blank" rel="noopener noreferrer">US Military Bases (Kaggle, sourced from government data)</a>
-        and
-        <a href="https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FLL" target="_blank" rel="noopener noreferrer">U.S. Bureau of Transportation Statistics</a>
-      </li>
-      <li>
-        Urban area boundaries: U.S. Census Bureau,
-        <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural.html" target="_blank" rel="noopener noreferrer">2020 Census Urban Areas</a>
-        (via TIGERweb)
-      </li>
-    </ul>
-  </div>
-</section>
-
-<!-- ==========================================================
-     LIMITATIONS SECTION
-     ========================================================== -->
-<section id="limitations">
-  <div class="container">
-    <h2 class="section-title">Limitations</h2>
-    <p class="section-subtitle">
-      This tool has significant limitations that anyone using it should understand.
-    </p>
-    <ul class="limitations-list">
-      <li><strong>The exact prediction is highly variable:</strong> It comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
-      <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
-      <li><strong>United States only:</strong> The models were built from U.S. samples and rely on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
-      <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
-      <li><strong>No ground-truth calibration:</strong> Outputs have not been cross-checked against state or federal fish consumption advisories.</li>
-      <li><strong>Not a substitute for testing:</strong> Only laboratory analysis of actual fish tissue samples can determine real PFAS concentrations.</li>
-      <li><strong>Not a health authority:</strong> This tool does not replace guidance from your state Department of Fish and Wildlife, Department of Health, or the EPA.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ==========================================================
      ABOUT THE AUTHOR
      ========================================================== -->
 <section id="author">
@@ -492,6 +379,14 @@
         to your local Department of Fish and Wildlife for official consumption guidelines.
       </div>
     </div>
+    <nav class="footer-links" aria-label="More pages">
+      <a href="index.html">Home</a>
+      <a href="pfas.html">Why PFAS Matters</a>
+      <a href="about.html">About</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="limitations.html">Limitations</a>
+      <a href="why.html">Why I Built This</a>
+    </nav>
     <div class="footer-bottom">
       <span>ForeverCatch: PFAS predictions for freshwater fish. A student research project.</span>
       <span>Built with plain HTML, CSS &amp; JavaScript. Typefaces: Public Sans &amp; Merriweather.</span>
