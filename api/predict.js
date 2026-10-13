@@ -1,4 +1,5 @@
 import { predictPFAS } from "./_lib/pfasModel.js";
+import { recordPrediction } from "./_lib/stats.js";
 
 // POST /api/predict  (JSON body)   or   GET /api/predict?species=...&lengthMm=...
 //
@@ -10,6 +11,7 @@ import { predictPFAS } from "./_lib/pfasModel.js";
 //   elevationMi  elevation of the site, miles (>= 0)
 //   urbanMi      distance to nearest urban area, miles (>= 0)
 //   militaryMi   distance to nearest military base, miles (>= 0)
+//   visitorId    optional anonymous browser ID, only used for usage counts
 //
 // Returns: { pfasPpb: number }
 //
@@ -50,7 +52,7 @@ export function parseInputs(src) {
   return { inputs, errors };
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST" && req.method !== "GET") {
     res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ error: "Use GET or POST" });
@@ -74,6 +76,7 @@ export default function handler(req, res) {
   try {
     const pfasPpb = predictPFAS(inputs);
     if (!Number.isFinite(pfasPpb)) throw new Error("Model returned a non-finite value");
+    await recordPrediction(src.visitorId, inputs.species); // never throws; no-op if stats aren't set up
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({ pfasPpb });
   } catch (err) {

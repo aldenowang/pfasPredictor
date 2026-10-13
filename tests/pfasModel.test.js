@@ -30,7 +30,7 @@ test("matches the scikit-learn prediction from Colab (~3 decimals)", (t) => {
 });
 
 // Minimal stand-in for Vercel's req/res objects.
-function call(method, data) {
+async function call(method, data) {
   const req = { method, body: method === "POST" ? data : undefined, query: method === "GET" ? data : {} };
   const res = {
     statusCode: 200,
@@ -40,31 +40,31 @@ function call(method, data) {
     status(code) { this.statusCode = code; return this; },
     json(obj) { this.body = obj; return this; },
   };
-  handler(req, res);
+  await handler(req, res);
   return res;
 }
 
-test("POST /api/predict returns the same value as predictPFAS", () => {
-  const res = call("POST", SAMPLE);
+test("POST /api/predict returns the same value as predictPFAS", async () => {
+  const res = await call("POST", SAMPLE);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.pfasPpb, predictPFAS(SAMPLE));
 });
 
-test("GET /api/predict accepts query-string inputs", () => {
+test("GET /api/predict accepts query-string inputs", async () => {
   const query = Object.fromEntries(Object.entries(SAMPLE).map(([k, v]) => [k, String(v)]));
-  const res = call("GET", query);
+  const res = await call("GET", query);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.pfasPpb, predictPFAS(SAMPLE));
 });
 
-test("rejects bad inputs with 400", () => {
-  const res = call("POST", { ...SAMPLE, water: "X", lengthMm: -5, lat: 200 });
+test("rejects bad inputs with 400", async () => {
+  const res = await call("POST", { ...SAMPLE, water: "X", lengthMm: -5, lat: 200 });
   assert.equal(res.statusCode, 400);
   assert.ok(res.body.details.some((d) => d.startsWith("water")));
   assert.ok(res.body.details.some((d) => d.startsWith("lengthMm")));
   assert.ok(res.body.details.some((d) => d.startsWith("lat")));
 });
 
-test("rejects unsupported methods with 405", () => {
-  assert.equal(call("DELETE", {}).statusCode, 405);
+test("rejects unsupported methods with 405", async () => {
+  assert.equal((await call("DELETE", {})).statusCode, 405);
 });

@@ -252,7 +252,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Estimate PFAS</button>
           <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
-          <span class="form-note">The location is sent to the Open-Meteo elevation and U.S. Census TIGERweb services, and your inputs go to our prediction server. Nothing is stored.</span>
+          <span class="form-note">The location is sent to the Open-Meteo elevation and U.S. Census TIGERweb services, and your inputs go to our prediction server. We only keep anonymous counts of visits and predictions, never your inputs or anything that identifies you.</span>
         </div>
 
       </form>
@@ -690,6 +690,29 @@
 
   const METERS_PER_MILE = 1609.344;
 
+  // Anonymous usage counting: a random ID kept in this browser so repeat visits count
+  // as one visitor. No personal information is collected. Fails silently.
+  const VISITOR_ID = (function () {
+    try {
+      let id = localStorage.getItem("fc-visitor-id");
+      if (!id) {
+        id = window.crypto && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem("fc-visitor-id", id);
+      }
+      return id;
+    } catch (e) {
+      return null;
+    }
+  })();
+
+  try {
+    const payload = JSON.stringify({ visitorId: VISITOR_ID });
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/visit", new Blob([payload], { type: "application/json" }));
+    else fetch("/api/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(function () {});
+  } catch (e) { /* counting is optional */ }
+
   // Exact prediction from the Extra Trees model, run server-side at /api/predict.
   // Species names in the model are title case ("Largemouth Bass").
   async function fetchExactPrediction(values, militaryMiles) {
@@ -706,6 +729,7 @@
         elevationMi: values.elevationMiles,
         urbanMi: values.urbanDistanceMiles === null ? URBAN_MAX_MILES : values.urbanDistanceMiles,
         militaryMi: militaryMiles,
+        visitorId: VISITOR_ID,
       }),
     });
     if (!res.ok) throw new Error("Prediction server error (HTTP " + res.status + ")");
