@@ -975,7 +975,7 @@
     if (marker) marker.setLatLng([lat, lon]);
     else marker = window.L.marker([lat, lon]).addTo(map);
     if (zoom) map.setView([lat, lon], zoom);
-    else if (!map.getBounds().contains([lat, lon])) map.panTo([lat, lon]);
+    else if (zoom !== false && !map.getBounds().contains([lat, lon])) map.panTo([lat, lon]); // false = leave the view alone
   }
 
   function clearMarker() {
@@ -1006,34 +1006,116 @@
   }
 
   /* ------------------------------------------------------------
-     Place search (lakes, rivers, towns) using Photon, a free
-     OpenStreetMap search service. Suggestions appear as you type;
-     only U.S. places are shown, with water bodies listed first.
+     Place search (lakes, rivers, towns).
+     Suggestions come from Esri's World Geocoding Service (fast, U.S.
+     only, water features listed first). Choosing a suggestion looks up
+     its exact location and outline. If Esri is unavailable we fall back
+     to Photon (OpenStreetMap). Results are never stored.
      ------------------------------------------------------------ */
+  const ESRI = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   const searchInput = document.getElementById("loc-search");
   const resultsList = document.getElementById("loc-results");
-  const WATER_TYPES = { lake: "Lake", reservoir: "Reservoir", pond: "Pond", river: "River", stream: "Stream",
-    canal: "Canal", bay: "Bay", water: "Water", lagoon: "Lagoon", oxbow: "Oxbow lake", basin: "Basin", wetland: "Wetland" };
+  const WATER_WORDS = /\b(lake|lakes|river|creek|pond|reservoir|bay|stream|brook|run|fork|bayou|slough|lagoon|harbor|channel|canal|sound|inlet|flowage|impoundment)\b/i;
+  const suggestCache = new Map();
   let searchTimer = null;
-  let searchCtrl = null;
+  let searchSeq = 0;          // increases with every new search; stale responses are ignored
+  let shownQuery = "";        // the text the visible suggestion list belongs to
   let searchItems = [];
   let activeIndex = -1;
+  let loadingTimer = null;
 
-  function placeLabel(f) {
-    const p = f.properties;
-    const isWater = p.osm_key === "water" || p.osm_key === "waterway" || (p.osm_key === "natural" && WATER_TYPES[p.osm_value]) || WATER_TYPES[p.osm_value];
-    const kind = WATER_TYPES[p.osm_value] || (p.osm_value || "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
-    const where = [p.county, p.state].filter(Boolean).join(", ");
-    return { name: p.name, kind: kind, where: where, isWater: !!isWater,
-      lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], extent: p.extent || null };
+  async function getJSON(url, ms) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms || 6000);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // Splits "Lake Mendota, Madison, WI, USA" into a name and a place.
+  function splitLabel(text) {
+    const parts = text.replace(/,\s*USA$/, "").split(",").map((s) => s.trim())
+      .filter((s) => s && !/^\d{5}(-\d{4})?$/.test(s)); // drop ZIP codes
+    return { name: parts[0] || text, where: parts.slice(1).join(", ") };
+  }
+
+  async function esriSuggest(q) {
+    const base = ESRI + "/suggest?f=json&countryCode=USA&maxSuggestions=6&text=" + encodeURIComponent(q);
+    const [water, all] = await Promise.all([
+      getJSON(base + "&category=" + encodeURIComponent("Water Features"), 5000).catch(() => ({ suggestions: [] })),
+      getJSON(base, 5000),
+    ]);
+    const seen = new Set();
+    const items = [];
+    const add = (s, isWater) => {
+      if (!s || s.isCollection || seen.has(s.text)) return;
+      seen.add(s.text);
+      const l = splitLabel(s.text);
+      items.push({ source: "esri", magicKey: s.magicKey, text: s.text, name: l.name, where: l.where, isWater: isWater });
+    };
+    (water.suggestions || []).forEach((s) => add(s, true));
+    (all.suggestions || []).forEach((s) => add(s, false));
+    return items.filter((i) => i.isWater).concat(items.filter((i) => !i.isWater)).slice(0, 7);
+  }
+
+  async function photonSuggest(q) {
+    const data = await getJSON("https://photon.komoot.io/api/?limit=12&lang=en&lat=39.8&lon=-98.6&q=" + encodeURIComponent(q), 6000);
+    return (data.features || [])
+      .filter((f) => f.properties && f.properties.countrycode === "US" && f.properties.name)
+      .map((f) => {
+        const p = f.properties;
+        const where = [p.county, p.state].filter(Boolean).join(", ");
+        return { source: "photon", name: p.name, where: where, text: p.name + (where ? ", " + where : ""),
+          isWater: p.osm_key === "water" || p.osm_key === "waterway" || (p.osm_key === "natural" && /^(water|bay|spring)$/.test(p.osm_value)),
+          lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0],
+          extent: p.extent ? { xmin: p.extent[0], ymax: p.extent[1], xmax: p.extent[2], ymin: p.extent[3] } : null };
+      })
+      .slice(0, 7);
+  }
+
+  async function suggest(q) {
+    const key = q.toLowerCase();
+    if (suggestCache.has(key)) return suggestCache.get(key);
+    let items;
+    try { items = await esriSuggest(q); }
+    catch (e) { items = await photonSuggest(q); }
+    suggestCache.set(key, items);
+    return items;
+  }
+
+  // Turns a chosen suggestion (or free text) into a location with an outline.
+  async function resolvePlace(item, freeText) {
+    if (item && item.source === "photon") return item;
+    const url = ESRI + "/findAddressCandidates?f=json&countryCode=USA&maxLocations=1&outFields=Type,Region,Subregion&" +
+      (item ? "SingleLine=" + encodeURIComponent(item.text) + "&magicKey=" + encodeURIComponent(item.magicKey)
+            : "SingleLine=" + encodeURIComponent(freeText));
+    try {
+      const c = ((await getJSON(url, 6000)).candidates || [])[0];
+      if (!c) return null;
+      const type = (c.attributes && c.attributes.Type) || "";
+      const l = splitLabel(c.address || freeText || "");
+      return { name: item ? item.name : l.name, where: item ? item.where : [c.attributes.Subregion, c.attributes.Region].filter(Boolean).join(", "),
+        isWater: (item && item.isWater) || /lake|river|reservoir|pond|stream|bay|water|creek/i.test(type) || WATER_WORDS.test(l.name),
+        lat: c.location.y, lon: c.location.x, extent: c.extent || null };
+    } catch (e) {
+      if (item) throw e;
+      const alt = await photonSuggest(freeText); // Esri down: best Photon match
+      return alt[0] || null;
+    }
   }
 
   function closeResults() {
+    clearTimeout(loadingTimer);
     resultsList.hidden = true;
     resultsList.textContent = "";
     searchInput.setAttribute("aria-expanded", "false");
     searchInput.removeAttribute("aria-activedescendant");
     activeIndex = -1;
+    shownQuery = "";
   }
 
   function showMessage(text) {
@@ -1046,10 +1128,13 @@
     searchInput.setAttribute("aria-expanded", "true");
   }
 
-  function renderSearchResults() {
+  function renderSearchResults(q, items) {
+    clearTimeout(loadingTimer);
+    searchItems = items;
+    shownQuery = q;
     resultsList.textContent = "";
-    if (!searchItems.length) { showMessage("No U.S. places found. Try another name, or click the map."); return; }
-    searchItems.forEach(function (item, i) {
+    if (!items.length) { showMessage("No U.S. places found. Try another name, or click the map."); return; }
+    items.forEach(function (item, i) {
       const li = document.createElement("li");
       li.id = "loc-result-" + i;
       li.className = "loc-result";
@@ -1059,7 +1144,7 @@
       name.textContent = item.name;
       const meta = document.createElement("span");
       meta.className = "loc-result-meta";
-      meta.textContent = [item.kind, item.where].filter(Boolean).join(" · ");
+      meta.textContent = [item.isWater ? "Water" : "", item.where].filter(Boolean).join(" · ");
       li.appendChild(name);
       li.appendChild(meta);
       li.addEventListener("mousedown", function (e) { e.preventDefault(); chooseResult(i); });
@@ -1067,7 +1152,7 @@
     });
     const credit = document.createElement("li");
     credit.className = "loc-result-credit";
-    credit.textContent = "Search by Photon · © OpenStreetMap";
+    credit.textContent = items[0].source === "photon" ? "Search by Photon · © OpenStreetMap" : "Powered by Esri";
     resultsList.appendChild(credit);
     resultsList.hidden = false;
     searchInput.setAttribute("aria-expanded", "true");
@@ -1079,48 +1164,65 @@
     [...resultsList.querySelectorAll(".loc-result")].forEach(function (li, j) {
       li.classList.toggle("active", j === i);
       li.setAttribute("aria-selected", j === i ? "true" : "false");
+      if (j === i) li.scrollIntoView({ block: "nearest" });
     });
     if (i >= 0) searchInput.setAttribute("aria-activedescendant", "loc-result-" + i);
     else searchInput.removeAttribute("aria-activedescendant");
   }
 
-  function chooseResult(i) {
+  function pinPlace(place) {
+    if (place.extent && map) {
+      setLocation(place.lat, place.lon, false); // place the pin without moving the map...
+      map.fitBounds([[place.extent.ymin, place.extent.xmin], [place.extent.ymax, place.extent.xmax]],
+        { maxZoom: 13, padding: [20, 20] }); // ...then move the map once
+    } else {
+      setLocation(place.lat, place.lon, place.isWater ? 11 : 12);
+    }
+    setLocStatus(place.isWater
+      ? "Pinned " + place.name + ". Click the map to move the pin to where you actually fished, then choose the species."
+      : "Pinned " + place.name + ". Click the map to move the pin to the exact water where you fished.");
+  }
+
+  async function chooseResult(i) {
     const item = searchItems[i];
     if (!item) return;
     searchInput.value = item.name + (item.where ? ", " + item.where : "");
     closeResults();
-    setLocation(item.lat, item.lon, item.isWater ? 11 : 12);
-    if (map && item.extent) {
-      // extent is [west, north, east, south]
-      map.fitBounds([[item.extent[3], item.extent[0]], [item.extent[1], item.extent[2]]], { maxZoom: 13, padding: [20, 20] });
+    searchSeq++;
+    setLocStatus("Finding " + item.name + "…");
+    try {
+      const place = await resolvePlace(item);
+      if (!place) { setLocStatus("Couldn't find that place. Try another name, or click the map.", true); return; }
+      pinPlace(place);
+    } catch (e) {
+      setLocStatus("Search isn't available right now. You can still click the map.", true);
     }
-    setLocStatus(item.isWater
-      ? "Pinned " + item.name + ". Click the map to move the pin to where you actually fished, then choose the species."
-      : "Pinned " + item.name + ". Click the map to move the pin to the exact water where you fished.");
+  }
+
+  // Enter without a matching list: look up the typed text directly and pin the best match.
+  async function searchNow(q) {
+    clearTimeout(searchTimer);
+    const seq = ++searchSeq;
+    closeResults();
+    setLocStatus("Searching for " + q + "…");
+    const place = await resolvePlace(null, q).catch(() => null);
+    if (seq !== searchSeq) return;
+    if (!place) { setLocStatus("No U.S. place found for “" + q + "”. Try another name, or click the map.", true); return; }
+    pinPlace(place);
   }
 
   async function runSearch(q) {
-    if (searchCtrl) searchCtrl.abort();
-    searchCtrl = new AbortController();
-    let url = "https://photon.komoot.io/api/?limit=12&lang=en&q=" + encodeURIComponent(q);
-    if (map && map.getZoom() >= 6) {
-      const c = map.getCenter();
-      url += "&lat=" + c.lat.toFixed(3) + "&lon=" + c.lng.toFixed(3);
+    const seq = ++searchSeq;
+    clearTimeout(loadingTimer);
+    if (!suggestCache.has(q.toLowerCase())) {
+      loadingTimer = setTimeout(function () { if (seq === searchSeq) showMessage("Searching…"); }, 250);
     }
     try {
-      const res = await fetch(url, { signal: searchCtrl.signal });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
-      const seen = new Set();
-      const items = (data.features || [])
-        .filter((f) => f.properties && f.properties.countrycode === "US" && f.properties.name)
-        .map(placeLabel)
-        .filter((it) => { const k = it.name + "|" + it.where + "|" + it.kind; if (seen.has(k)) return false; seen.add(k); return true; });
-      // water bodies first, keeping the search service's order otherwise
-      searchItems = items.filter((it) => it.isWater).concat(items.filter((it) => !it.isWater)).slice(0, 6);
-      if (searchInput.value.trim() === q) renderSearchResults();
+      const items = await suggest(q);
+      if (seq !== searchSeq || searchInput.value.trim() !== q) return; // a newer search has started
+      renderSearchResults(q, items);
     } catch (err) {
-      if (err.name === "AbortError") return;
+      if (seq !== searchSeq) return;
       showMessage("Search isn't available right now. You can still click the map.");
     }
   }
@@ -1128,19 +1230,26 @@
   searchInput.addEventListener("input", function () {
     const q = searchInput.value.trim();
     clearTimeout(searchTimer);
-    if (q.length < 3) { if (searchCtrl) searchCtrl.abort(); closeResults(); return; }
-    searchTimer = setTimeout(function () { runSearch(q); }, 300);
+    if (q.length < 3) { searchSeq++; closeResults(); return; }
+    searchTimer = setTimeout(function () { runSearch(q); }, suggestCache.has(q.toLowerCase()) ? 0 : 180);
   });
 
   searchInput.addEventListener("keydown", function (e) {
-    const open = !resultsList.hidden && searchItems.length;
-    if (e.key === "ArrowDown" && open) { e.preventDefault(); setActive((activeIndex + 1) % searchItems.length); }
-    else if (e.key === "ArrowUp" && open) { e.preventDefault(); setActive((activeIndex - 1 + searchItems.length) % searchItems.length); }
+    const q = searchInput.value.trim();
+    const listIsCurrent = !resultsList.hidden && searchItems.length && shownQuery === q;
+    if (e.key === "ArrowDown" && listIsCurrent) { e.preventDefault(); setActive((activeIndex + 1) % searchItems.length); }
+    else if (e.key === "ArrowUp" && listIsCurrent) { e.preventDefault(); setActive((activeIndex - 1 + searchItems.length) % searchItems.length); }
     else if (e.key === "Enter") {
       e.preventDefault(); // never submit the form from the search box
-      if (open) chooseResult(activeIndex >= 0 ? activeIndex : 0);
+      if (listIsCurrent) chooseResult(activeIndex >= 0 ? activeIndex : 0);
+      else if (q.length >= 2) searchNow(q);
     }
-    else if (e.key === "Escape") closeResults();
+    else if (e.key === "Escape") { searchSeq++; closeResults(); }
+  });
+
+  searchInput.addEventListener("focus", function () {
+    const q = searchInput.value.trim();
+    if (q.length >= 3 && suggestCache.has(q.toLowerCase())) renderSearchResults(q, suggestCache.get(q.toLowerCase()));
   });
 
   searchInput.addEventListener("blur", function () { setTimeout(closeResults, 150); });
