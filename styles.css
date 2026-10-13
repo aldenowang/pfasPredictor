@@ -1549,3 +1549,355 @@ footer .footer-bottom {
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+
+/* ==========================================================
+   FRIENDLIER FORM: step cards, one-tap choices, verdict
+   ========================================================== */
+.section-lead {
+  margin: -6px 0 20px;
+  color: var(--color-text-muted);
+  font-size: 1.02rem;
+}
+
+form#pfas-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-card {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px 20px;
+  background: var(--color-surface);
+}
+
+/* float pulls the legend inside the card instead of onto its border */
+.step-head {
+  float: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+}
+
+.step-head + * { clear: both; }
+
+.step-head .step-num {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.step-head .step-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--color-primary-dark);
+}
+
+.step-help {
+  margin: 4px 0 14px;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 12px;
+}
+
+/* location toolbar sits under the search box */
+.loc-toolbar {
+  align-items: center;
+  margin: 0 0 10px;
+}
+
+.btn-ghost {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border-color: transparent;
+}
+
+.btn-ghost:hover { background: #d3e1f3; color: var(--color-primary-darker); }
+.btn-small svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.us-only-note {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+.loc-status:not(:empty) {
+  padding: 6px 10px;
+  background: #e7f4ec;
+  color: #1d5a35;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+}
+
+.loc-status.error:not(:empty) { background: #fbe9e9; color: var(--color-risk-veryhigh); }
+
+/* coordinates: small and secondary, filled in by the map */
+.coords-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 16px;
+  margin-top: 12px;
+}
+
+.coords-row .field label { font-size: 0.82rem; font-weight: 600; color: var(--color-text-muted); }
+.coords-row .field input { padding: 7px 10px; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.coords-row .error-text:empty { display: none; }
+
+.coords-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* length box with in / cm switch */
+.input-unit {
+  display: flex;
+  gap: 8px;
+}
+
+.input-unit input[type="text"] { flex: 1; min-width: 0; }
+
+.unit-toggle {
+  display: inline-flex;
+  border: 1px solid #8d98a6;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.unit-toggle label { display: flex; cursor: pointer; font-weight: 600; }
+
+.unit-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.unit-toggle span {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}
+
+.unit-toggle label + label span { border-left: 1px solid #8d98a6; }
+.unit-toggle input:checked + span { background: var(--color-primary); color: #ffffff; }
+.unit-toggle input:focus-visible + span { outline: 3px solid #2491ff; outline-offset: -3px; }
+
+/* one-tap water type buttons */
+.choice-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.choice { position: relative; cursor: pointer; }
+
+.choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choice-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  height: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.choice-body svg {
+  width: 30px;
+  height: 30px;
+  color: var(--color-accent);
+  margin-bottom: 4px;
+}
+
+.choice-label { font-weight: 700; color: var(--color-text); }
+.choice-sub { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.35; }
+
+.choice:hover .choice-body { border-color: #8d98a6; }
+
+.choice input:checked + .choice-body {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.choice input:checked + .choice-body::after {
+  content: "\2713";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choice input:focus-visible + .choice-body { outline: 3px solid #2491ff; outline-offset: 2px; }
+.choice-group.invalid .choice-body { border-color: var(--color-risk-veryhigh); }
+
+.step-card > .error-text {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-risk-veryhigh);
+}
+
+.step-card > .error-text:empty { display: none; }
+
+/* submit row */
+.form-actions {
+  border-top: 0;
+  padding-top: 4px;
+}
+
+.btn-large { padding: 14px 32px; font-size: 1.05rem; }
+
+.btn-link {
+  background: none;
+  border-color: transparent;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.btn-link:hover { color: var(--color-primary-dark); }
+
+.form-note { flex-basis: 100%; }
+
+/* results: summary of the catch + the plain-language guide */
+.results-echo {
+  margin: 0 0 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.verdict {
+  --verdict-color: var(--color-primary);
+  margin: 0 0 24px;
+  padding: 18px 22px;
+  border-radius: var(--radius-lg);
+  border-left: 8px solid var(--verdict-color);
+  background: var(--color-surface-alt);
+  background: color-mix(in srgb, var(--verdict-color) 10%, #ffffff);
+}
+
+.verdict[data-level="1"] { --verdict-color: #2e8540; }
+.verdict[data-level="2"] { --verdict-color: #5f8f22; }
+.verdict[data-level="3"] { --verdict-color: #9a6b00; }
+.verdict[data-level="4"] { --verdict-color: #b5520c; }
+.verdict[data-level="5"] { --verdict-color: #b50909; }
+
+.verdict-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.verdict-value {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: clamp(1.4rem, 3.4vw, 1.9rem);
+  line-height: 1.25;
+  color: var(--verdict-color);
+  margin: 2px 0 6px;
+}
+
+.verdict-why {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  max-width: 720px;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+
+.estimate-tile.q95 {
+  border-color: var(--color-primary);
+  border-top-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.advisory-table tr.is-match td {
+  background: var(--color-primary-light);
+  font-weight: 700;
+}
+
+.advisory-table tr.is-match td:last-child::after {
+  content: "\2190  your fish";
+  margin-left: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .step-card { padding: 14px 14px 16px; }
+  .step-grid, .choice-group { grid-template-columns: 1fr; }
+  .choice-body { flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; }
+  .choice-body svg { margin: 0; }
+  .choice-sub { display: none; }
+  .us-only-note { margin-left: 0; }
+  .btn-large { width: 100%; }
+}

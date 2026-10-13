@@ -87,134 +87,172 @@
   <div class="container">
     <h2 class="section-title">Check Your Fish</h2>
 
-    <ol class="steps">
-      <li>Pick where it was caught</li>
-      <li>Choose the species and water type</li>
-      <li>Enter its length</li>
-    </ol>
+    <p class="section-lead">Answer three quick questions. It takes about a minute.</p>
 
     <div class="predict-panel">
       <form id="pfas-form" novalidate>
 
-        <div class="loc-block" id="loc-block">
-          <div class="loc-head">
-            <div class="loc-title">
-              Catch location
-              <span>Search for a lake, river or town, then click the map to fine-tune the spot.</span>
-            </div>
-            <div class="loc-toolbar">
-              <button type="button" class="btn btn-secondary btn-small" id="btn-geolocate">Use my location</button>
-              <button type="button" class="btn btn-secondary btn-small" id="btn-example">Try an example</button>
-            </div>
-          </div>
+        <!-- STEP 1: location -->
+        <fieldset class="step-card" id="loc-block">
+          <legend class="step-head">
+            <span class="step-num" aria-hidden="true">1</span>
+            <span class="step-title">Where was it caught?</span>
+          </legend>
+          <p class="step-help">Search for a lake, river or town, then click the map to fine-tune the exact spot.</p>
+
           <div class="loc-search">
             <svg class="loc-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="search" id="loc-search" placeholder="Search for a lake, river or town" autocomplete="off"
+            <input type="search" id="loc-search" placeholder="e.g. Lake Mendota or Mississippi River" autocomplete="off"
                    role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="loc-results"
                    aria-label="Search for a lake, river or town">
             <ul id="loc-results" class="loc-results" role="listbox" hidden></ul>
           </div>
-          <div class="us-only-note" role="note">
-            <strong>United States only.</strong> The model is built on U.S. EPA fish data and U.S.
-            military base and Census urban-area records, so it only works for fish caught in the U.S.
+          <div class="loc-toolbar">
+            <button type="button" class="btn btn-ghost btn-small" id="btn-geolocate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Use my location
+            </button>
+            <button type="button" class="btn btn-ghost btn-small" id="btn-example">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+              Try an example
+            </button>
+            <span class="us-only-note" title="The model is built on U.S. EPA fish data and U.S. military base and Census urban-area records, so it only works for fish caught in the U.S.">U.S. waters only</span>
           </div>
           <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
           <div class="loc-status" id="loc-status" aria-live="polite"></div>
-        </div>
 
-        <div class="field">
-          <label for="input-lat">Latitude</label>
-          <input type="text" id="input-lat" placeholder="e.g. 42.3601" inputmode="decimal" required>
-          <span class="hint">Decimal degrees, -90 to 90</span>
-          <span class="error-text" id="error-lat"></span>
-        </div>
+          <div class="coords-row">
+            <div class="field">
+              <label for="input-lat">Latitude</label>
+              <input type="text" id="input-lat" placeholder="e.g. 42.3601" inputmode="decimal" required>
+              <span class="error-text" id="error-lat"></span>
+            </div>
+            <div class="field">
+              <label for="input-lon">Longitude</label>
+              <input type="text" id="input-lon" placeholder="e.g. -71.0589" inputmode="decimal" required>
+              <span class="error-text" id="error-lon"></span>
+            </div>
+            <p class="coords-hint">Filled in automatically when you pick a spot. You can also type them.</p>
+          </div>
+        </fieldset>
 
-        <div class="field">
-          <label for="input-lon">Longitude</label>
-          <input type="text" id="input-lon" placeholder="e.g. -71.0589" inputmode="decimal" required>
-          <span class="hint">Decimal degrees, -180 to 180</span>
-          <span class="error-text" id="error-lon"></span>
-        </div>
+        <!-- STEP 2: the fish -->
+        <fieldset class="step-card">
+          <legend class="step-head">
+            <span class="step-num" aria-hidden="true">2</span>
+            <span class="step-title">What did you catch?</span>
+          </legend>
+          <div class="step-grid">
+            <div class="field">
+              <label for="input-species">Species</label>
+            <select id="input-species" required>
+              <option value="" disabled selected>Select a species…</option>
+              <option value="black crappie">Black crappie</option>
+              <option value="blue catfish">Blue catfish</option>
+              <option value="bluegill">Bluegill</option>
+              <option value="brook trout">Brook trout</option>
+              <option value="brown bullhead">Brown bullhead</option>
+              <option value="brown trout">Brown trout</option>
+              <option value="burbot">Burbot</option>
+              <option value="chain pickerel">Chain pickerel</option>
+              <option value="channel catfish">Channel catfish</option>
+              <option value="chinook salmon">Chinook salmon</option>
+              <option value="cisco">Cisco</option>
+              <option value="coho salmon">Coho salmon</option>
+              <option value="common carp">Common carp</option>
+              <option value="cutthroat trout">Cutthroat trout</option>
+              <option value="flathead catfish">Flathead catfish</option>
+              <option value="freshwater drum">Freshwater drum</option>
+              <option value="green sunfish">Green sunfish</option>
+              <option value="lake trout">Lake trout</option>
+              <option value="lake whitefish">Lake whitefish</option>
+              <option value="largemouth bass">Largemouth bass</option>
+              <option value="longear sunfish">Longear sunfish</option>
+              <option value="longnose sucker">Longnose sucker</option>
+              <option value="mountain whitefish">Mountain whitefish</option>
+              <option value="northern pike">Northern pike</option>
+              <option value="northern pikeminnow">Northern pikeminnow</option>
+              <option value="pumpkinseed">Pumpkinseed</option>
+              <option value="rainbow trout">Rainbow trout</option>
+              <option value="redbreast sunfish">Redbreast sunfish</option>
+              <option value="redear sunfish">Redear sunfish</option>
+              <option value="rock bass">Rock bass</option>
+              <option value="round whitefish">Round whitefish</option>
+              <option value="sauger">Sauger</option>
+              <option value="shoal bass">Shoal bass</option>
+              <option value="shortnose gar">Shortnose gar</option>
+              <option value="silver carp">Silver carp</option>
+              <option value="silver redhorse">Silver redhorse</option>
+              <option value="smallmouth bass">Smallmouth bass</option>
+              <option value="spotted bass">Spotted bass</option>
+              <option value="striped bass">Striped bass</option>
+              <option value="tiger trout">Tiger trout</option>
+              <option value="tyee sucker">Tyee sucker</option>
+              <option value="walleye">Walleye</option>
+              <option value="warmouth">Warmouth</option>
+              <option value="white bass">White bass</option>
+              <option value="white crappie">White crappie</option>
+              <option value="white perch">White perch</option>
+              <option value="white sucker">White sucker</option>
+              <option value="yellow perch">Yellow perch</option>
+            </select>
+              <span class="hint" id="species-hint">48 freshwater species from the EPA study</span>
+              <span class="error-text" id="error-species"></span>
+            </div>
 
-        <div class="field">
-          <label for="input-species">Fish Species</label>
-          <select id="input-species" required>
-            <option value="" disabled selected>Select a species…</option>
-            <option value="black crappie">Black crappie</option>
-            <option value="blue catfish">Blue catfish</option>
-            <option value="bluegill">Bluegill</option>
-            <option value="brook trout">Brook trout</option>
-            <option value="brown bullhead">Brown bullhead</option>
-            <option value="brown trout">Brown trout</option>
-            <option value="burbot">Burbot</option>
-            <option value="chain pickerel">Chain pickerel</option>
-            <option value="channel catfish">Channel catfish</option>
-            <option value="chinook salmon">Chinook salmon</option>
-            <option value="cisco">Cisco</option>
-            <option value="coho salmon">Coho salmon</option>
-            <option value="common carp">Common carp</option>
-            <option value="cutthroat trout">Cutthroat trout</option>
-            <option value="flathead catfish">Flathead catfish</option>
-            <option value="freshwater drum">Freshwater drum</option>
-            <option value="green sunfish">Green sunfish</option>
-            <option value="lake trout">Lake trout</option>
-            <option value="lake whitefish">Lake whitefish</option>
-            <option value="largemouth bass">Largemouth bass</option>
-            <option value="longear sunfish">Longear sunfish</option>
-            <option value="longnose sucker">Longnose sucker</option>
-            <option value="mountain whitefish">Mountain whitefish</option>
-            <option value="northern pike">Northern pike</option>
-            <option value="northern pikeminnow">Northern pikeminnow</option>
-            <option value="pumpkinseed">Pumpkinseed</option>
-            <option value="rainbow trout">Rainbow trout</option>
-            <option value="redbreast sunfish">Redbreast sunfish</option>
-            <option value="redear sunfish">Redear sunfish</option>
-            <option value="rock bass">Rock bass</option>
-            <option value="round whitefish">Round whitefish</option>
-            <option value="sauger">Sauger</option>
-            <option value="shoal bass">Shoal bass</option>
-            <option value="shortnose gar">Shortnose gar</option>
-            <option value="silver carp">Silver carp</option>
-            <option value="silver redhorse">Silver redhorse</option>
-            <option value="smallmouth bass">Smallmouth bass</option>
-            <option value="spotted bass">Spotted bass</option>
-            <option value="striped bass">Striped bass</option>
-            <option value="tiger trout">Tiger trout</option>
-            <option value="tyee sucker">Tyee sucker</option>
-            <option value="walleye">Walleye</option>
-            <option value="warmouth">Warmouth</option>
-            <option value="white bass">White bass</option>
-            <option value="white crappie">White crappie</option>
-            <option value="white perch">White perch</option>
-            <option value="white sucker">White sucker</option>
-            <option value="yellow perch">Yellow perch</option>
-          </select>
-          <span class="hint">Species of the fish that was caught</span>
-          <span class="error-text" id="error-species"></span>
-        </div>
+            <div class="field">
+              <label for="input-length">Length</label>
+              <div class="input-unit">
+                <input type="text" id="input-length" placeholder="e.g. 14" inputmode="decimal" required aria-describedby="length-hint">
+                <div class="unit-toggle" role="radiogroup" aria-label="Length unit">
+                  <label><input type="radio" name="length-unit" value="in" checked><span>in</span></label>
+                  <label><input type="radio" name="length-unit" value="cm"><span>cm</span></label>
+                </div>
+              </div>
+              <span class="hint" id="length-hint">Nose to tail tip</span>
+              <span class="error-text" id="error-length"></span>
+            </div>
+          </div>
+        </fieldset>
 
-        <div class="field">
-          <label for="input-length">Fish Length (inches)</label>
-          <input type="text" id="input-length" placeholder="e.g. 14" inputmode="decimal" required>
-          <span class="hint">Total length of the fish, in inches</span>
-          <span class="error-text" id="error-length"></span>
-        </div>
-
-        <div class="field full-width">
-          <label for="input-water">Type of Water</label>
-          <select id="input-water" required>
-            <option value="" disabled selected>Select where it was caught…</option>
-            <option value="L">Lake</option>
-            <option value="R">River / stream</option>
-            <option value="GL">Great Lake</option>
-          </select>
-          <span class="hint">The kind of water body the fish came from</span>
+        <!-- STEP 3: water type -->
+        <fieldset class="step-card">
+          <legend class="step-head">
+            <span class="step-num" aria-hidden="true">3</span>
+            <span class="step-title">What kind of water?</span>
+          </legend>
+          <div class="choice-group" id="input-water" role="radiogroup" aria-label="Type of water" aria-describedby="error-water">
+            <label class="choice">
+              <input type="radio" name="water" value="L">
+              <span class="choice-body">
+                <svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="17" rx="12" ry="7" fill="currentColor" opacity=".18"/><ellipse cx="16" cy="17" rx="12" ry="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 17h5M17 15h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <span class="choice-label">Lake</span>
+                <span class="choice-sub">Lakes, ponds, reservoirs</span>
+              </span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="water" value="R">
+              <span class="choice-body">
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 3c6 5-4 9 2 14s-2 9 2 12M19 3c6 5-4 9 2 14s-2 9 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="choice-label">River / stream</span>
+                <span class="choice-sub">Rivers, creeks, streams</span>
+              </span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="water" value="GL">
+              <span class="choice-body">
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 14c3-2 5-2 7 0s4 2 7 0 5-2 7 0 4 2 7 0M2 20c3-2 5-2 7 0s4 2 7 0 5-2 7 0 4 2 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="choice-label">Great Lake</span>
+                <span class="choice-sub">Superior, Michigan, Huron, Erie, Ontario</span>
+              </span>
+            </label>
+          </div>
           <span class="error-text" id="error-water"></span>
-        </div>
+        </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Estimate PFAS</button>
-          <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
+          <button type="submit" class="btn btn-primary btn-large">Estimate PFAS</button>
+          <button type="button" id="reset-btn" class="btn btn-link">Start over</button>
           <span class="form-note">The location is sent to the Open-Meteo elevation and U.S. Census TIGERweb services, and your inputs go to our prediction server. We only keep anonymous counts of visits and predictions, never your inputs or anything that identifies you.</span>
         </div>
 
@@ -242,7 +280,15 @@
     </div>
 
     <div class="results-panel">
-      <p id="results-summary-text">Estimated PFAS concentration for this catch:</p>
+      <p class="results-echo" id="results-echo"></p>
+
+      <div class="verdict" id="verdict" data-level="">
+        <div class="verdict-label">Cautious eating guide</div>
+        <div class="verdict-value" id="verdict-value">--</div>
+        <p class="verdict-why" id="verdict-why"></p>
+      </div>
+
+      <p id="results-summary-text">Estimated PFAS for this catch, in parts per billion (ppb):</p>
 
       <div class="estimate-row">
         <div class="estimate-tile q50">
@@ -254,7 +300,7 @@
           </p>
         </div>
         <div class="estimate-tile q95">
-          <div class="estimate-label">95% upper bound</div>
+          <div class="estimate-label">95% upper bound <span class="badge">Use this one</span></div>
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q95">--</span></div>
         </div>
         <div class="estimate-tile q99">
@@ -305,11 +351,11 @@
               <tr><th scope="col">PFOS in the fish (ppb)</th><th scope="col">How often you can eat it</th></tr>
             </thead>
             <tbody>
-              <tr class="lvl-1"><td>0 to 2.5</td><td>4 or more meals a week</td></tr>
-              <tr class="lvl-2"><td>Over 2.5 to 5</td><td>2 meals a week</td></tr>
-              <tr class="lvl-3"><td>Over 5 to 10</td><td>1 meal a week</td></tr>
-              <tr class="lvl-4"><td>Over 10 to 40</td><td>1 meal a month</td></tr>
-              <tr class="lvl-5"><td>Over 40</td><td>Do not eat</td></tr>
+              <tr class="lvl-1" data-level="1"><td>0 to 2.5</td><td>4 or more meals a week</td></tr>
+              <tr class="lvl-2" data-level="2"><td>Over 2.5 to 5</td><td>2 meals a week</td></tr>
+              <tr class="lvl-3" data-level="3"><td>Over 5 to 10</td><td>1 meal a week</td></tr>
+              <tr class="lvl-4" data-level="4"><td>Over 10 to 40</td><td>1 meal a month</td></tr>
+              <tr class="lvl-5" data-level="5"><td>Over 40</td><td>Do not eat</td></tr>
             </tbody>
           </table>
         </div>
@@ -792,6 +838,54 @@
     water: document.getElementById("error-water"),
   };
 
+  const lengthHint = document.getElementById("length-hint");
+  const LENGTH_HINT_DEFAULT = lengthHint.textContent;
+  let placeName = ""; // name of the searched place, shown in the results summary
+
+  function getWater() {
+    const checked = form.querySelector('input[name="water"]:checked');
+    return checked ? checked.value : "";
+  }
+
+  function setWater(value) {
+    form.querySelectorAll('input[name="water"]').forEach((r) => (r.checked = r.value === value));
+    if (value) {
+      errors.water.textContent = "";
+      fields.water.classList.remove("invalid");
+    }
+  }
+
+  function getLengthUnit() {
+    const checked = form.querySelector('input[name="length-unit"]:checked');
+    return checked ? checked.value : "in";
+  }
+
+  function setLengthUnit(unit) {
+    form.querySelectorAll('input[name="length-unit"]').forEach((r) => (r.checked = r.value === unit));
+  }
+
+  // Shows the typical length of the chosen species, in the chosen unit, under the length box.
+  function updateLengthHint() {
+    const avgMM = SPECIES_AVG_LENGTH_MM[fields.species.value];
+    if (!avgMM) {
+      lengthHint.textContent = LENGTH_HINT_DEFAULT;
+      return;
+    }
+    const name = fields.species.options[fields.species.selectedIndex].text.toLowerCase();
+    const typical = getLengthUnit() === "cm"
+      ? Math.round(avgMM / 10) + " cm"
+      : (avgMM / MM_PER_INCH).toFixed(1) + " in";
+    lengthHint.textContent = "Nose to tail tip. A typical " + name + " in our data is about " + typical + ".";
+  }
+
+  fields.species.addEventListener("change", function () {
+    errors.species.textContent = "";
+    fields.species.classList.remove("invalid");
+    updateLengthHint();
+  });
+  form.querySelectorAll('input[name="length-unit"]').forEach((r) => r.addEventListener("change", updateLengthHint));
+  form.querySelectorAll('input[name="water"]').forEach((r) => r.addEventListener("change", function () { setWater(getWater()); }));
+
   function clearErrors() {
     Object.values(errors).forEach((el) => (el.textContent = ""));
     Object.values(fields).forEach((el) => el.classList.remove("invalid"));
@@ -809,8 +903,13 @@
     let valid = true;
     const values = {};
 
+    const noLocation = !fields.lat.value.trim() && !fields.lon.value.trim();
     const lat = parseFloat(fields.lat.value);
-    if (isNaN(lat) || lat < -90 || lat > 90) {
+    if (noLocation) {
+      setError("lat", "Pick a spot: search for a place or click the map.");
+      fields.lon.classList.add("invalid");
+      valid = false;
+    } else if (isNaN(lat) || lat < -90 || lat > 90) {
       setError("lat", "Enter a latitude between -90 and 90.");
       valid = false;
     } else {
@@ -818,7 +917,9 @@
     }
 
     const lon = parseFloat(fields.lon.value);
-    if (isNaN(lon) || lon < -180 || lon > 180) {
+    if (noLocation) {
+      // already reported under latitude
+    } else if (isNaN(lon) || lon < -180 || lon > 180) {
       setError("lon", "Enter a longitude between -180 and 180.");
       valid = false;
     } else {
@@ -826,7 +927,7 @@
     }
 
     if (!fields.species.value) {
-      setError("species", "Select the fish species.");
+      setError("species", "Choose the species.");
       valid = false;
     } else {
       values.species = fields.species.value;
@@ -836,19 +937,35 @@
       }
     }
 
-    if (!fields.water.value) {
-      setError("water", "Select the type of water.");
+    if (!getWater()) {
+      setError("water", "Choose the type of water.");
       valid = false;
     } else {
-      values.water = fields.water.value;
+      values.water = getWater();
     }
 
     const length = parseFloat(fields.length.value);
+    const unit = getLengthUnit();
     if (isNaN(length) || length <= 0) {
-      setError("length", "Enter a fish length in inches greater than 0.");
+      setError("length", "Enter the length as a number greater than 0.");
       valid = false;
     } else {
-      values.fishLengthMM = length * MM_PER_INCH; // form is in inches; model uses mm
+      values.fishLengthMM = length * (unit === "cm" ? 10 : MM_PER_INCH); // model uses mm
+      values.lengthLabel = length + (unit === "cm" ? "-cm" : "-inch");
+      const avgMM = SPECIES_AVG_LENGTH_MM[values.species];
+      if (avgMM && values.fishLengthMM > avgMM * 4) {
+        setError("length", "That's over 4 times the typical length for this species. Check the number and the in / cm setting.");
+        valid = false;
+      }
+    }
+
+    if (!valid) {
+      const first = form.querySelector(".invalid");
+      if (first) {
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = first.matches("input, select") ? first : first.querySelector("input");
+        if (focusable) focusable.focus({ preventScroll: true });
+      }
     }
 
     return { valid, values };
@@ -863,6 +980,22 @@
     if (miles === null) return "> " + URBAN_MAX_MILES + " mi";
     return miles.toFixed(digits) + " mi";
   }
+
+  // Rows of the PFOS eating chart: upper limit (ppb) and advice. Matches the table in the results.
+  const ADVISORY_LEVELS = [
+    { max: 2.5, advice: "Up to 4 or more meals a week" },
+    { max: 5, advice: "Up to 2 meals a week" },
+    { max: 10, advice: "Up to 1 meal a week" },
+    { max: 40, advice: "Up to 1 meal a month" },
+    { max: Infinity, advice: "Do not eat" },
+  ];
+
+  function advisoryLevel(ppb) {
+    return ADVISORY_LEVELS.findIndex((lvl) => ppb <= lvl.max) + 1;
+  }
+
+  const WATER_LABELS = { L: "lake", R: "river or stream", GL: "Great Lake" };
+  const FEET_PER_MILE = 5280;
 
   function renderResults(result, inputValues) {
     document.getElementById("est-exact").textContent =
@@ -879,7 +1012,8 @@
       result.nearestBaseDistanceMiles.toFixed(1) + " mi";
     document.getElementById("nearest-urban-distance").textContent =
       formatUrbanDistance(result.urbanDistanceMiles, 1);
-    document.getElementById("echo-elevation").textContent = mi.E.toFixed(3) + " mi";
+    document.getElementById("echo-elevation").textContent =
+      Math.round(mi.E * FEET_PER_MILE).toLocaleString() + " ft";
 
     const speciesLabel = fields.species.options[fields.species.selectedIndex].text;
     document.getElementById("results-context").textContent =
@@ -889,7 +1023,21 @@
 
     document.getElementById("outside-us-warning").hidden = result.urbanDistanceMiles !== null;
 
-    document.getElementById("results-summary-text").textContent = "Estimated PFAS for this catch, in parts per billion.";
+    document.getElementById("results-echo").textContent =
+      "Your catch: a " + inputValues.lengthLabel + " " + speciesLabel.toLowerCase() + " from a " + WATER_LABELS[inputValues.water] +
+      (placeName ? " near " + placeName : " at " + inputValues.latitude.toFixed(3) + ", " + inputValues.longitude.toFixed(3)) + ".";
+
+    // Plain-language guide: the 95% bound read against the PFOS eating chart.
+    const q95 = result.estimates[0.95].ppb;
+    const level = advisoryLevel(q95);
+    document.getElementById("verdict").dataset.level = level;
+    document.getElementById("verdict-value").textContent = ADVISORY_LEVELS[level - 1].advice;
+    document.getElementById("verdict-why").textContent =
+      "Based on the 95% upper bound of " + formatPPB(q95) + " ppb, read against the PFOS eating chart below. " +
+      "This is an estimate, not an official advisory. Check your state's fish advisories before eating.";
+    document.querySelectorAll(".advisory-table tbody tr").forEach(function (tr) {
+      tr.classList.toggle("is-match", Number(tr.dataset.level) === level);
+    });
 
     resultsSection.classList.add("visible");
     resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -944,7 +1092,9 @@
     clearMarker();
     setLocStatus("");
     searchInput.value = "";
+    placeName = "";
     closeResults();
+    updateLengthHint();
   });
 
   /* ============================================================
@@ -996,7 +1146,7 @@
     }).addTo(map);
     map.on("click", function (e) {
       setLocation(e.latlng.lat, e.latlng.lng);
-      setLocStatus("Location set. Now choose the species and length.");
+      setLocStatus("Location set. Now tell us about the fish.");
     });
     map.on("focus", function () { map.scrollWheelZoom.enable(); });
     map.on("blur", function () { map.scrollWheelZoom.disable(); });
@@ -1170,6 +1320,15 @@
     else searchInput.removeAttribute("aria-activedescendant");
   }
 
+  // Guesses lake / river / Great Lake from a searched place's name. Returns "" if unsure.
+  function guessWaterType(place) {
+    const name = place.name || "";
+    if (/\b(lake\s+(superior|michigan|huron|erie|ontario)|great lakes?)\b/i.test(name)) return "GL";
+    if (/\b(river|creek|stream|brook|run|fork|bayou|slough|canal)\b/i.test(name)) return "R";
+    if (/\b(lake|lakes|pond|reservoir|flowage|impoundment|lagoon)\b/i.test(name)) return "L";
+    return "";
+  }
+
   function pinPlace(place) {
     if (place.extent && map) {
       setLocation(place.lat, place.lon, false); // place the pin without moving the map...
@@ -1178,9 +1337,13 @@
     } else {
       setLocation(place.lat, place.lon, place.isWater ? 11 : 12);
     }
-    setLocStatus(place.isWater
+    placeName = place.name;
+    const water = guessWaterType(place);
+    if (water) setWater(water);
+    const waterNote = water ? " Water type set to " + WATER_LABELS[water] + "." : "";
+    setLocStatus((place.isWater
       ? "Pinned " + place.name + ". Click the map to move the pin to where you actually fished, then choose the species."
-      : "Pinned " + place.name + ". Click the map to move the pin to the exact water where you fished.");
+      : "Pinned " + place.name + ". Click the map to move the pin to the exact water where you fished.") + waterNote);
   }
 
   async function chooseResult(i) {
@@ -1271,6 +1434,8 @@
     navigator.geolocation.getCurrentPosition(
       function (pos) {
         setLocation(pos.coords.latitude, pos.coords.longitude, 11);
+        placeName = "";
+        searchInput.value = "";
         setLocStatus("Using your current location. Adjust by clicking the map if needed.");
       },
       function () {
@@ -1284,8 +1449,12 @@
     setLocation(39.0968, -120.0324, 9); // Lake Tahoe
     fields.species.value = "rainbow trout";
     fields.length.value = "17.5";
-    fields.water.value = "L";
+    setLengthUnit("in");
+    setWater("L");
+    placeName = "Lake Tahoe";
+    searchInput.value = "Lake Tahoe";
     clearErrors();
+    updateLengthHint();
     setLocStatus("Example loaded: a 17.5-inch rainbow trout from Lake Tahoe. Press Estimate PFAS to see the result.");
   });
 
@@ -1300,7 +1469,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         lat: fields.lat.value, lon: fields.lon.value,
         species: fields.species.value, length: fields.length.value,
-        water: fields.water.value,
+        unit: getLengthUnit(), water: getWater(), place: placeName,
       }));
     } catch (e) { /* storage unavailable — ignore */ }
   }
@@ -1313,7 +1482,10 @@
       fields.lon.value = saved.lon || "";
       if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) fields.species.value = saved.species;
       fields.length.value = saved.length || "";
-      if (["L", "R", "GL"].includes(saved.water)) fields.water.value = saved.water;
+      if (saved.unit === "cm") setLengthUnit("cm");
+      if (["L", "R", "GL"].includes(saved.water)) setWater(saved.water);
+      if (saved.place && fields.lat.value) { placeName = saved.place; searchInput.value = saved.place; }
+      updateLengthHint();
       if (fields.lat.value) setLocStatus("Your last catch was filled in. Change anything you need and press Estimate PFAS.");
     } catch (e) { /* storage unavailable — ignore */ }
   }
