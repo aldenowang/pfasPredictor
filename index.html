@@ -293,12 +293,10 @@
         <div class="estimate-tile q95">
           <div class="estimate-label">95% upper bound</div>
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q95">--</span></div>
-          <span class="estimate-cap" id="cap-q95" hidden>Capped at maximum</span>
         </div>
         <div class="estimate-tile q99">
           <div class="estimate-label">99% upper bound</div>
           <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q99">--</span></div>
-          <span class="estimate-cap" id="cap-q99" hidden>Capped at maximum</span>
         </div>
       </div>
 
@@ -668,12 +666,13 @@
        q = 0.99  ->  y = 711.2349 / x
 
      A q-level value means a fraction q of sampled fish fell below
-     the curve. Output is PFAS in ppb, capped at PFAS_MAX_PPB (the
-     second-highest value recorded), which also covers x = 0.
+     the curve. Output is PFAS in ppb, capped per quantile (see
+     PFAS_CAPS_PPB): 95% at 533.896 (the second-highest value measured)
+     and 99% at 1552.824 (the highest). The caps also cover x = 0.
      ============================================================
      ============================================================ */
   const PFAS_QUANTILE_CONSTANTS = { 0.5: 25.6965, 0.95: 199.183, 0.99: 711.2349 };
-  const PFAS_MAX_PPB = 533.896;
+  const PFAS_CAPS_PPB = { 0.5: 533.896, 0.95: 533.896, 0.99: 1552.824 }; // 2nd-highest / highest measured
   const DATASET_MEDIAN_PPB = 6.8275; // median measured PFAS across the 1,110 composite samples
 
   // Combined score x = D * (1 / R) * E.
@@ -681,11 +680,12 @@
     return D * (1 / R) * E;
   }
 
-  // Estimated PFAS (ppb) at quantile q for combined score x, capped at PFAS_MAX_PPB.
+  // Estimated PFAS (ppb) at quantile q for combined score x, capped at that quantile's cap.
   function getPFASUE(q, x) {
     const C = PFAS_QUANTILE_CONSTANTS[q];
+    const cap = PFAS_CAPS_PPB[q];
     const y = C / x;
-    return y < PFAS_MAX_PPB ? y : PFAS_MAX_PPB;
+    return y < cap ? y : cap;
   }
 
   const METERS_PER_MILE = 1609.344;
@@ -839,7 +839,7 @@
     const estimates = {};
     for (const q of [0.5, 0.95, 0.99]) {
       const ppb = getPFASUE(q, x);
-      estimates[q] = { ppb: ppb, capped: ppb === PFAS_MAX_PPB };
+      estimates[q] = { ppb: ppb };
     }
 
     const speciesAvgPFAS = SPECIES_AVG_PFAS_PPB[species];
@@ -967,9 +967,6 @@
     for (const q of [0.95, 0.99]) {
       const est = result.estimates[q];
       document.getElementById("est-" + qKeys[q]).textContent = formatPPB(est.ppb) + " ppb";
-      const cap = document.getElementById("cap-" + qKeys[q]);
-      cap.hidden = !est.capped;
-      cap.textContent = "Capped at " + formatPPB(PFAS_MAX_PPB) + " ppb maximum";
     }
 
     const mi = result.modelInputs;
