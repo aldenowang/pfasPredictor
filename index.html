@@ -322,8 +322,8 @@
           <strong>Deciding whether to eat it?</strong> Go by the <strong>95% upper bound</strong>, not the
           exact prediction. The exact prediction can be far off for a single fish, while the upper
           bound is a cautious number the real level is very likely below. Keep in mind that it's
-          deliberately on the high side: near sea level it often reaches its 533.9&nbsp;ppb ceiling, so
-          read it there as a "be careful" signal rather than the fish's actual level. Compare it with
+          deliberately on the high side, especially near sea level, where it can climb to around
+          400&nbsp;ppb. There, read it as a "be careful" signal rather than the fish's actual level. Compare it with
           the chart below, and check your state's official fish advisories too.
         </p>
         <p class="results-context" id="results-context"></p>
@@ -671,17 +671,19 @@
 
      and C_q is the fitted constant for quantile q:
        q = 0.50  ->  y = 25.6965  / x
-       q = 0.95  ->  y = 199.183  / x
+       q = 0.95  ->  y = 199.183  / (x + 0.5)
        q = 0.99  ->  y = 711.2349 / x
 
      A q-level value means a fraction q of sampled fish fell below
-     the curve. Output is PFAS in ppb, capped per quantile (see
-     PFAS_CAPS_PPB): 95% at 533.896 (the second-highest value measured)
-     and 99% at 1552.824 (the highest). The caps also cover x = 0.
+     the curve. Output is PFAS in ppb. The 95% curve adds 0.5 to x so
+     it stays finite (at most 398.366 ppb at x = 0) and has no cap. The
+     99% curve is capped at 533.896 (the second-highest value measured),
+     which also covers x = 0.
      ============================================================
      ============================================================ */
   const PFAS_QUANTILE_CONSTANTS = { 0.5: 25.6965, 0.95: 199.183, 0.99: 711.2349 };
-  const PFAS_CAPS_PPB = { 0.5: 533.896, 0.95: 533.896, 0.99: 1552.824 }; // 2nd-highest / highest measured
+  const PFAS_X_OFFSET = { 0.5: 0, 0.95: 0.5, 0.99: 0 }; // y = C / (x + offset)
+  const PFAS_CAPS_PPB = { 0.5: 533.896, 0.95: Infinity, 0.99: 533.896 }; // 533.896 = 2nd-highest measured
   const DATASET_MEDIAN_PPB = 6.8275; // median measured PFAS across the 1,110 composite samples
 
   // Combined score x = D * (1 / R) * E.
@@ -689,11 +691,11 @@
     return D * (1 / R) * E;
   }
 
-  // Estimated PFAS (ppb) at quantile q for combined score x, capped at that quantile's cap.
+  // Estimated PFAS (ppb) at quantile q for combined score x: C / (x + offset), capped if that quantile has a cap.
   function getPFASUE(q, x) {
     const C = PFAS_QUANTILE_CONSTANTS[q];
     const cap = PFAS_CAPS_PPB[q];
-    const y = C / x;
+    const y = C / (x + PFAS_X_OFFSET[q]);
     return y < cap ? y : cap;
   }
 

@@ -121,19 +121,18 @@
       <table class="formula-table">
         <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
         <tbody>
-          <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / <em>x</em></td></tr>
+          <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / (<em>x</em> + 0.5)</td></tr>
           <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
         </tbody>
       </table>
       <p>
         A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
         curve. So the 95% value is the level you can be about 95% sure this fish is
-        below. Because the curves rise very steeply as <em>x</em> gets small, each bound has a
-        ceiling: the 95% bound is capped at <strong>533.896&nbsp;ppb</strong>, the
-        second-highest PFAS value measured in the dataset, and the 99% bound at
-        <strong>1,552.824&nbsp;ppb</strong>, the highest. A result shown at exactly one of these
-        values has hit its cap, which mostly happens at sites near sea level, where
-        <em>x</em> is close to 0. The logic lives in the <code>getPFASUE()</code> function in the
+        below. Both curves rise steeply as <em>x</em> gets small, which mostly happens at sites near
+        sea level. The 95% curve adds 0.5 to <em>x</em> so it stays finite; even at
+        <em>x</em>&nbsp;=&nbsp;0 it tops out at about <strong>398&nbsp;ppb</strong>, so it has no
+        ceiling. The 99% bound is capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
+        PFAS value measured in the dataset, so a 99% result of exactly that value has hit its cap. The logic lives in the <code>getPFASUE()</code> function in the
         main page's source code.
       </p>
     </div>
