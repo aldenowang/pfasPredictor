@@ -2106,3 +2106,35 @@ form#pfas-form {
   .loc-tips { order: 6; }
   .coords-details { order: 7; margin-top: 0; }
 }
+
+/* ==========================================================
+   LESS TEXT: collapsible number key, compact notes
+   ========================================================== */
+details.read-key { padding-top: 14px; }
+
+details.read-key summary {
+  cursor: pointer;
+  width: fit-content;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+details.read-key summary:hover { text-decoration: underline; }
+details.read-key[open] summary { margin-bottom: 10px; }
+
+.form-note a { color: inherit; }
+
+.privacy-text {
+  max-width: 720px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 8px 0 0;
+}
+
+/* map height matches the shorter location column on desktop */
+@media (min-width: 761px) {
+  .loc-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .loc-map-wrap { aspect-ratio: 6 / 5; }
+}
+
+.step-grid .error-text:empty { display: none; }

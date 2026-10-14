@@ -87,8 +87,6 @@
   <div class="container">
     <h2 class="section-title">Check Your Fish</h2>
 
-    <p class="section-lead">Answer three quick questions. It takes about a minute.</p>
-
     <div class="predict-panel">
       <form id="pfas-form" novalidate>
 
@@ -98,13 +96,11 @@
             <span class="step-num" aria-hidden="true">1</span>
             <span class="step-title">Where was it caught?</span>
           </legend>
-          <p class="step-help">Search for a lake, river or town, then click the map to fine-tune the exact spot.</p>
-
           <div class="loc-layout">
           <div class="loc-side">
           <div class="loc-search">
             <svg class="loc-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="search" id="loc-search" placeholder="e.g. Lake Mendota or Mississippi River" autocomplete="off"
+            <input type="search" id="loc-search" placeholder="Search a lake, river or town" autocomplete="off"
                    role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="loc-results"
                    aria-label="Search for a lake, river or town">
             <ul id="loc-results" class="loc-results" role="listbox" hidden></ul>
@@ -125,14 +121,14 @@
             <div>
               <div class="spot-label">Your spot</div>
               <div class="spot-name" id="spot-name">No spot picked yet</div>
-              <div class="spot-coords" id="spot-coords">Search above or click the map</div>
+              <div class="spot-coords" id="spot-coords">Search or click the map</div>
             </div>
           </div>
           <div class="loc-status" id="loc-status" aria-live="polite"></div>
 
           <ul class="loc-tips">
-            <li>Drop the pin on the water where you fished, not the nearest town.</li>
-            <li>U.S. waters only. The model is built on U.S. EPA, military base and Census data.</li>
+            <li>Pin the water you fished, not the town</li>
+            <li>U.S. waters only</li>
           </ul>
 
           <details class="coords-details" id="coords-details">
@@ -148,7 +144,7 @@
               <input type="text" id="input-lon" placeholder="e.g. -71.0589" inputmode="decimal" required>
               <span class="error-text" id="error-lon"></span>
             </div>
-            <p class="coords-hint">Decimal degrees, e.g. 44.98, -93.27. The pin moves when you finish typing.</p>
+            <p class="coords-hint">Decimal degrees, e.g. 44.98, -93.27</p>
           </div>
           </details>
           </div>
@@ -219,7 +215,6 @@
               <option value="white sucker">White sucker</option>
               <option value="yellow perch">Yellow perch</option>
             </select>
-              <span class="hint" id="species-hint">48 freshwater species from the EPA study</span>
               <span class="error-text" id="error-species"></span>
             </div>
 
@@ -232,7 +227,7 @@
                   <label><input type="radio" name="length-unit" value="cm"><span>cm</span></label>
                 </div>
               </div>
-              <span class="hint" id="length-hint">Nose to tail tip</span>
+              <span class="hint" id="length-hint">Nose to tail</span>
               <span class="error-text" id="error-length"></span>
             </div>
           </div>
@@ -250,7 +245,7 @@
               <span class="choice-body">
                 <svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="17" rx="12" ry="7" fill="currentColor" opacity=".18"/><ellipse cx="16" cy="17" rx="12" ry="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 17h5M17 15h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                 <span class="choice-label">Lake</span>
-                <span class="choice-sub">Lakes, ponds, reservoirs</span>
+                <span class="choice-sub">Ponds, reservoirs</span>
               </span>
             </label>
             <label class="choice">
@@ -258,7 +253,7 @@
               <span class="choice-body">
                 <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 3c6 5-4 9 2 14s-2 9 2 12M19 3c6 5-4 9 2 14s-2 9 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span class="choice-label">River / stream</span>
-                <span class="choice-sub">Rivers, creeks, streams</span>
+                <span class="choice-sub">Creeks, streams</span>
               </span>
             </label>
             <label class="choice">
@@ -266,7 +261,7 @@
               <span class="choice-body">
                 <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 14c3-2 5-2 7 0s4 2 7 0 5-2 7 0 4 2 7 0M2 20c3-2 5-2 7 0s4 2 7 0 5-2 7 0 4 2 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span class="choice-label">Great Lake</span>
-                <span class="choice-sub">Superior, Michigan, Huron, Erie, Ontario</span>
+                <span class="choice-sub">Any of the five</span>
               </span>
             </label>
           </div>
@@ -276,7 +271,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary btn-large">Estimate PFAS</button>
           <button type="button" id="reset-btn" class="btn btn-link">Start over</button>
-          <span class="form-note">The location is sent to the Open-Meteo elevation and U.S. Census TIGERweb services, and your inputs go to our prediction server. We only keep anonymous counts of visits and predictions, never your inputs or anything that identifies you.</span>
+          <span class="form-note">We never store your inputs. <a href="about.html#privacy">Privacy</a></span>
         </div>
 
       </form>
@@ -306,12 +301,12 @@
       <p class="results-echo" id="results-echo"></p>
 
       <div class="verdict" id="verdict" data-level="">
-        <div class="verdict-label">Cautious eating guide</div>
+        <div class="verdict-label">Eating guide</div>
         <div class="verdict-value" id="verdict-value">--</div>
         <p class="verdict-why" id="verdict-why"></p>
       </div>
 
-      <p id="results-summary-text">Estimated PFAS for this catch, in parts per billion (ppb):</p>
+      <p id="results-summary-text">PFAS estimates, in parts per billion (ppb)</p>
 
       <div class="estimate-row">
         <div class="estimate-tile q50">
@@ -319,7 +314,7 @@
           <div class="estimate-value"><span id="est-exact">--</span></div>
           <p class="exact-warning">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 1.5 21h21L12 2.5z" fill="#e5a000"/><path d="M11 9h2v6h-2zM11 16.5h2v2h-2z" fill="#3d2f00"/></svg>
-            <span><strong>Warning:</strong> can be highly variable. Don't treat it as fact.</span>
+            <span>Can be far off. Don't rely on it.</span>
           </p>
         </div>
         <div class="estimate-tile q95">
@@ -336,38 +331,25 @@
         <span class="disclaimer-icon" aria-hidden="true">!</span>
         <div>
           <strong>This location may be outside the United States</strong>
-          No U.S. urban area was found within 300 miles. This tool only works for U.S. locations,
-          so these estimates are probably not meaningful.
+          These estimates probably aren't meaningful here.
         </div>
       </div>
 
-      <div class="read-key">
-        <h3>How to read these numbers</h3>
+      <details class="read-key">
+        <summary>What do these numbers mean?</summary>
         <ul>
           <li><strong>Exact prediction</strong> is our single best estimate, from an Extra Trees
             machine-learning model with a median error of 3.04&nbsp;ppb. Individual fish can still be
             much higher or lower.</li>
           <li><strong>Upper bounds</strong> are the levels we are 95% and 99% confident the PFAS in
-            this fish falls below.</li>
+            this fish falls below. Use the 95% bound when deciding whether to eat it.</li>
         </ul>
-        <p class="read-tip">
-          <strong>Deciding whether to eat it?</strong> Use the <strong>95% upper bound</strong>, not the
-          exact prediction, which can be far off. The bound is cautious on purpose. Compare it with the
-          chart below and check your state's fish advisories.
-        </p>
         <p class="results-context" id="results-context"></p>
-      </div>
+      </details>
 
       <div class="advisory">
         <h3>How often can you eat it?</h3>
-        <p>
-          This chart is from the Great Lakes Consortium for Fish Consumption Advisories (2025).
-          It shows how often it's OK to eat a fish based on how much PFOS is in its meat.
-        </p>
-        <p>
-          PFOS is one type of PFAS, and it's the main one found in fish. In a study of freshwater
-          fish across the U.S., PFOS made up about <strong>74%</strong> of the total PFAS on average.
-        </p>
+        <p>Safe meals by PFOS level, the main PFAS in fish (about 74% of the total).</p>
         <div class="advisory-table-wrap">
           <table class="advisory-table">
             <thead>
@@ -383,10 +365,8 @@
           </table>
         </div>
         <p class="advisory-note">
-          Our estimates above count all PFAS together, not just PFOS, so the PFOS in your fish is
-          usually a bit lower than our number. For a cautious read, compare the chart with the
-          95% upper bound above, not the exact prediction. Sources:
-          <a href="https://www.health.mn.gov/communities/environment/fish/docs/consortium/bestpracticepfos.pdf" target="_blank" rel="noopener noreferrer">Best Practice for PFOS Guidelines, Table 1 (September 2025)</a>;
+          Our numbers count all PFAS, so the PFOS alone is usually a bit lower. Sources:
+          <a href="https://www.health.mn.gov/communities/environment/fish/docs/consortium/bestpracticepfos.pdf" target="_blank" rel="noopener noreferrer">Great Lakes Consortium, PFOS Guidelines (2025)</a>;
           <a href="https://doi.org/10.1016/j.envres.2022.115165" target="_blank" rel="noopener noreferrer">Barbo et al., <em>Environmental Research</em> (2023)</a>.
         </p>
       </div>
@@ -898,7 +878,7 @@
     const typical = getLengthUnit() === "cm"
       ? Math.round(avgMM / 10) + " cm"
       : (avgMM / MM_PER_INCH).toFixed(1) + " in";
-    lengthHint.textContent = "Nose to tail tip. A typical " + name + " in our data is about " + typical + ".";
+    lengthHint.textContent = "Typical " + name + ": about " + typical;
   }
 
   fields.species.addEventListener("change", function () {
@@ -920,7 +900,7 @@
     document.getElementById("spot-name").textContent =
       has ? (placeName ? "Near " + placeName : "Dropped pin") : "No spot picked yet";
     document.getElementById("spot-coords").textContent =
-      has ? lat.toFixed(4) + ", " + lon.toFixed(4) : "Search above or click the map";
+      has ? lat.toFixed(4) + ", " + lon.toFixed(4) : "Search or click the map";
   }
 
   function clearErrors() {
@@ -945,7 +925,7 @@
     const lat = parseFloat(fields.lat.value);
     if (noLocation) {
       spotCard.classList.add("invalid");
-      setLocStatus("Pick a spot first: search for a place or click the map.", true);
+      setLocStatus("Pick a spot first.", true);
       valid = false;
     } else if (isNaN(lat) || lat < -90 || lat > 90) {
       setError("lat", "Enter a latitude between -90 and 90.");
@@ -1073,8 +1053,7 @@
     document.getElementById("verdict").dataset.level = level;
     document.getElementById("verdict-value").textContent = ADVISORY_LEVELS[level - 1].advice;
     document.getElementById("verdict-why").textContent =
-      "Based on the 95% upper bound of " + formatPPB(q95) + " ppb, read against the PFOS eating chart below. " +
-      "This is an estimate, not an official advisory. Check your state's fish advisories before eating.";
+      "Based on the 95% upper bound (" + formatPPB(q95) + " ppb). Check your state's advisory too.";
     document.querySelectorAll(".advisory-table tbody tr").forEach(function (tr) {
       tr.classList.toggle("is-match", Number(tr.dataset.level) === level);
     });
@@ -1199,7 +1178,7 @@
     }).addTo(map);
     map.on("click", function (e) {
       setLocation(e.latlng.lat, e.latlng.lng);
-      setLocStatus("Location set. Now tell us about the fish.");
+      setLocStatus("");
     });
     map.on("focus", function () { map.scrollWheelZoom.enable(); });
     map.on("blur", function () { map.scrollWheelZoom.disable(); });
@@ -1336,7 +1315,7 @@
     searchItems = items;
     shownQuery = q;
     resultsList.textContent = "";
-    if (!items.length) { showMessage("No U.S. places found. Try another name, or click the map."); return; }
+    if (!items.length) { showMessage("No U.S. places found."); return; }
     items.forEach(function (item, i) {
       const li = document.createElement("li");
       li.id = "loc-result-" + i;
@@ -1394,10 +1373,7 @@
     updateSpot();
     const water = guessWaterType(place);
     if (water) setWater(water);
-    const waterNote = water ? " Water type set to " + WATER_LABELS[water] + "." : "";
-    setLocStatus((place.isWater
-      ? "Pinned " + place.name + ". Click the map to move the pin to where you actually fished, then choose the species."
-      : "Pinned " + place.name + ". Click the map to move the pin to the exact water where you fished.") + waterNote);
+    setLocStatus(water ? "Water type set to " + WATER_LABELS[water] + "." : "");
   }
 
   async function chooseResult(i) {
@@ -1409,10 +1385,10 @@
     setLocStatus("Finding " + item.name + "…");
     try {
       const place = await resolvePlace(item);
-      if (!place) { setLocStatus("Couldn't find that place. Try another name, or click the map.", true); return; }
+      if (!place) { setLocStatus("Couldn't find that place. Try another name.", true); return; }
       pinPlace(place);
     } catch (e) {
-      setLocStatus("Search isn't available right now. You can still click the map.", true);
+      setLocStatus("Search is down. Click the map instead.", true);
     }
   }
 
@@ -1424,7 +1400,7 @@
     setLocStatus("Searching for " + q + "…");
     const place = await resolvePlace(null, q).catch(() => null);
     if (seq !== searchSeq) return;
-    if (!place) { setLocStatus("No U.S. place found for “" + q + "”. Try another name, or click the map.", true); return; }
+    if (!place) { setLocStatus("No U.S. place found. Try another name.", true); return; }
     pinPlace(place);
   }
 
@@ -1440,7 +1416,7 @@
       renderSearchResults(q, items);
     } catch (err) {
       if (seq !== searchSeq) return;
-      showMessage("Search isn't available right now. You can still click the map.");
+      showMessage("Search is down. Click the map instead.");
     }
   }
 
@@ -1483,7 +1459,7 @@
 
   document.getElementById("btn-geolocate").addEventListener("click", function () {
     if (!navigator.geolocation) {
-      setLocStatus("Your browser doesn't support location. Click the map instead.", true);
+      setLocStatus("Location isn't supported here. Click the map instead.", true);
       return;
     }
     setLocStatus("Finding your location…");
@@ -1492,10 +1468,10 @@
         placeName = "";
         searchInput.value = "";
         setLocation(pos.coords.latitude, pos.coords.longitude, 11);
-        setLocStatus("Using your current location. Adjust by clicking the map if needed.");
+        setLocStatus("");
       },
       function () {
-        setLocStatus("Couldn't get your location. Click the map or type coordinates instead.", true);
+        setLocStatus("Couldn't get your location. Click the map instead.", true);
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
     );
@@ -1511,7 +1487,7 @@
     searchInput.value = "Lake Tahoe";
     clearErrors();
     updateLengthHint();
-    setLocStatus("Example loaded: a 17.5-inch rainbow trout from Lake Tahoe. Press Estimate PFAS to see the result.");
+    setLocStatus("Example loaded. Press Estimate PFAS.");
   });
 
   document.getElementById("btn-check-another").addEventListener("click", function () {
@@ -1543,7 +1519,7 @@
       if (saved.place && fields.lat.value) { placeName = saved.place; searchInput.value = saved.place; }
       updateLengthHint();
       updateSpot();
-      if (fields.lat.value) setLocStatus("Your last catch was filled in. Change anything you need and press Estimate PFAS.");
+      if (fields.lat.value) setLocStatus("Your last catch is filled in.");
     } catch (e) { /* storage unavailable — ignore */ }
   }
 
