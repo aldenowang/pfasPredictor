@@ -39,7 +39,7 @@
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
-      <a href="index.html#predict" class="nav-cta">Check a Fish</a>
+      <a href="index.html#predict" class="nav-cta">Get an Estimate</a>
     </nav>
   </div>
 </header>
@@ -52,7 +52,8 @@
       This tool has significant limitations that anyone using it should understand.
     </p>
     <ul class="limitations-list">
-      <li><strong>The exact prediction is highly variable:</strong> It comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. The 95% and 99% confidence values are deliberately conservative upper bounds, not measured concentrations.</li>
+      <li><strong>Individual predictions are uncertain:</strong> The predicted total PFAS comes from a machine-learning model with a median error of 3.04&nbsp;ppb in testing, so an individual fish's actual PFAS can be much higher or lower. The 95th- and 99th-percentile upper envelopes are deliberately cautious, model-derived ceilings, not validated confidence bounds or measured concentrations.</li>
+      <li><strong>Total PFAS, not PFOS:</strong> Estimates are for total PFAS. Many official fish advisories are based on lab-measured PFOS alone, so the two can&rsquo;t be compared directly, and an estimate can&rsquo;t show whether a fish is safe to eat.</li>
       <li><strong>Limited input variables:</strong> Real PFAS contamination depends on many additional factors not captured here, including local industrial activity, water chemistry, species-specific bioaccumulation rates, and site-specific hydrology.</li>
       <li><strong>United States only:</strong> The models were built from U.S. samples and rely on U.S. military installation and U.S. Census urban-area data. Estimates for locations outside the United States are not meaningful.</li>
       <li><strong>Reference data limitations:</strong> The military installation and urban area coordinates are static reference sets and may not reflect every PFAS source, nor confirm that contamination actually occurred at any given site. Species averages for relative fish length come from the study dataset and may not represent every population.</li>
@@ -61,7 +62,7 @@
       <li><strong>Not a health authority:</strong> This tool does not replace guidance from your state Department of Fish and Wildlife, Department of Health, or the EPA.</li>
     </ul>
     <div class="story-actions">
-      <a href="index.html#predict" class="btn btn-primary">Check a Fish</a>
+      <a href="index.html#predict" class="btn btn-primary">Explore a PFAS Estimate</a>
       <a href="index.html" class="btn btn-secondary">Back to the main page</a>
     </div>
   </div>
@@ -79,6 +80,10 @@
         to your local Department of Fish and Wildlife for official consumption guidelines.
       </div>
     </div>
+    <div class="footer-actions">
+      <button type="button" class="btn btn-footer" data-share-site>Share ForeverCatch</button>
+      <button type="button" class="btn btn-footer" data-feedback>Send feedback</button>
+    </div>
     <nav class="footer-links" aria-label="More pages">
       <a href="index.html">Home</a>
       <a href="pfas.html">Why PFAS Matters</a>
@@ -93,6 +98,8 @@
     </div>
   </div>
 </footer>
+
+<script src="site.js" defer></script>
 
 </body>
 </html>

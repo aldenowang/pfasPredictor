@@ -3,9 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ForeverCatch | PFAS Predictions for Freshwater Fish</title>
+<title>ForeverCatch | PFAS Estimates for U.S. Freshwater Fish</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%231a4480'/%3E%3Cg fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z'/%3E%3Cpath d='M4 12l-1.3-2.6M4 12l-1.3 2.6'/%3E%3C/g%3E%3Ccircle cx='15.6' cy='10.8' r='0.9' fill='white'/%3E%3C/svg%3E">
-<meta name="description" content="ForeverCatch is a research tool that estimates potential PFAS contamination risk in freshwater fish based on distance to military installations and urban areas, elevation, and relative fish length.">
+<meta name="description" content="What's hiding in your catch? ForeverCatch gives free, research-based estimates of total PFAS (forever chemicals) in U.S. freshwater fish from where it was caught, its species and its size.">
+<link rel="canonical" href="https://forevercatch.org/">
+<meta name="theme-color" content="#162e51">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ForeverCatch">
+<meta property="og:url" content="https://forevercatch.org/">
+<meta property="og:title" content="What's hiding in your catch? | ForeverCatch">
+<meta property="og:description" content="Free, research-based estimates of total PFAS (forever chemicals) in U.S. freshwater fish. A model estimate, not a lab test or health advisory.">
+<meta property="og:image" content="https://forevercatch.org/images/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ForeverCatch: What's hiding in your catch? PFAS estimates for U.S. freshwater fish.">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +26,7 @@
 <link rel="stylesheet" href="styles.css">
 
 <!-- Map for picking the catch location (Leaflet + OpenStreetMap tiles) -->
+<link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -45,7 +58,7 @@
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
-      <a href="#predict" class="nav-cta">Check a Fish</a>
+      <a href="#predict" class="nav-cta">Get an Estimate</a>
     </nav>
   </div>
 </header>
@@ -55,8 +68,24 @@
      ========================================================== -->
 <section class="hero" id="top">
   <div class="hero-inner">
-    <h1>ForeverCatch</h1>
-    <p class="hero-sub">Predicting forever chemical (PFAS) contamination in your catch</p>
+    <p class="hero-eyebrow">ForeverCatch &middot; PFAS estimates for U.S. freshwater fish</p>
+    <h1>What&rsquo;s hiding in your catch?</h1>
+    <p class="hero-lead">
+      Estimate the total PFAS (&ldquo;forever chemicals&rdquo;) in a freshwater fish from where it
+      was caught, its species and its size. Free, no account needed.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#predict" class="btn btn-primary btn-large">
+        Explore a PFAS Estimate
+        <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="methodology.html" class="btn btn-secondary">How it works</a>
+    </div>
+
+    <p class="hero-facts">
+      Built on 1,110 EPA composite samples (each made from 3 to 5 fish) covering 48 species.
+    </p>
 
     <!-- Disclaimer #1: near the top, directly under the hero -->
     <div class="disclaimer" role="note">
@@ -68,15 +97,6 @@
         to your local Department of Fish and Wildlife for official consumption guidelines.
       </div>
     </div>
-
-    <div class="hero-actions">
-      <a href="#predict" class="btn btn-primary">Check a Fish</a>
-      <a href="methodology.html" class="btn btn-secondary">See How It Works</a>
-    </div>
-
-    <p class="hero-facts">
-      Built on 1,110 EPA composite samples (each made from 3 to 5 fish) covering 48 species.
-    </p>
   </div>
 </section>
 
@@ -85,7 +105,7 @@
      ========================================================== -->
 <section id="predict">
   <div class="container">
-    <h2 class="section-title">Check Your Fish</h2>
+    <h2 class="section-title">Check your fish</h2>
 
     <div class="predict-panel">
       <form id="pfas-form" novalidate>
@@ -163,8 +183,14 @@
           </legend>
           <div class="step-grid">
             <div class="field">
-              <label for="input-species">Species</label>
-            <select id="input-species" required>
+              <label for="species-search">Species</label>
+              <div class="combo">
+                <svg class="combo-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <input type="text" id="species-search" class="combo-input" placeholder="Type a species, e.g. walleye" autocomplete="off"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="species-list" aria-describedby="error-species">
+                <ul id="species-list" class="combo-list" role="listbox" aria-label="Species" hidden></ul>
+              </div>
+              <select id="input-species" class="visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="" disabled selected>Select a species…</option>
               <option value="black crappie">Black crappie</option>
               <option value="blue catfish">Blue catfish</option>
@@ -271,6 +297,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary btn-large">Estimate PFAS</button>
           <button type="button" id="reset-btn" class="btn btn-link">Start over</button>
+          <p class="form-progress" id="form-progress" role="status" aria-live="polite"></p>
           <span class="form-note">We never store your inputs. <a href="about.html#privacy">Privacy</a></span>
         </div>
 
@@ -282,113 +309,111 @@
 <!-- ==========================================================
      RESULTS DISPLAY SECTION
      ========================================================== -->
-<section id="results-section">
+<section id="results-section" aria-labelledby="results-title">
   <div class="container">
-    <h2 class="section-title">Prediction Results</h2>
-
-    <!-- Disclaimer #2: repeated directly beside the results -->
-    <div class="disclaimer" role="note">
-      <span class="disclaimer-icon" aria-hidden="true">!</span>
-      <div>
-        <strong>Disclaimer</strong>
-        This tool is for research purposes only. It uses a predictive model that may have
-        significant margins of error. It is not an official health advisory. Always refer
-        to your local Department of Fish and Wildlife for official consumption guidelines.
-      </div>
-    </div>
+    <h2 class="section-title" id="results-title" tabindex="-1">Your estimate</h2>
 
     <div class="results-panel">
       <p class="results-echo" id="results-echo"></p>
 
-      <div class="verdict" id="verdict" data-level="">
-        <div class="verdict-label">Eating guide</div>
-        <div class="verdict-value" id="verdict-value">--</div>
-        <p class="verdict-why" id="verdict-why"></p>
-      </div>
-
-      <p id="results-summary-text">PFAS estimates, in parts per billion (ppb)</p>
-
-      <div class="estimate-row">
-        <div class="estimate-tile q50">
-          <div class="estimate-label">Exact prediction</div>
-          <div class="estimate-value"><span id="est-exact">--</span></div>
-          <p class="exact-warning">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 1.5 21h21L12 2.5z" fill="#e5a000"/><path d="M11 9h2v6h-2zM11 16.5h2v2h-2z" fill="#3d2f00"/></svg>
-            <span>Can be far off. Don't rely on it.</span>
-          </p>
-        </div>
-        <div class="estimate-tile q95">
-          <div class="estimate-label">95% upper bound <span class="badge">Use this one</span></div>
-          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q95">--</span></div>
-        </div>
-        <div class="estimate-tile q99">
-          <div class="estimate-label">99% upper bound</div>
-          <div class="estimate-value"><span class="lt">&lt;</span><span id="est-q99">--</span></div>
-        </div>
+      <div class="result-main" id="result-main">
+        <div class="result-label">Predicted total PFAS</div>
+        <div class="result-value"><span id="est-exact">--</span><span class="result-unit" id="est-unit">ppb</span></div>
+        <p class="result-sub" id="result-sub">
+          Model estimate for all PFAS combined, in parts per billion. Not a lab measurement.
+        </p>
+        <button type="button" class="btn btn-secondary btn-small" id="btn-retry" hidden>Try again</button>
+        <dl class="result-compare" id="result-compare">
+          <div><dt id="compare-species-label">Species average</dt><dd id="compare-species">--</dd></div>
+          <div><dt>Median of all 1,110 samples</dt><dd id="compare-median">--</dd></div>
+        </dl>
       </div>
 
       <div class="disclaimer" id="outside-us-warning" role="alert" hidden>
         <span class="disclaimer-icon" aria-hidden="true">!</span>
         <div>
           <strong>This location may be outside the United States</strong>
-          These estimates probably aren't meaningful here.
+          No U.S. urban area was found within 300 miles, so these estimates probably aren&rsquo;t meaningful here.
         </div>
       </div>
 
-      <details class="read-key">
-        <summary>What do these numbers mean?</summary>
-        <ul>
-          <li><strong>Exact prediction</strong> is our single best estimate, from an Extra Trees
-            machine-learning model with a median error of 3.04&nbsp;ppb. Individual fish can still be
-            much higher or lower.</li>
-          <li><strong>Upper bounds</strong> are the levels we are 95% and 99% confident the PFAS in
-            this fish falls below. Use the 95% bound when deciding whether to eat it.</li>
-        </ul>
-        <p class="results-context" id="results-context"></p>
-      </details>
-
-      <div class="advisory">
-        <h3>How often can you eat it?</h3>
-        <p>Safe meals by PFOS level, the main PFAS in fish (about 74% of the total).</p>
-        <div class="advisory-table-wrap">
-          <table class="advisory-table">
-            <thead>
-              <tr><th scope="col">PFOS in the fish (ppb)</th><th scope="col">How often you can eat it</th></tr>
-            </thead>
-            <tbody>
-              <tr class="lvl-1" data-level="1"><td>0 to 2.5</td><td>4 or more meals a week</td></tr>
-              <tr class="lvl-2" data-level="2"><td>Over 2.5 to 5</td><td>2 meals a week</td></tr>
-              <tr class="lvl-3" data-level="3"><td>Over 5 to 10</td><td>1 meal a week</td></tr>
-              <tr class="lvl-4" data-level="4"><td>Over 10 to 40</td><td>1 meal a month</td></tr>
-              <tr class="lvl-5" data-level="5"><td>Over 40</td><td>Do not eat</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="advisory-note">
-          Our numbers count all PFAS, so the PFOS alone is usually a bit lower. Sources:
-          <a href="https://www.health.mn.gov/communities/environment/fish/docs/consortium/bestpracticepfos.pdf" target="_blank" rel="noopener noreferrer">Great Lakes Consortium, PFOS Guidelines (2025)</a>;
-          <a href="https://doi.org/10.1016/j.envres.2022.115165" target="_blank" rel="noopener noreferrer">Barbo et al., <em>Environmental Research</em> (2023)</a>.
+      <!-- Disclaimer #2: directly beside the results -->
+      <div class="safety-note" role="note">
+        <h3>Is this fish safe to eat?</h3>
+        <p>
+          This estimate can&rsquo;t tell you. Only a lab test can measure the PFAS in a fish, and only
+          official advisories say how much is safe to eat.
         </p>
+        <p class="safety-disclaimer">
+          This tool is for research purposes only. It uses a predictive model that may have
+          significant margins of error. It is not an official health advisory. Always refer
+          to your local Department of Fish and Wildlife for official consumption guidelines.
+        </p>
+        <a class="btn btn-secondary" href="https://www.epa.gov/choose-fish-and-shellfish-wisely/nlfa-contacts" target="_blank" rel="noopener noreferrer">
+          Find your state&rsquo;s fish advisories
+          <svg class="btn-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="visually-hidden">(opens the EPA website in a new tab)</span>
+        </a>
       </div>
 
-      <div class="risk-score-row">
-        <div class="score-tile">
-          <div class="score-label">Nearest Military Base</div>
-          <div class="score-value" id="nearest-base-distance">--</div>
-        </div>
-        <div class="score-tile">
-          <div class="score-label">Nearest Urban Area</div>
-          <div class="score-value" id="nearest-urban-distance">--</div>
-        </div>
-        <div class="score-tile">
-          <div class="score-label">Elevation</div>
-          <div class="score-value" id="echo-elevation">--</div>
-        </div>
+      <div class="result-more">
+        <details class="more">
+          <summary>Understanding uncertainty</summary>
+          <div class="more-body">
+            <p>
+              The predicted value comes from an Extra Trees machine-learning model. In testing, its median
+              error was 3.04&nbsp;ppb, but any single fish can be much higher or lower.
+            </p>
+            <p>A second, simpler model gives two upper-envelope estimates for fish like this one:</p>
+            <dl class="envelope-list">
+              <div><dt>95th-percentile upper envelope</dt><dd><span class="lt">&lt;</span> <span id="est-q95">--</span></dd></div>
+              <div><dt>99th-percentile upper envelope</dt><dd><span class="lt">&lt;</span> <span id="est-q99">--</span></dd></div>
+            </dl>
+            <p>
+              These come from curves fit to the 1,110 EPA samples so that about 95% or 99% of those samples
+              fall below them. They are rough, model-derived ceilings, not statistically validated confidence
+              bounds and not measurements. The 99% curve is capped at 533.896&nbsp;ppb, the second-highest
+              value in the data.
+              <a href="methodology.html">How both models work</a>
+            </p>
+          </div>
+        </details>
+
+        <details class="more">
+          <summary>Total PFAS vs. PFOS</summary>
+          <div class="more-body">
+            <p>
+              This estimate is <strong>total PFAS</strong>: the combined amount of the PFAS compounds EPA
+              measured in its fish samples. Many official fish advisories are based on a single compound,
+              PFOS, measured in a lab. The two numbers aren&rsquo;t the same thing, so this estimate can&rsquo;t
+              be placed on a PFOS advisory chart.
+              <a href="methodology.html#compounds">Compounds included</a>
+            </p>
+          </div>
+        </details>
+
+        <details class="more">
+          <summary>Location details</summary>
+          <div class="more-body">
+            <p>The environmental inputs the models used for this spot:</p>
+            <dl class="detail-grid">
+              <div><dt>Nearest military base</dt><dd id="nearest-base-distance">--</dd></div>
+              <div><dt>Nearest urban area</dt><dd id="nearest-urban-distance">--</dd></div>
+              <div><dt>Elevation</dt><dd id="echo-elevation">--</dd></div>
+              <div><dt>Coordinates</dt><dd id="echo-coords">--</dd></div>
+            </dl>
+            <p><a href="limitations.html">Limitations of these estimates</a></p>
+          </div>
+        </details>
       </div>
 
       <div class="results-actions">
-        <a href="#predict" class="btn btn-primary" id="btn-check-another">Check another fish</a>
-        <a href="methodology.html" class="btn btn-secondary">How is this calculated?</a>
+        <button type="button" class="btn btn-primary" id="btn-share-result">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Share this result
+        </button>
+        <a href="#predict" class="btn btn-secondary" id="btn-check-another">Check another fish</a>
+        <a href="methodology.html" class="btn btn-link">How is this calculated?</a>
       </div>
     </div>
   </div>
@@ -427,6 +452,10 @@
         to your local Department of Fish and Wildlife for official consumption guidelines.
       </div>
     </div>
+    <div class="footer-actions">
+      <button type="button" class="btn btn-footer" data-share-site>Share ForeverCatch</button>
+      <button type="button" class="btn btn-footer" data-feedback>Send feedback</button>
+    </div>
     <nav class="footer-links" aria-label="More pages">
       <a href="index.html">Home</a>
       <a href="pfas.html">Why PFAS Matters</a>
@@ -441,6 +470,8 @@
     </div>
   </div>
 </footer>
+
+<script src="site.js" defer></script>
 
 <!-- ==========================================================
      JAVASCRIPT
@@ -884,7 +915,145 @@
   fields.species.addEventListener("change", function () {
     errors.species.textContent = "";
     fields.species.classList.remove("invalid");
+    speciesInput.classList.remove("invalid");
     updateLengthHint();
+  });
+
+  /* ------------------------------------------------------------
+     Searchable species picker. Typing filters the list; choosing a
+     species sets the hidden <select>, which the rest of the code reads.
+     ------------------------------------------------------------ */
+  const speciesInput = document.getElementById("species-search");
+  const speciesList = document.getElementById("species-list");
+  const SPECIES = [...fields.species.options].filter((o) => o.value).map((o) => ({ value: o.value, label: o.text }));
+  const POPULAR_SPECIES = ["largemouth bass", "smallmouth bass", "walleye", "yellow perch", "bluegill",
+    "black crappie", "channel catfish", "rainbow trout", "northern pike", "lake trout"];
+  let speciesShown = [];
+  let speciesActive = -1;
+
+  function speciesLabel(value) {
+    const s = SPECIES.find((sp) => sp.value === value);
+    return s ? s.label : "";
+  }
+
+  function setSpecies(value) {
+    fields.species.value = value || "";
+    speciesInput.value = speciesLabel(fields.species.value);
+    fields.species.dispatchEvent(new Event("change"));
+  }
+
+  function matchSpecies(q) {
+    q = q.trim().toLowerCase();
+    if (!q) return null;
+    // Best matches first: name starts with the text, then a later word does, then anywhere.
+    const starts = [], wordStarts = [], contains = [];
+    SPECIES.forEach(function (sp) {
+      const name = sp.value;
+      if (name.startsWith(q)) starts.push(sp);
+      else if (name.split(" ").some((w) => w.startsWith(q))) wordStarts.push(sp);
+      else if (name.includes(q)) contains.push(sp);
+    });
+    return starts.concat(wordStarts, contains);
+  }
+
+  function addSpeciesHeading(text) {
+    const li = document.createElement("li");
+    li.className = "combo-heading";
+    li.setAttribute("role", "presentation");
+    li.textContent = text;
+    speciesList.appendChild(li);
+  }
+
+  function renderSpeciesList() {
+    const matches = matchSpecies(speciesInput.value);
+    speciesList.textContent = "";
+    speciesShown = [];
+    const addOption = function (sp) {
+      const li = document.createElement("li");
+      const i = speciesShown.length;
+      li.id = "species-opt-" + i;
+      li.className = "combo-option";
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", sp.value === fields.species.value ? "true" : "false");
+      li.textContent = sp.label;
+      li.addEventListener("mousedown", function (e) { e.preventDefault(); chooseSpecies(i); });
+      speciesList.appendChild(li);
+      speciesShown.push(sp);
+    };
+    if (matches === null) {
+      addSpeciesHeading("Popular");
+      POPULAR_SPECIES.forEach((v) => addOption(SPECIES.find((sp) => sp.value === v)));
+      addSpeciesHeading("All species");
+      SPECIES.filter((sp) => !POPULAR_SPECIES.includes(sp.value)).forEach(addOption);
+    } else if (matches.length) {
+      matches.forEach(addOption);
+    } else {
+      const li = document.createElement("li");
+      li.className = "combo-empty";
+      li.textContent = "No match. This tool covers 48 species from the EPA study.";
+      speciesList.appendChild(li);
+    }
+    speciesList.hidden = false;
+    speciesInput.setAttribute("aria-expanded", "true");
+    setSpeciesActive(matches && matches.length ? 0 : -1);
+  }
+
+  function setSpeciesActive(i) {
+    speciesActive = i;
+    speciesList.querySelectorAll(".combo-option").forEach(function (li, j) {
+      li.classList.toggle("active", j === i);
+      if (j === i) li.scrollIntoView({ block: "nearest" });
+    });
+    if (i >= 0) speciesInput.setAttribute("aria-activedescendant", "species-opt-" + i);
+    else speciesInput.removeAttribute("aria-activedescendant");
+  }
+
+  function closeSpeciesList() {
+    speciesList.hidden = true;
+    speciesInput.setAttribute("aria-expanded", "false");
+    speciesInput.removeAttribute("aria-activedescendant");
+    speciesActive = -1;
+  }
+
+  function chooseSpecies(i) {
+    const sp = speciesShown[i];
+    if (!sp) return;
+    setSpecies(sp.value);
+    closeSpeciesList();
+  }
+
+  speciesInput.addEventListener("focus", renderSpeciesList);
+  speciesInput.addEventListener("click", function () { if (speciesList.hidden) renderSpeciesList(); });
+  speciesInput.addEventListener("input", function () {
+    if (fields.species.value && speciesInput.value !== speciesLabel(fields.species.value)) {
+      fields.species.value = "";
+      fields.species.dispatchEvent(new Event("change"));
+    }
+    renderSpeciesList();
+  });
+  speciesInput.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (speciesList.hidden) renderSpeciesList();
+      else if (speciesShown.length) setSpeciesActive((speciesActive + 1) % speciesShown.length);
+    } else if (e.key === "ArrowUp" && !speciesList.hidden && speciesShown.length) {
+      e.preventDefault();
+      setSpeciesActive((speciesActive - 1 + speciesShown.length) % speciesShown.length);
+    } else if (e.key === "Enter" && !speciesList.hidden) {
+      e.preventDefault(); // pick the highlighted species instead of submitting
+      if (speciesActive >= 0) chooseSpecies(speciesActive);
+    } else if (e.key === "Escape") {
+      closeSpeciesList();
+    } else if (e.key === "Tab" && !speciesList.hidden && speciesActive >= 0 && speciesInput.value.trim()) {
+      chooseSpecies(speciesActive);
+    }
+  });
+  speciesInput.addEventListener("blur", function () {
+    setTimeout(closeSpeciesList, 120);
+    // An exactly typed name counts as a choice.
+    const typed = speciesInput.value.trim().toLowerCase();
+    const exact = SPECIES.find((sp) => sp.value === typed);
+    if (exact && fields.species.value !== exact.value) setSpecies(exact.value);
   });
   form.querySelectorAll('input[name="length-unit"]').forEach((r) => r.addEventListener("change", updateLengthHint));
   form.querySelectorAll('input[name="water"]').forEach((r) => r.addEventListener("change", function () { setWater(getWater()); }));
@@ -907,11 +1076,13 @@
     Object.values(errors).forEach((el) => (el.textContent = ""));
     Object.values(fields).forEach((el) => el.classList.remove("invalid"));
     spotCard.classList.remove("invalid");
+    speciesInput.classList.remove("invalid");
   }
 
   function setError(key, message) {
     errors[key].textContent = message;
     fields[key].classList.add("invalid");
+    if (key === "species") speciesInput.classList.add("invalid");
   }
 
   // Validates and parses all form inputs.
@@ -945,7 +1116,7 @@
     }
 
     if (!fields.species.value) {
-      setError("species", "Choose the species.");
+      setError("species", speciesInput.value.trim() ? "Pick a species from the list." : "Choose the species.");
       valid = false;
     } else {
       values.species = fields.species.value;
@@ -1001,31 +1172,29 @@
     return miles.toFixed(digits) + " mi";
   }
 
-  // Rows of the PFOS eating chart: upper limit (ppb) and advice. Matches the table in the results.
-  const ADVISORY_LEVELS = [
-    { max: 2.5, advice: "Up to 4 or more meals a week" },
-    { max: 5, advice: "Up to 2 meals a week" },
-    { max: 10, advice: "Up to 1 meal a week" },
-    { max: 40, advice: "Up to 1 meal a month" },
-    { max: Infinity, advice: "Do not eat" },
-  ];
-
-  function advisoryLevel(ppb) {
-    return ADVISORY_LEVELS.findIndex((lvl) => ppb <= lvl.max) + 1;
-  }
-
   const WATER_LABELS = { L: "lake", R: "river or stream", GL: "Great Lake" };
   const FEET_PER_MILE = 5280;
+  const SITE_URL = "https://forevercatch.org/";
+  let lastShare = null; // what "Share this result" sends
+
+  function describeCatch(inputValues, speciesName) {
+    return "a " + inputValues.lengthLabel + " " + speciesName + " from a " + WATER_LABELS[inputValues.water] +
+      (placeName ? " near " + placeName
+                 : " at " + inputValues.latitude.toFixed(2) + ", " + inputValues.longitude.toFixed(2));
+  }
 
   function renderResults(result, inputValues) {
-    document.getElementById("est-exact").textContent =
-      result.exactPPB === null ? "Unavailable" : formatPPB(result.exactPPB) + " ppb";
+    const hasPrediction = result.exactPPB !== null;
+    document.getElementById("est-exact").textContent = hasPrediction ? formatPPB(result.exactPPB) : "Unavailable";
+    document.getElementById("est-unit").hidden = !hasPrediction;
+    document.getElementById("result-main").classList.toggle("is-unavailable", !hasPrediction);
+    document.getElementById("result-sub").textContent = hasPrediction
+      ? "Model estimate for all PFAS combined, in parts per billion. Not a lab measurement."
+      : "We couldn't reach the prediction server. Check your connection and try again.";
+    document.getElementById("btn-retry").hidden = hasPrediction;
 
-    const qKeys = { 0.95: "q95", 0.99: "q99" };
-    for (const q of [0.95, 0.99]) {
-      const est = result.estimates[q];
-      document.getElementById("est-" + qKeys[q]).textContent = formatPPB(est.ppb) + " ppb";
-    }
+    document.getElementById("est-q95").textContent = formatPPB(result.estimates[0.95].ppb) + " ppb";
+    document.getElementById("est-q99").textContent = formatPPB(result.estimates[0.99].ppb) + " ppb";
 
     const mi = result.modelInputs;
     document.getElementById("nearest-base-distance").textContent =
@@ -1034,32 +1203,34 @@
       formatUrbanDistance(result.urbanDistanceMiles, 1);
     document.getElementById("echo-elevation").textContent =
       Math.round(mi.E * FEET_PER_MILE).toLocaleString() + " ft";
+    document.getElementById("echo-coords").textContent =
+      inputValues.latitude.toFixed(4) + ", " + inputValues.longitude.toFixed(4);
 
-    const speciesLabel = fields.species.options[fields.species.selectedIndex].text;
-    document.getElementById("results-context").textContent =
-      "For comparison, the median of our 1,110 samples is " + formatPPB(DATASET_MEDIAN_PPB) +
-      " ppb, and " + speciesLabel.toLowerCase() + " samples averaged " +
-      formatPPB(result.modelInputs.speciesAvgPFAS) + " ppb.";
+    const speciesName = fields.species.options[fields.species.selectedIndex].text.toLowerCase();
+    document.getElementById("compare-species-label").textContent = "Average " + speciesName + " sample";
+    document.getElementById("compare-species").textContent = formatPPB(mi.speciesAvgPFAS) + " ppb";
+    document.getElementById("compare-median").textContent = formatPPB(DATASET_MEDIAN_PPB) + " ppb";
 
     document.getElementById("outside-us-warning").hidden = result.urbanDistanceMiles !== null;
 
+    const catchText = describeCatch(inputValues, speciesName);
     document.getElementById("results-echo").textContent =
-      "Your catch: a " + inputValues.lengthLabel + " " + speciesLabel.toLowerCase() + " from a " + WATER_LABELS[inputValues.water] +
-      (placeName ? " near " + placeName : " at " + inputValues.latitude.toFixed(3) + ", " + inputValues.longitude.toFixed(3)) + ".";
+      "For " + catchText + ".";
 
-    // Plain-language guide: the 95% bound read against the PFOS eating chart.
-    const q95 = result.estimates[0.95].ppb;
-    const level = advisoryLevel(q95);
-    document.getElementById("verdict").dataset.level = level;
-    document.getElementById("verdict-value").textContent = ADVISORY_LEVELS[level - 1].advice;
-    document.getElementById("verdict-why").textContent =
-      "Based on the 95% upper bound (" + formatPPB(q95) + " ppb). Check your state's advisory too.";
-    document.querySelectorAll(".advisory-table tbody tr").forEach(function (tr) {
-      tr.classList.toggle("is-match", Number(tr.dataset.level) === level);
-    });
+    document.getElementById("btn-share-result").hidden = !hasPrediction;
+    lastShare = hasPrediction ? {
+      title: "ForeverCatch PFAS estimate",
+      text: "ForeverCatch model estimate: about " + formatPPB(result.exactPPB) + " ppb total PFAS for " + catchText +
+        ". This is a research-model estimate, not a lab measurement or health advisory.",
+    } : null;
 
     resultsSection.classList.add("visible");
-    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    resultsSection.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    document.getElementById("results-title").focus({ preventScroll: true });
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
   const submitBtn = form.querySelector('button[type="submit"]');
@@ -1073,8 +1244,11 @@
     }
 
     const originalLabel = submitBtn.textContent;
+    const progress = document.getElementById("form-progress");
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Looking up location data…';
+    form.setAttribute("aria-busy", "true");
+    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Estimating…';
+    progress.textContent = "Step 1 of 2: looking up elevation and nearby urban areas…";
     try {
       [values.elevationMiles, values.urbanDistanceMiles] = await Promise.all([
         fetchElevationMiles(values.latitude, values.longitude),
@@ -1082,15 +1256,16 @@
       ]);
     } catch (err) {
       resultsSection.classList.remove("visible");
-      setError("lat", "Couldn't look up elevation / urban-area data for this location. Check your connection and try again.");
-      fields.lon.classList.add("invalid");
+      setLocStatus("Couldn't look up elevation or urban-area data for this spot. Check your connection and try again.", true);
+      progress.textContent = "";
+      form.removeAttribute("aria-busy");
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
       return;
     }
 
     const result = computePFASEstimate(values);
-    submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Running the model…';
+    progress.textContent = "Step 2 of 2: running the model…";
     try {
       result.exactPPB = await fetchExactPrediction(values, result.nearestBaseDistanceMiles);
     } catch (err) {
@@ -1098,6 +1273,8 @@
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
+      progress.textContent = "";
+      form.removeAttribute("aria-busy");
     }
     renderResults(result, values);
     saveLastInputs();
@@ -1113,6 +1290,8 @@
     searchInput.value = "";
     placeName = "";
     closeResults();
+    closeSpeciesList();
+    speciesInput.value = "";
     updateLengthHint();
     updateSpot();
   });
@@ -1480,7 +1659,7 @@
   document.getElementById("btn-example").addEventListener("click", function () {
     placeName = "Lake Tahoe";
     setLocation(39.0968, -120.0324, 9);
-    fields.species.value = "rainbow trout";
+    setSpecies("rainbow trout");
     fields.length.value = "17.5";
     setLengthUnit("in");
     setWater("L");
@@ -1491,7 +1670,27 @@
   });
 
   document.getElementById("btn-check-another").addEventListener("click", function () {
-    setTimeout(function () { fields.species.focus({ preventScroll: true }); }, 400);
+    setTimeout(function () { speciesInput.focus({ preventScroll: true }); }, 400);
+  });
+
+  document.getElementById("btn-retry").addEventListener("click", function () {
+    form.requestSubmit ? form.requestSubmit() : submitBtn.click();
+  });
+
+  document.getElementById("btn-share-result").addEventListener("click", function () {
+    if (!lastShare || !window.ForeverCatch) return;
+    window.ForeverCatch.share(lastShare.title, lastShare.text, SITE_URL);
+    window.va("event", { name: "share_result" });
+  });
+
+  // On phones, lift a text box to the top of the screen when it's focused so the
+  // keyboard doesn't cover its suggestion list.
+  [searchInput, speciesInput].forEach(function (el) {
+    el.addEventListener("focus", function () {
+      if (window.matchMedia("(max-width: 760px)").matches) {
+        setTimeout(function () { el.scrollIntoView({ block: "start", behavior: "auto" }); }, 250);
+      }
+    });
   });
 
   const STORAGE_KEY = "pfas-last-inputs";
@@ -1512,7 +1711,7 @@
       if (!saved) return;
       fields.lat.value = saved.lat || "";
       fields.lon.value = saved.lon || "";
-      if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) fields.species.value = saved.species;
+      if (saved.species && SPECIES_AVG_LENGTH_MM[saved.species]) setSpecies(saved.species);
       fields.length.value = saved.length || "";
       if (saved.unit === "cm") setLengthUnit("cm");
       if (["L", "R", "GL"].includes(saved.water)) setWater(saved.water);

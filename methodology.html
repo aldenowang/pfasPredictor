@@ -39,7 +39,7 @@
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
-      <a href="index.html#predict" class="nav-cta">Check a Fish</a>
+      <a href="index.html#predict" class="nav-cta">Get an Estimate</a>
     </nav>
   </div>
 </header>
@@ -49,11 +49,11 @@
   <div class="container">
     <h2 class="section-title">Methodology</h2>
     <p class="section-subtitle">
-      The site uses two models built from EPA fish-tissue data. The 95% and 99% bounds come
-      from quantile-regression curves: four site and fish measurements are combined into a
+      The site uses two models built from EPA fish-tissue data. The 95th- and 99th-percentile
+      upper envelopes come from quantile-regression curves: four site and fish measurements are combined into a
       single score, <em>x</em>, and PFAS (in ppb) is estimated as
       <em>y</em>&nbsp;=&nbsp;<em>C</em>&nbsp;/&nbsp;<em>x</em>, with a different constant
-      <em>C</em> for each confidence level. The exact prediction comes from a separate
+      <em>C</em> for each quantile. The predicted total PFAS comes from a separate
       machine-learning model, described below. The four inputs are:
     </p>
 
@@ -116,34 +116,35 @@
       </div>
     </div>
 
-    <h3 class="method-subhead">95% and 99% confidence bounds</h3>
+    <h3 class="method-subhead">95th- and 99th-percentile upper envelopes</h3>
     <div class="formula-box">
       <div class="formula-line"><em>x</em> = <em>D</em> &times; (1 / <em>R</em>) &times; <em>E</em></div>
       <table class="formula-table">
         <thead><tr><th>Output</th><th>Quantile (q)</th><th>Formula (PFAS, ppb)</th></tr></thead>
         <tbody>
-          <tr><td>95% confidence</td><td>0.95</td><td><em>y</em> = 199.183 / (<em>x</em> + 0.5)</td></tr>
-          <tr><td>99% confidence</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
+          <tr><td>95th-percentile envelope</td><td>0.95</td><td><em>y</em> = 199.183 / (<em>x</em> + 0.5)</td></tr>
+          <tr><td>99th-percentile envelope</td><td>0.99</td><td><em>y</em> = 711.2349 / <em>x</em></td></tr>
         </tbody>
       </table>
       <p>
         A q-level estimate means that, in the fitted data, a fraction q of fish fell below the
-        curve. So the 95% value is the level you can be about 95% sure this fish is
-        below. Both curves rise steeply as <em>x</em> gets small, which mostly happens at sites near
+        curve. That describes the samples the curves were fit to; it is not a validated
+        confidence bound for any single fish, especially since the offset and cap below change
+        the curves. Both curves rise steeply as <em>x</em> gets small, which mostly happens at sites near
         sea level. The 95% curve adds 0.5 to <em>x</em> so it stays finite; even at
         <em>x</em>&nbsp;=&nbsp;0 it tops out at about <strong>398&nbsp;ppb</strong>, so it has no
         ceiling. The 99% bound is capped at <strong>533.896&nbsp;ppb</strong>, the second-highest
-        PFAS value measured in the dataset, so a 99% result of exactly that value has hit its cap. The logic lives in the <code>getPFASUE()</code> function in the
+        PFAS value measured in the dataset, so a 99th-percentile result of exactly that value has hit its cap. The logic lives in the <code>getPFASUE()</code> function in the
         main page's source code.
       </p>
     </div>
 
     <div class="ml-box">
-      <h3>Exact prediction: Extra Trees model</h3>
+      <h3>Predicted total PFAS: Extra Trees model</h3>
       <p>
         We trained several machine-learning models on the 1,110 composite samples and compared how
         well each predicted PFAS. An Extra Trees model performed best, with a median error of
-        3.04&nbsp;ppb, so it is the one used for the exact prediction. Half of its predictions were
+        3.04&nbsp;ppb, so it is the one used for the predicted total PFAS. Half of its predictions were
         within about 3&nbsp;ppb of the measured value.
       </p>
 
@@ -229,7 +230,7 @@
       </ul>
     </div>
     <div class="story-actions">
-      <a href="index.html#predict" class="btn btn-primary">Check a Fish</a>
+      <a href="index.html#predict" class="btn btn-primary">Explore a PFAS Estimate</a>
       <a href="index.html" class="btn btn-secondary">Back to the main page</a>
     </div>
   </div>
@@ -247,6 +248,10 @@
         to your local Department of Fish and Wildlife for official consumption guidelines.
       </div>
     </div>
+    <div class="footer-actions">
+      <button type="button" class="btn btn-footer" data-share-site>Share ForeverCatch</button>
+      <button type="button" class="btn btn-footer" data-feedback>Send feedback</button>
+    </div>
     <nav class="footer-links" aria-label="More pages">
       <a href="index.html">Home</a>
       <a href="pfas.html">Why PFAS Matters</a>
@@ -261,6 +266,8 @@
     </div>
   </div>
 </footer>
+
+<script src="site.js" defer></script>
 
 </body>
 </html>

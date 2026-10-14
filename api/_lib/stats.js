@@ -36,7 +36,7 @@ export function today(date = new Date()) {
 }
 
 // Runs several Redis commands in one request. Returns the results, or null on any failure.
-async function pipeline(commands) {
+export async function pipeline(commands) {
   const cfg = config();
   if (!cfg) return null;
   const ctrl = new AbortController();
