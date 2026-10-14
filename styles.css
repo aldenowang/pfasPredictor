@@ -2066,10 +2066,6 @@ details.more summary:hover { color: var(--color-primary); }
 .feedback-status:empty { display: none; }
 .feedback-actions { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
 
-/* ---------- PFOS guidelines (Why PFAS Matters page) ---------- */
-.pfos-guide { max-width: 760px; margin-top: 36px; }
-.pfos-guide h2 { font-family: var(--font-serif); color: #5a2a14; font-size: 1.35rem; margin: 0 0 8px; }
-.pfos-guide .advisory-table { background: #ffffff; }
 
 /* ---------- phones ---------- */
 @media (max-width: 640px) {
@@ -2325,42 +2321,25 @@ form#pfas-form { gap: 0; }
 .author-text { margin: 0 0 18px; font-size: 1.05rem; line-height: 1.7; max-width: 46ch; }
 .author-photos img { border-radius: var(--radius-md); box-shadow: none; }
 
-/* PFOS Guidelines page */
-.pfos-page { background: var(--color-surface); }
 
-.pfos-card {
-  max-width: 640px;
-  margin-top: 8px;
-  padding: 6px 0 0;
-}
 
-.pfos-table caption {
-  caption-side: top;
-  text-align: left;
-  padding: 0 0 10px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-}
 
-.pfos-table { max-width: none; font-size: 0.98rem; }
+.pfos-table { max-width: 560px; font-size: 0.95rem; }
 .pfos-table th, .pfos-table td { padding: 11px 14px; }
 .pfos-source { margin: 10px 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
 
-.pfos-callout {
-  max-width: 640px;
-  margin: 28px 0 8px;
-  padding: 16px 20px;
+
+
+@media (max-width: 760px) {
+  .author { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+}
+
+.pfos-warning {
+  margin: 12px 0 6px !important;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
   background: var(--color-warning-bg);
   border-left: 4px solid var(--color-warning-border);
   color: var(--color-warning-text);
-}
-
-.pfos-callout h3 { margin: 0 0 4px; font-size: 1rem; }
-.pfos-callout p { margin: 0; font-size: 0.95rem; }
-.pfos-text { max-width: 640px; color: var(--color-text); }
-
-@media (max-width: 760px) {
-  .author { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
-  .pfos-table th, .pfos-table td { padding: 10px; }
+  font-size: 0.9rem;
 }
