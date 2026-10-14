@@ -1978,3 +1978,131 @@ form#pfas-form {
 @media (max-width: 760px) {
   .loc-layout { grid-template-columns: 1fr; gap: 14px; }
 }
+
+/* ==========================================================
+   LOCATION COLUMN: spot card, tips, tucked-away coordinates
+   ========================================================== */
+.loc-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: stretch;
+}
+
+.loc-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loc-side .loc-search,
+.loc-side .loc-toolbar { margin: 0; }
+
+.loc-side .loc-status:empty { display: none; }
+.loc-side .loc-status { margin: 0; }
+
+.spot-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px dashed #aab4c0;
+  border-radius: 12px;
+  background: var(--color-bg);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.spot-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 36px;
+  color: #aab4c0;
+}
+
+.spot-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.spot-name {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.spot-coords {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.spot-card.is-set {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.spot-card.is-set .spot-icon { color: var(--color-primary); }
+.spot-card.is-set .spot-name { color: var(--color-primary-dark); }
+
+.spot-card.invalid {
+  border: 1px solid var(--color-risk-veryhigh);
+  background: #fdf3f3;
+}
+
+.loc-tips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+}
+
+.loc-tips li {
+  position: relative;
+  padding-left: 22px;
+}
+
+.loc-tips li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.7;
+}
+
+.coords-details {
+  margin-top: auto; /* sits at the bottom, level with the map's lower edge */
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.coords-details summary {
+  cursor: pointer;
+  width: fit-content;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.coords-details summary:hover { text-decoration: underline; }
+.coords-details .coords-row { margin-top: 10px; }
+
+@media (max-width: 760px) {
+  .loc-layout { grid-template-columns: 1fr; gap: 12px; }
+  .loc-side { display: contents; } /* lets the map sit between the buttons and the spot card */
+  .loc-search { order: 1; }
+  .loc-toolbar { order: 2; }
+  .loc-map-wrap { order: 3; }
+  .spot-card { order: 4; }
+  .loc-status { order: 5; }
+  .loc-tips { order: 6; }
+  .coords-details { order: 7; margin-top: 0; }
+}

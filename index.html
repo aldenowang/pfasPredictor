@@ -118,10 +118,25 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
               Try an example
             </button>
-            <span class="us-only-note" title="The model is built on U.S. EPA fish data and U.S. military base and Census urban-area records, so it only works for fish caught in the U.S.">U.S. waters only</span>
+          </div>
+
+          <div class="spot-card" id="spot-card">
+            <svg class="spot-icon" viewBox="0 0 32 44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 43 16 43s15-16 15-27.2C31 7.6 24.3 1 16 1z" fill="currentColor"/><circle cx="16" cy="15.5" r="5.5" fill="#ffffff"/></svg>
+            <div>
+              <div class="spot-label">Your spot</div>
+              <div class="spot-name" id="spot-name">No spot picked yet</div>
+              <div class="spot-coords" id="spot-coords">Search above or click the map</div>
+            </div>
           </div>
           <div class="loc-status" id="loc-status" aria-live="polite"></div>
 
+          <ul class="loc-tips">
+            <li>Drop the pin on the water where you fished, not the nearest town.</li>
+            <li>U.S. waters only. The model is built on U.S. EPA, military base and Census data.</li>
+          </ul>
+
+          <details class="coords-details" id="coords-details">
+            <summary>Enter coordinates instead</summary>
           <div class="coords-row">
             <div class="field">
               <label for="input-lat">Latitude</label>
@@ -133,8 +148,9 @@
               <input type="text" id="input-lon" placeholder="e.g. -71.0589" inputmode="decimal" required>
               <span class="error-text" id="error-lon"></span>
             </div>
-            <p class="coords-hint">Filled in automatically when you pick a spot. You can also type them.</p>
+            <p class="coords-hint">Decimal degrees, e.g. 44.98, -93.27. The pin moves when you finish typing.</p>
           </div>
+          </details>
           </div>
           <div class="loc-map-wrap" id="loc-map-wrap">
             <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
@@ -893,9 +909,24 @@
   form.querySelectorAll('input[name="length-unit"]').forEach((r) => r.addEventListener("change", updateLengthHint));
   form.querySelectorAll('input[name="water"]').forEach((r) => r.addEventListener("change", function () { setWater(getWater()); }));
 
+  const spotCard = document.getElementById("spot-card");
+
+  // Shows the chosen place and coordinates in the "Your spot" card.
+  function updateSpot() {
+    const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
+    const has = !isNaN(lat) && !isNaN(lon);
+    spotCard.classList.toggle("is-set", has);
+    if (has) spotCard.classList.remove("invalid");
+    document.getElementById("spot-name").textContent =
+      has ? (placeName ? "Near " + placeName : "Dropped pin") : "No spot picked yet";
+    document.getElementById("spot-coords").textContent =
+      has ? lat.toFixed(4) + ", " + lon.toFixed(4) : "Search above or click the map";
+  }
+
   function clearErrors() {
     Object.values(errors).forEach((el) => (el.textContent = ""));
     Object.values(fields).forEach((el) => el.classList.remove("invalid"));
+    spotCard.classList.remove("invalid");
   }
 
   function setError(key, message) {
@@ -913,8 +944,8 @@
     const noLocation = !fields.lat.value.trim() && !fields.lon.value.trim();
     const lat = parseFloat(fields.lat.value);
     if (noLocation) {
-      setError("lat", "Pick a spot: search for a place or click the map.");
-      fields.lon.classList.add("invalid");
+      spotCard.classList.add("invalid");
+      setLocStatus("Pick a spot first: search for a place or click the map.", true);
       valid = false;
     } else if (isNaN(lat) || lat < -90 || lat > 90) {
       setError("lat", "Enter a latitude between -90 and 90.");
@@ -969,8 +1000,10 @@
     if (!valid) {
       const first = form.querySelector(".invalid");
       if (first) {
+        if (first.closest("details")) first.closest("details").open = true;
         first.scrollIntoView({ behavior: "smooth", block: "center" });
-        const focusable = first.matches("input, select") ? first : first.querySelector("input");
+        const focusable = first === spotCard ? searchInput
+          : first.matches("input, select") ? first : first.querySelector("input");
         if (focusable) focusable.focus({ preventScroll: true });
       }
     }
@@ -1102,6 +1135,7 @@
     placeName = "";
     closeResults();
     updateLengthHint();
+    updateSpot();
   });
 
   /* ============================================================
@@ -1127,6 +1161,7 @@
     errors.lat.textContent = "";
     errors.lon.textContent = "";
     placeMarker(lat, lon, zoom);
+    updateSpot();
   }
 
   function placeMarker(lat, lon, zoom) {
@@ -1356,6 +1391,7 @@
       setLocation(place.lat, place.lon, place.isWater ? 11 : 12);
     }
     placeName = place.name;
+    updateSpot();
     const water = guessWaterType(place);
     if (water) setWater(water);
     const waterNote = water ? " Water type set to " + WATER_LABELS[water] + "." : "";
@@ -1439,6 +1475,8 @@
   [fields.lat, fields.lon].forEach(function (el) {
     el.addEventListener("change", function () {
       const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
+      placeName = "";
+      updateSpot();
       if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) placeMarker(lat, lon, 9);
     });
   });
@@ -1451,9 +1489,9 @@
     setLocStatus("Finding your location…");
     navigator.geolocation.getCurrentPosition(
       function (pos) {
-        setLocation(pos.coords.latitude, pos.coords.longitude, 11);
         placeName = "";
         searchInput.value = "";
+        setLocation(pos.coords.latitude, pos.coords.longitude, 11);
         setLocStatus("Using your current location. Adjust by clicking the map if needed.");
       },
       function () {
@@ -1464,12 +1502,12 @@
   });
 
   document.getElementById("btn-example").addEventListener("click", function () {
-    setLocation(39.0968, -120.0324, 9); // Lake Tahoe
+    placeName = "Lake Tahoe";
+    setLocation(39.0968, -120.0324, 9);
     fields.species.value = "rainbow trout";
     fields.length.value = "17.5";
     setLengthUnit("in");
     setWater("L");
-    placeName = "Lake Tahoe";
     searchInput.value = "Lake Tahoe";
     clearErrors();
     updateLengthHint();
@@ -1504,6 +1542,7 @@
       if (["L", "R", "GL"].includes(saved.water)) setWater(saved.water);
       if (saved.place && fields.lat.value) { placeName = saved.place; searchInput.value = saved.place; }
       updateLengthHint();
+      updateSpot();
       if (fields.lat.value) setLocStatus("Your last catch was filled in. Change anything you need and press Estimate PFAS.");
     } catch (e) { /* storage unavailable — ignore */ }
   }
