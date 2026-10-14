@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ForeverCatch | PFAS Estimates for U.S. Freshwater Fish</title>
+<title>ForeverCatch | Predicting PFAS Contamination in Your Catch</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%231a4480'/%3E%3Cg fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12c2.2-3.4 5.2-5 8.6-5 3 0 5.2 2 6.9 5-1.7 3-3.9 5-6.9 5-3.4 0-6.4-1.6-8.6-5z'/%3E%3Cpath d='M4 12l-1.3-2.6M4 12l-1.3 2.6'/%3E%3C/g%3E%3Ccircle cx='15.6' cy='10.8' r='0.9' fill='white'/%3E%3C/svg%3E">
 <meta name="description" content="What's hiding in your catch? ForeverCatch gives free, research-based estimates of total PFAS (forever chemicals) in U.S. freshwater fish from where it was caught, its species and its size.">
 <link rel="canonical" href="https://forevercatch.org/">
@@ -58,7 +58,7 @@
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
-      <a href="#predict" class="nav-cta">Get an Estimate</a>
+      <a href="#predict" class="nav-cta">Estimate PFAS</a>
     </nav>
   </div>
 </header>
@@ -68,23 +68,17 @@
      ========================================================== -->
 <section class="hero" id="top">
   <div class="hero-inner">
-    <p class="hero-eyebrow">ForeverCatch &middot; PFAS estimates for U.S. freshwater fish</p>
-    <h1>What&rsquo;s hiding in your catch?</h1>
-    <p class="hero-lead">
-      Estimate the total PFAS (&ldquo;forever chemicals&rdquo;) in a freshwater fish from where it
-      was caught, its species and its size. Free, no account needed.
-    </p>
+    <p class="hero-eyebrow">What&rsquo;s hiding in your catch?</p>
+    <h1>ForeverCatch</h1>
+    <p class="hero-sub">Predicting forever chemical (PFAS) contamination in your catch</p>
 
     <div class="hero-actions">
-      <a href="#predict" class="btn btn-primary btn-large">
-        Explore a PFAS Estimate
-        <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a href="methodology.html" class="btn btn-secondary">How it works</a>
+      <a href="#predict" class="btn btn-primary btn-large">Estimate PFAS</a>
+      <button type="button" class="btn btn-secondary btn-large" id="hero-example">Try an example</button>
     </div>
 
     <p class="hero-facts">
-      Built on 1,110 EPA composite samples (each made from 3 to 5 fish) covering 48 species.
+      Research-based estimates from 1,110 EPA fish samples covering 48 freshwater species.
     </p>
 
     <!-- Disclaimer #1: near the top, directly under the hero -->
@@ -316,18 +310,30 @@
     <div class="results-panel">
       <p class="results-echo" id="results-echo"></p>
 
-      <div class="result-main" id="result-main">
-        <div class="result-label">Predicted total PFAS</div>
-        <div class="result-value"><span id="est-exact">--</span><span class="result-unit" id="est-unit">ppb</span></div>
-        <p class="result-sub" id="result-sub">
-          Model estimate for all PFAS combined, in parts per billion. Not a lab measurement.
-        </p>
-        <button type="button" class="btn btn-secondary btn-small" id="btn-retry" hidden>Try again</button>
-        <dl class="result-compare" id="result-compare">
-          <div><dt id="compare-species-label">Species average</dt><dd id="compare-species">--</dd></div>
-          <div><dt>Median of all 1,110 samples</dt><dd id="compare-median">--</dd></div>
-        </dl>
+      <div class="estimates" id="estimates">
+        <article class="estimate estimate-central" aria-labelledby="est-central-label">
+          <h3 class="estimate-label" id="est-central-label">Central estimate</h3>
+          <p class="estimate-value"><span id="est-exact">--</span> <abbr class="estimate-unit" id="est-unit" title="parts per billion">ppb</abbr></p>
+          <p class="estimate-desc" id="est-central-desc">Model-estimated PFAS concentration</p>
+          <button type="button" class="btn btn-secondary btn-small" id="btn-retry" hidden>Try again</button>
+        </article>
+        <article class="estimate estimate-upper" aria-labelledby="est-q95-label">
+          <h3 class="estimate-label" id="est-q95-label">Upper estimate <span class="model-tag">95% model</span></h3>
+          <p class="estimate-value"><span id="est-q95">--</span> <abbr class="estimate-unit" title="parts per billion">ppb</abbr></p>
+          <p class="estimate-desc">Explores potentially higher contamination levels</p>
+        </article>
+        <article class="estimate estimate-upper-99" aria-labelledby="est-q99-label">
+          <h3 class="estimate-label" id="est-q99-label">Upper estimate <span class="model-tag">99% model</span></h3>
+          <p class="estimate-value"><span id="est-q99">--</span> <abbr class="estimate-unit" title="parts per billion">ppb</abbr></p>
+          <p class="estimate-desc">A more conservative upper-envelope estimate</p>
+        </article>
       </div>
+
+      <p class="estimates-note">
+        PFAS concentrations can vary significantly. These are model estimates, not laboratory
+        measurements or guarantees of safety.
+      </p>
+      <p class="estimates-context" id="estimates-context"></p>
 
       <div class="disclaimer" id="outside-us-warning" role="alert" hidden>
         <span class="disclaimer-icon" aria-hidden="true">!</span>
@@ -339,70 +345,49 @@
 
       <!-- Disclaimer #2: directly beside the results -->
       <div class="safety-note" role="note">
-        <h3>Is this fish safe to eat?</h3>
         <p>
-          This estimate can&rsquo;t tell you. Only a lab test can measure the PFAS in a fish, and only
-          official advisories say how much is safe to eat.
+          <strong>Deciding whether to eat it?</strong> These estimates can&rsquo;t tell you if a fish is
+          safe. This tool is for research purposes only. It uses a predictive model that may have
+          significant margins of error. It is not an official health advisory. Always refer to your
+          local Department of Fish and Wildlife for official consumption guidelines.
         </p>
-        <p class="safety-disclaimer">
-          This tool is for research purposes only. It uses a predictive model that may have
-          significant margins of error. It is not an official health advisory. Always refer
-          to your local Department of Fish and Wildlife for official consumption guidelines.
-        </p>
-        <a class="btn btn-secondary" href="https://www.epa.gov/choose-fish-and-shellfish-wisely/nlfa-contacts" target="_blank" rel="noopener noreferrer">
-          Find your state&rsquo;s fish advisories
-          <svg class="btn-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="visually-hidden">(opens the EPA website in a new tab)</span>
+        <a href="https://www.epa.gov/choose-fish-and-shellfish-wisely/nlfa-contacts" target="_blank" rel="noopener noreferrer">
+          Find your state&rsquo;s fish advisories<span class="visually-hidden"> (opens the EPA website in a new tab)</span> &rarr;
         </a>
       </div>
 
       <div class="result-more">
         <details class="more">
-          <summary>Understanding uncertainty</summary>
+          <summary>How these estimates work</summary>
           <div class="more-body">
             <p>
-              The predicted value comes from an Extra Trees machine-learning model. In testing, its median
-              error was 3.04&nbsp;ppb, but any single fish can be much higher or lower.
+              <strong>Central estimate:</strong> an Extra Trees machine-learning model. Its median error in
+              testing was 3.04&nbsp;ppb, but it can substantially underpredict fish with high PFAS, which is
+              why the upper estimates are shown alongside it.
             </p>
-            <p>A second, simpler model gives two upper-envelope estimates for fish like this one:</p>
-            <dl class="envelope-list">
-              <div><dt>95th-percentile upper envelope</dt><dd><span class="lt">&lt;</span> <span id="est-q95">--</span></dd></div>
-              <div><dt>99th-percentile upper envelope</dt><dd><span class="lt">&lt;</span> <span id="est-q99">--</span></dd></div>
-            </dl>
             <p>
-              These come from curves fit to the 1,110 EPA samples so that about 95% or 99% of those samples
-              fall below them. They are rough, model-derived ceilings, not statistically validated confidence
-              bounds and not measurements. The 99% curve is capped at 533.896&nbsp;ppb, the second-highest
-              value in the data.
-              <a href="methodology.html">How both models work</a>
+              <strong>Upper estimates:</strong> two simpler curves fit to the 1,110 EPA samples so that about
+              95% or 99% of those samples fell below them. &ldquo;95%&rdquo; and &ldquo;99%&rdquo; are model names,
+              not verified probabilities, and neither value is the highest level possible. The 99% curve is
+              capped at 533.896&nbsp;ppb.
             </p>
-          </div>
-        </details>
-
-        <details class="more">
-          <summary>Total PFAS vs. PFOS</summary>
-          <div class="more-body">
             <p>
-              This estimate is <strong>total PFAS</strong>: the combined amount of the PFAS compounds EPA
-              measured in its fish samples. Many official fish advisories are based on a single compound,
-              PFOS, measured in a lab. The two numbers aren&rsquo;t the same thing, so this estimate can&rsquo;t
-              be placed on a PFOS advisory chart.
-              <a href="methodology.html#compounds">Compounds included</a>
+              <strong>Total PFAS, not PFOS:</strong> all three are total PFAS. Many official advisories use
+              lab-measured PFOS alone, so these numbers can&rsquo;t be read against PFOS limits.
             </p>
+            <p><a href="methodology.html">Full methodology</a> &middot; <a href="limitations.html">Limitations</a></p>
           </div>
         </details>
 
         <details class="more">
           <summary>Location details</summary>
           <div class="more-body">
-            <p>The environmental inputs the models used for this spot:</p>
             <dl class="detail-grid">
               <div><dt>Nearest military base</dt><dd id="nearest-base-distance">--</dd></div>
               <div><dt>Nearest urban area</dt><dd id="nearest-urban-distance">--</dd></div>
               <div><dt>Elevation</dt><dd id="echo-elevation">--</dd></div>
               <div><dt>Coordinates</dt><dd id="echo-coords">--</dd></div>
             </dl>
-            <p><a href="limitations.html">Limitations of these estimates</a></p>
           </div>
         </details>
       </div>
@@ -413,7 +398,6 @@
           Share this result
         </button>
         <a href="#predict" class="btn btn-secondary" id="btn-check-another">Check another fish</a>
-        <a href="methodology.html" class="btn btn-link">How is this calculated?</a>
       </div>
     </div>
   </div>
@@ -1187,14 +1171,16 @@
     const hasPrediction = result.exactPPB !== null;
     document.getElementById("est-exact").textContent = hasPrediction ? formatPPB(result.exactPPB) : "Unavailable";
     document.getElementById("est-unit").hidden = !hasPrediction;
-    document.getElementById("result-main").classList.toggle("is-unavailable", !hasPrediction);
-    document.getElementById("result-sub").textContent = hasPrediction
-      ? "Model estimate for all PFAS combined, in parts per billion. Not a lab measurement."
-      : "We couldn't reach the prediction server. Check your connection and try again.";
+    document.querySelector(".estimate-central").classList.toggle("is-unavailable", !hasPrediction);
+    document.getElementById("est-central-desc").textContent = hasPrediction
+      ? "Model-estimated PFAS concentration"
+      : "Couldn't reach the prediction server.";
     document.getElementById("btn-retry").hidden = hasPrediction;
 
-    document.getElementById("est-q95").textContent = formatPPB(result.estimates[0.95].ppb) + " ppb";
-    document.getElementById("est-q99").textContent = formatPPB(result.estimates[0.99].ppb) + " ppb";
+    const q95 = result.estimates[0.95].ppb;
+    const q99 = result.estimates[0.99].ppb;
+    document.getElementById("est-q95").textContent = formatPPB(q95);
+    document.getElementById("est-q99").textContent = formatPPB(q99);
 
     const mi = result.modelInputs;
     document.getElementById("nearest-base-distance").textContent =
@@ -1207,9 +1193,9 @@
       inputValues.latitude.toFixed(4) + ", " + inputValues.longitude.toFixed(4);
 
     const speciesName = fields.species.options[fields.species.selectedIndex].text.toLowerCase();
-    document.getElementById("compare-species-label").textContent = "Average " + speciesName + " sample";
-    document.getElementById("compare-species").textContent = formatPPB(mi.speciesAvgPFAS) + " ppb";
-    document.getElementById("compare-median").textContent = formatPPB(DATASET_MEDIAN_PPB) + " ppb";
+    document.getElementById("estimates-context").textContent =
+      "For comparison: " + speciesName + " samples in the study averaged " + formatPPB(mi.speciesAvgPFAS) +
+      " ppb; the median of all 1,110 samples was " + formatPPB(DATASET_MEDIAN_PPB) + " ppb.";
 
     document.getElementById("outside-us-warning").hidden = result.urbanDistanceMiles !== null;
 
@@ -1217,12 +1203,13 @@
     document.getElementById("results-echo").textContent =
       "For " + catchText + ".";
 
-    document.getElementById("btn-share-result").hidden = !hasPrediction;
-    lastShare = hasPrediction ? {
+    lastShare = {
       title: "ForeverCatch PFAS estimate",
-      text: "ForeverCatch model estimate: about " + formatPPB(result.exactPPB) + " ppb total PFAS for " + catchText +
-        ". This is a research-model estimate, not a lab measurement or health advisory.",
-    } : null;
+      text: "ForeverCatch model estimates for " + catchText + ": " +
+        (hasPrediction ? "central " + formatPPB(result.exactPPB) + " ppb, " : "") +
+        "upper " + formatPPB(q95) + " ppb (95% model) and " + formatPPB(q99) + " ppb (99% model) total PFAS. " +
+        "Model estimates, not lab measurements or health advice.",
+    };
 
     resultsSection.classList.add("visible");
     resultsSection.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
@@ -1667,6 +1654,11 @@
     clearErrors();
     updateLengthHint();
     setLocStatus("Example loaded. Press Estimate PFAS.");
+  });
+
+  document.getElementById("hero-example").addEventListener("click", function () {
+    document.getElementById("btn-example").click();
+    document.getElementById("predict").scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   });
 
   document.getElementById("btn-check-another").addEventListener("click", function () {
