@@ -2370,3 +2370,5 @@ form#pfas-form { gap: 0; }
 .step-card .step-grid,
 .step-card .choice-group { margin-top: 0; }
 .field { gap: 8px; }
+
+.choice-body svg { width: 36px; height: 36px; }
