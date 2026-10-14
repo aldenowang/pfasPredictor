@@ -2343,3 +2343,24 @@ form#pfas-form { gap: 0; }
   color: var(--color-warning-text);
   font-size: 0.9rem;
 }
+
+/* Behind ForeverCatch: short intro on top, photos across the full width */
+.author { grid-template-columns: 1fr; gap: 22px; }
+
+.author-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.author-body .section-title { flex-basis: 100%; margin-bottom: 0; }
+.author-text { margin: 0; max-width: none; }
+.author-photos { gap: 16px; }
+.author-photos img { aspect-ratio: 4 / 3; }
+
+@media (max-width: 560px) {
+  .author-photos { grid-template-columns: 1fr; }
+  .author-body .btn { width: 100%; }
+}
