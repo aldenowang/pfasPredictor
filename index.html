@@ -55,6 +55,7 @@
     </a>
     <nav class="nav-links" aria-label="Site sections">
       <a href="pfas.html">Why PFAS Matters</a>
+      <a href="pfos.html">PFOS Guidelines</a>
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
@@ -164,7 +165,12 @@
           </div>
           <div class="loc-map-wrap" id="loc-map-wrap">
             <div id="loc-map" role="application" aria-label="Map: click to choose the catch location"></div>
-            <div class="map-hint" aria-hidden="true">Click the map to drop a pin</div>
+            <div class="map-hint" id="map-hint" aria-hidden="true">Click the map to drop a pin</div>
+            <div class="map-layers" role="group" aria-label="Map style">
+              <button type="button" data-layer="topo" aria-pressed="true">Map</button>
+              <button type="button" data-layer="satellite" aria-pressed="false">Satellite</button>
+            </div>
+            <div class="map-gesture" id="map-gesture" aria-hidden="true"></div>
           </div>
           </div>
         </fieldset>
@@ -373,7 +379,7 @@
             </p>
             <p>
               <strong>Total PFAS, not PFOS:</strong> all three are total PFAS. Many official advisories use
-              lab-measured PFOS alone, so these numbers can&rsquo;t be read against PFOS limits.
+              lab-measured PFOS alone, so these numbers can&rsquo;t be read against <a href="pfos.html">PFOS limits</a>.
             </p>
             <p><a href="methodology.html">Full methodology</a> &middot; <a href="limitations.html">Limitations</a></p>
           </div>
@@ -406,13 +412,16 @@
 <!-- ==========================================================
      ABOUT THE AUTHOR
      ========================================================== -->
-<section id="author">
+<section id="author" aria-labelledby="author-title">
   <div class="container">
-    <h2 class="section-title">About the Author</h2>
     <div class="author">
-      <div>
-        <p class="author-text">I'm Alden Wang, a high school senior with a lifelong passion for fishing.</p>
-        <a class="author-more" href="why.html">Why I built this</a>
+      <div class="author-body">
+        <h2 class="section-title" id="author-title">Behind ForeverCatch</h2>
+        <p class="author-text">
+          I&rsquo;m Alden Wang, a high school senior with a lifelong passion for fishing. When my family
+          stopped eating the fish I caught because of PFAS, I built this tool to understand the risk for myself.
+        </p>
+        <a class="btn btn-secondary" href="why.html">Read why I built it</a>
       </div>
       <div class="author-photos">
         <img src="images/author-halibut.jpg" alt="Alden holding a halibut by the water" width="1000" height="753" loading="lazy">
@@ -443,6 +452,7 @@
     <nav class="footer-links" aria-label="More pages">
       <a href="index.html">Home</a>
       <a href="pfas.html">Why PFAS Matters</a>
+      <a href="pfos.html">PFOS Guidelines</a>
       <a href="about.html">About</a>
       <a href="methodology.html">Methodology</a>
       <a href="limitations.html">Limitations</a>
@@ -1276,6 +1286,8 @@
     setLocStatus("");
     searchInput.value = "";
     placeName = "";
+    searchedAt = null;
+    nameSeq++;
     closeResults();
     closeSpeciesList();
     speciesInput.value = "";
@@ -1292,6 +1304,53 @@
   let map = null;
   let marker = null;
   let PIN_ICON = null;
+  let searchedAt = null; // where the last searched place was pinned
+  let nameSeq = 0;
+  const IS_TOUCH = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  const mapHint = document.getElementById("map-hint");
+  const mapGesture = document.getElementById("map-gesture");
+  let hintTimer = null;
+  let gestureTimer = null;
+
+  // Briefly shows a tip at the bottom of the map. With no duration it stays until a pin is dropped.
+  function showMapHint(text, ms) {
+    mapHint.textContent = text;
+    mapWrap.classList.add("hint-on");
+    clearTimeout(hintTimer);
+    if (ms) hintTimer = setTimeout(function () { mapWrap.classList.remove("hint-on"); }, ms);
+  }
+
+  function showGesture(text) {
+    mapGesture.textContent = text;
+    mapWrap.classList.add("gesture-on");
+    clearTimeout(gestureTimer);
+    gestureTimer = setTimeout(function () { mapWrap.classList.remove("gesture-on"); }, 1400);
+  }
+
+  // Names a dropped pin. Near the last searched place it keeps that name;
+  // otherwise it looks up the nearest town (Esri reverse geocoding).
+  async function nameDroppedPin(lat, lon) {
+    const seq = ++nameSeq;
+    if (searchedAt && placeName && haversineMiles(lat, lon, searchedAt.lat, searchedAt.lon) <= 15) {
+      updateSpot();
+      return;
+    }
+    placeName = "";
+    updateSpot();
+    try {
+      const data = await getJSON(ESRI + "/reverseGeocode?f=json&featureTypes=Locality,PointAddress,StreetAddress&location=" +
+        encodeURIComponent(lon + "," + lat), 5000);
+      const a = data && data.address;
+      if (seq !== nameSeq || !a) return;
+      const town = a.City || a.Neighborhood || a.Subregion || "";
+      const region = a.RegionAbbr || a.Region || "";
+      if (town) {
+        placeName = town + (region ? ", " + region : "");
+        searchedAt = null;
+        updateSpot();
+      }
+    } catch (e) { /* the pin still works without a name */ }
+  }
 
   function setLocStatus(text, isError) {
     locStatus.textContent = text;
@@ -1312,7 +1371,15 @@
   function placeMarker(lat, lon, zoom) {
     if (!map) return;
     if (marker) marker.setLatLng([lat, lon]);
-    else marker = window.L.marker([lat, lon], { icon: PIN_ICON, keyboard: false }).addTo(map);
+    else {
+      marker = window.L.marker([lat, lon], { icon: PIN_ICON, keyboard: false, draggable: true, autoPan: true }).addTo(map);
+      marker.on("dragend", function () {
+        const p = marker.getLatLng();
+        setLocation(p.lat, p.lng, false);
+        nameDroppedPin(p.lat, p.lng);
+      });
+    }
+    if (!mapWrap.classList.contains("has-pin")) showMapHint(IS_TOUCH ? "Drag the pin or tap to move it" : "Drag the pin or click to move it", 3500);
     mapWrap.classList.add("has-pin");
     if (zoom) map.setView([lat, lon], zoom);
     else if (zoom !== false && !map.getBounds().contains([lat, lon])) map.panTo([lat, lon]); // false = leave the view alone
@@ -1336,18 +1403,64 @@
       iconSize: [32, 44],
       iconAnchor: [16, 43],
     });
-    map = window.L.map("loc-map", { scrollWheelZoom: false, zoomControl: false }).setView([39.5, -98.35], 4);
+    // On phones one finger scrolls the page and two fingers move or zoom the map.
+    map = window.L.map("loc-map", { scrollWheelZoom: false, zoomControl: false, dragging: !IS_TOUCH, tap: true })
+      .setView([39.5, -98.35], 4);
     window.L.control.zoom({ position: "topright" }).addTo(map);
-    window.L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 19,
-      attribution: "Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS",
-    }).addTo(map);
+
+    const ESRI_TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+    const layers = {
+      topo: window.L.tileLayer(ESRI_TILES + "World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 19,
+        attribution: "Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS",
+      }),
+      satellite: window.L.layerGroup([
+        window.L.tileLayer(ESRI_TILES + "World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          maxZoom: 19,
+          attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics",
+        }),
+        window.L.tileLayer(ESRI_TILES + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }),
+      ]),
+    };
+    let currentLayer = layers.topo.addTo(map);
+    mapWrap.querySelectorAll(".map-layers button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const next = layers[btn.dataset.layer];
+        if (next === currentLayer) return;
+        map.removeLayer(currentLayer);
+        currentLayer = next.addTo(map);
+        mapWrap.querySelectorAll(".map-layers button").forEach(function (b) {
+          b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+        });
+      });
+    });
+
     map.on("click", function (e) {
       setLocation(e.latlng.lat, e.latlng.lng);
       setLocStatus("");
+      nameDroppedPin(e.latlng.lat, e.latlng.lng);
     });
-    map.on("focus", function () { map.scrollWheelZoom.enable(); });
-    map.on("blur", function () { map.scrollWheelZoom.disable(); });
+
+    // Desktop: plain scrolling scrolls the page; Ctrl/Cmd + scroll zooms the map.
+    const mapEl = document.getElementById("loc-map");
+    mapEl.addEventListener("wheel", function (e) {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const point = map.mouseEventToContainerPoint(e);
+        map.setZoomAround(point, map.getZoom() + (e.deltaY < 0 ? 1 : -1));
+      } else {
+        showGesture(/Mac|iPhone|iPad/.test(navigator.platform) ? "Use \u2318 + scroll to zoom the map" : "Use Ctrl + scroll to zoom the map");
+      }
+    }, { passive: false });
+
+    if (IS_TOUCH) {
+      mapEl.addEventListener("touchmove", function (e) {
+        if (e.touches.length === 1) showGesture("Use two fingers to move the map");
+      }, { passive: true });
+      showMapHint("Tap the map to drop a pin");
+    } else {
+      showMapHint("Click the map to drop a pin");
+    }
 
     const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
     if (!isNaN(lat) && !isNaN(lon)) placeMarker(lat, lon, 9);
@@ -1536,6 +1649,8 @@
       setLocation(place.lat, place.lon, place.isWater ? 11 : 12);
     }
     placeName = place.name;
+    searchedAt = { lat: place.lat, lon: place.lon };
+    nameSeq++; // ignore any pending pin-name lookup
     updateSpot();
     const water = guessWaterType(place);
     if (water) setWater(water);
@@ -1618,8 +1733,12 @@
     el.addEventListener("change", function () {
       const lat = parseFloat(fields.lat.value), lon = parseFloat(fields.lon.value);
       placeName = "";
+      searchedAt = null;
       updateSpot();
-      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) placeMarker(lat, lon, 9);
+      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        placeMarker(lat, lon, 9);
+        nameDroppedPin(lat, lon);
+      }
     });
   });
 
@@ -1632,8 +1751,10 @@
     navigator.geolocation.getCurrentPosition(
       function (pos) {
         placeName = "";
+        searchedAt = null;
         searchInput.value = "";
         setLocation(pos.coords.latitude, pos.coords.longitude, 11);
+        nameDroppedPin(pos.coords.latitude, pos.coords.longitude);
         setLocStatus("");
       },
       function () {
@@ -1645,6 +1766,8 @@
 
   document.getElementById("btn-example").addEventListener("click", function () {
     placeName = "Lake Tahoe";
+    searchedAt = { lat: 39.0968, lon: -120.0324 };
+    nameSeq++;
     setLocation(39.0968, -120.0324, 9);
     setSpecies("rainbow trout");
     fields.length.value = "17.5";
@@ -1707,7 +1830,11 @@
       fields.length.value = saved.length || "";
       if (saved.unit === "cm") setLengthUnit("cm");
       if (["L", "R", "GL"].includes(saved.water)) setWater(saved.water);
-      if (saved.place && fields.lat.value) { placeName = saved.place; searchInput.value = saved.place; }
+      if (saved.place && fields.lat.value) {
+        placeName = saved.place;
+        searchInput.value = saved.place;
+        searchedAt = { lat: parseFloat(saved.lat), lon: parseFloat(saved.lon) };
+      }
       updateLengthHint();
       updateSpot();
       if (fields.lat.value) setLocStatus("Your last catch is filled in.");
