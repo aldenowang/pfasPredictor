@@ -2364,3 +2364,9 @@ form#pfas-form { gap: 0; }
   .author-photos { grid-template-columns: 1fr; }
   .author-body .btn { width: 100%; }
 }
+
+/* breathing room between step headings / labels and their inputs */
+.step-head { padding-bottom: 14px; }
+.step-card .step-grid,
+.step-card .choice-group { margin-top: 0; }
+.field { gap: 8px; }
